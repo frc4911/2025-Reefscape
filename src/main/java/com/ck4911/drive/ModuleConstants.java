@@ -16,4 +16,4 @@ public record ModuleConstants(
     int driveMotorId,
     int turnMotorId,
     double encoderOffset,
-    boolean turnMotorInverted)
+    boolean turnMotorInverted) {}
