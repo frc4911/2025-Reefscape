@@ -10,7 +10,9 @@ package com.ck4911.robot;
 import com.ck4911.auto.AutoModule;
 import com.ck4911.commands.CommandsModule;
 import com.ck4911.control.ControlModule;
+import com.ck4911.drive.DriveModule;
 import com.ck4911.leds.LedModule;
+import com.ck4911.vision.VisionModule;
 import dagger.Component;
 import javax.inject.Singleton;
 
@@ -19,8 +21,10 @@ import javax.inject.Singleton;
       AutoModule.class,
       ControlModule.class,
       CommandsModule.class,
+      DriveModule.class,
       LedModule.class,
       RobotModule.class,
+      VisionModule.class,
     })
 @Singleton
 public interface RobotComponent {

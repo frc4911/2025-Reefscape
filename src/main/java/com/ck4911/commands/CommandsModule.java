@@ -8,18 +8,13 @@
 package com.ck4911.commands;
 
 import dagger.Module;
-import dagger.Provides;
-import dagger.multibindings.ElementsIntoSet;
-import java.util.Collections;
+import dagger.multibindings.Multibinds;
 import java.util.Set;
 
 @Module
 public interface CommandsModule {
 
   // Ensure the set is always there
-  @Provides
-  @ElementsIntoSet
-  public static Set<VirtualSubsystem> providesEmpty() {
-    return Collections.emptySet();
-  }
+  @Multibinds
+  public abstract Set<VirtualSubsystem> providesEmptySet();
 }
