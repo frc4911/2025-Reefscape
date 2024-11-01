@@ -6,8 +6,11 @@ spotless = "6.25.0"
 mockito = "5.14.2"
 jupiter = "5.11.3"
 jama = "1.0.3"
+record-builder = "41"
 
 [libraries]
+record-builder-core = { group = "io.soabase.record-builder", name = "record-builder-core", version.ref = "record-builder" }
+record-builder-processor = { group = "io.soabase.record-builder", name = "record-builder-processor", version.ref = "record-builder" }
 dagger = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" }
 dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }
 mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
