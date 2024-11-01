@@ -143,8 +143,8 @@ project.compileJava.dependsOn(spotlessApply)
 spotless {
     java {
         target fileTree(".") {
-            include "**/*.java"
-            exclude "**/build/**", "**/build-*/**", "src/main/java/com/ck4911/BuildConstants.java"
+            include "src/main/java/**/*.java"
+            exclude ".gradle/**", "**/build/**", "**/build-*/**", "src/main/java/com/ck4911/BuildConstants.java"
         }
         toggleOffOn()
         googleJavaFormat()
