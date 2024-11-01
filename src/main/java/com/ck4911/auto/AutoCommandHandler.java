@@ -7,8 +7,8 @@
 
 package com.ck4911.auto;
 
-import choreo.Choreo;
 import choreo.trajectory.ChoreoTrajectory;
+import choreo.Choreo;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.util.LocalADStarAK;
 import com.pathplanner.lib.pathfinding.Pathfinding;
