@@ -7,8 +7,8 @@
 
 package com.ck4911.auto;
 
-import com.choreo.lib.Choreo;
-import com.choreo.lib.ChoreoTrajectory;
+import choreo.Choreo;
+import choreo.trajectory.ChoreoTrajectory;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.util.LocalADStarAK;
 import com.pathplanner.lib.pathfinding.Pathfinding;
@@ -72,7 +72,12 @@ public final class AutoCommandHandler implements VirtualSubsystem {
   }
 
   private void setupChoreoAutos() {
-    ChoreoTrajectory traj = Choreo.getTrajectory("Trajectory");
+    var trajectory = Choreo.loadTrajectory("TestTrajectory");
+    if (trajectory.isPresent()) {
+        // TODO: pass to drive subsystem
+    } else {
+        // TODO: Alert maybe
+    }
   }
 
   public void startCurrentCommand() {
