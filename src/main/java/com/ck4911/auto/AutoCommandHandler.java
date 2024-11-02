@@ -7,14 +7,18 @@
 
 package com.ck4911.auto;
 
-import choreo.trajectory.ChoreoTrajectory;
 import choreo.Choreo;
+import choreo.auto.AutoFactory;
+import choreo.trajectory.SwerveSample;
 import com.ck4911.commands.VirtualSubsystem;
+import com.ck4911.drive.Drive;
 import com.ck4911.util.LocalADStarAK;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -26,12 +30,15 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 @Singleton
 public final class AutoCommandHandler implements VirtualSubsystem {
   private final LoggedDashboardChooser<Command> chooser;
+  private final Drive drive;
   private double autoStart;
   private boolean autoMessagePrinted;
   private Command currentAutoCommand;
 
   @Inject
-  public AutoCommandHandler() {
+  public AutoCommandHandler(Drive drive, AutoConstants autoConstants) {
+    this.drive = drive;
+
     chooser = new LoggedDashboardChooser<Command>("Auto Routine");
 
     // TODO: Configure AutoBuilder and drive subsystem for PathPlanner
@@ -48,6 +55,7 @@ public final class AutoCommandHandler implements VirtualSubsystem {
         });
 
     setupAutos();
+    setupChoreoAutos(autoConstants);
   }
 
   @Override
@@ -71,13 +79,28 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     chooser.addDefaultOption("Nothing", Commands.none());
   }
 
-  private void setupChoreoAutos() {
-    var trajectory = Choreo.loadTrajectory("TestTrajectory");
-    if (trajectory.isPresent()) {
-        // TODO: pass to drive subsystem
-    } else {
-        // TODO: Alert maybe
-    }
+  private void setupChoreoAutos(AutoConstants autoConstants) {
+    var xController = new PIDController(autoConstants.xkD(), 0, autoConstants.xkP());
+    var yController = new PIDController(autoConstants.ykD(), 0, autoConstants.ykP());
+    var thetaController = new PIDController(autoConstants.thetakD(), 0, autoConstants.thetakP());
+    thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
+    Choreo.<SwerveSample>createAutoFactory(
+        drive,
+        drive::getPose,
+        (pose, sample) -> {
+          var targetSpeeds = sample.getChassisSpeeds();
+          targetSpeeds.vxMetersPerSecond += xController.calculate(pose.getX(), sample.x);
+          targetSpeeds.vyMetersPerSecond += yController.calculate(pose.getY(), sample.y);
+          targetSpeeds.omegaRadiansPerSecond +=
+              thetaController.calculate(pose.getRotation().getRadians(), sample.heading);
+          drive.runVelocity(targetSpeeds);
+        },
+        () ->
+            DriverStation.getAlliance().isPresent()
+                && DriverStation.getAlliance().get() == Alliance.Red,
+        new AutoFactory.AutoBindings(),
+        (trajectory, starting) -> {});
   }
 
   public void startCurrentCommand() {
