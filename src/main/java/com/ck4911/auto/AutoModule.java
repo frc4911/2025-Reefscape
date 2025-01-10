@@ -7,12 +7,16 @@
 
 package com.ck4911.auto;
 
+import choreo.auto.AutoFactory;
 import com.ck4911.Constants.Mode;
 import com.ck4911.commands.VirtualSubsystem;
+import com.ck4911.drive.Drive;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoSet;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 @Module
 public interface AutoModule {
@@ -24,4 +28,15 @@ public interface AutoModule {
   @Binds
   @IntoSet
   public VirtualSubsystem bindsAutoCommandHandler(AutoCommandHandler autoCommandHandler);
+
+  @Provides
+  public static AutoFactory provideAutoFactory(TrajectoryFollower trajectoryFollower, Drive drive) {
+    return new AutoFactory(
+        drive::getPose, // A function that returns the current robot pose
+        drive::setPose, // A function that resets the current robot pose to the provided Pose2d
+        trajectoryFollower::follow, // The drive subsystem trajectory follower
+        DriverStation.getAlliance().isPresent()
+            && DriverStation.getAlliance().get() == Alliance.Red,
+        drive);
+  }
 }
