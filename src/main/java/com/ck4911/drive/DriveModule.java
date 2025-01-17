@@ -11,11 +11,13 @@ import com.ck4911.vision.VisionConsumer;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
+import javax.inject.Singleton;
 
 @Module
 public interface DriveModule {
 
   @Provides
+  @Singleton
   public static Drive providesDrive() {
     return TunerConstants.createDrivetrain();
   }

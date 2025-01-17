@@ -35,7 +35,8 @@ public interface AutoModule {
         () -> drive.getState().Pose,
         drive::resetPose,
         trajectoryFollower::follow,
-        DriverStation.getAlliance().isPresent() && DriverStation.getAlliance().get() == Alliance.Red,
+        DriverStation.getAlliance().isPresent()
+            && DriverStation.getAlliance().get() == Alliance.Red,
         drive);
   }
 }
