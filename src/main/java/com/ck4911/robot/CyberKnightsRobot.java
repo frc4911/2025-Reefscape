@@ -7,6 +7,7 @@
 
 package com.ck4911.robot;
 
+import au.grapplerobotics.CanBridge;
 import com.ck4911.BuildConstants;
 import com.ck4911.Constants.Mode;
 import com.ck4911.commands.VirtualSubsystem;
@@ -92,6 +93,7 @@ public class CyberKnightsRobot extends LoggedRobot {
       Mode robotMode,
       Provider<RobotContainer> containerProvider) {
     super();
+    CanBridge.runTCP();
     this.scheduler = scheduler;
     this.virtualSubsystems = virtualSubsystems;
     this.robotName = robotName;
