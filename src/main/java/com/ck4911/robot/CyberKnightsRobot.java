@@ -13,6 +13,8 @@ import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.util.Alert;
 import com.ck4911.util.Alert.AlertType;
 import com.ctre.phoenix6.CANBus;
+
+import choreo.auto.AutoFactory;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Threads;
@@ -81,6 +83,8 @@ public class CyberKnightsRobot extends LoggedRobot {
   private final boolean tuningMode;
   private final CANBus canivore;
   private final Provider<RobotContainer> containerProvider;
+  private final AutoFactory autoFactory;
+
 
   @Inject
   public CyberKnightsRobot(
@@ -99,6 +103,13 @@ public class CyberKnightsRobot extends LoggedRobot {
     this.robotMode = robotMode;
     this.canivore = canivore;
     this.containerProvider = containerProvider;
+    autoFactory = new AutoFactory(
+            driveSubsystem::getPose, // A function that returns the current robot pose
+            driveSubsystem::resetOdometry, // A function that resets the current robot pose to the provided Pose2d
+            driveSubsystem::followTrajectory, // The drive subsystem trajectory follower 
+            true, // If alliance flipping should be enabled 
+            driveSubsystem, // The drive subsystem
+    );
   }
 
   /**
