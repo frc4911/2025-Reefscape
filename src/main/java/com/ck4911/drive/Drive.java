@@ -10,6 +10,7 @@ package com.ck4911.drive;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
+import choreo.trajectory.SwerveSample;
 import com.ck4911.drive.TunerConstants.TunerSwerveDrivetrain;
 import com.ck4911.vision.VisionConsumer;
 import com.ctre.phoenix6.SignalLogger;
@@ -18,8 +19,10 @@ import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -55,6 +58,9 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem, VisionCon
       new SwerveRequest.SysIdSwerveSteerGains();
   private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization =
       new SwerveRequest.SysIdSwerveRotation();
+  private final PIDController xController = new PIDController(10.0, 0.0, 0.0);
+  private final PIDController yController = new PIDController(10.0, 0.0, 0.0);
+  private final PIDController headingController = new PIDController(7.5, 0.0, 0.0);
 
   /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
   private final SysIdRoutine m_sysIdRoutineTranslation =
@@ -123,6 +129,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem, VisionCon
     if (Utils.isSimulation()) {
       startSimThread();
     }
+    headingController.enableContinuousInput(-Math.PI, Math.PI);
   }
 
   /**
@@ -200,5 +207,21 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem, VisionCon
   @Override
   public void accept(double timestamp, Pose2d pose, Matrix<N3, N1> stdDevs) {
     super.addVisionMeasurement(pose, timestamp, stdDevs);
+  }
+
+  public void followTrajectory(SwerveSample sample) {
+    // Get the current pose of the robot
+    Pose2d pose = getState().Pose;
+
+    // Generate the next speeds for the robot
+    ChassisSpeeds speeds =
+        new ChassisSpeeds(
+            sample.vx + xController.calculate(pose.getX(), sample.x),
+            sample.vy + yController.calculate(pose.getY(), sample.y),
+            sample.omega
+                + headingController.calculate(pose.getRotation().getRadians(), sample.heading));
+
+    // Apply the generated speeds
+    // driveFieldRelative(speeds);
   }
 }

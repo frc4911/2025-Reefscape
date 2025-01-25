@@ -42,8 +42,8 @@ public interface RobotModule {
 
   @Provides
   @Singleton
-  public static @Named("canivore") CANBus providesCanivoreBus() {
-    return new CANBus("canivore");
+  public static @Named("Bob") CANBus providesCanivoreBus() {
+    return new CANBus("Bob");
   }
 
   @Provides
