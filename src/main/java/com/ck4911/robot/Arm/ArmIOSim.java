@@ -1,6 +1,7 @@
 package com.ck4911.robot.Arm;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public final class ArmIOSim implements ArmIO {
@@ -11,7 +12,7 @@ public final class ArmIOSim implements ArmIO {
 
     public ArmIOSIm(ArmConstants constants) {
         //TODO: determine these thingies
-        sim = new DCMotorSim(null, null, null);
+        sim = new DCMotorSim(DCMotor.getKrakenX60(1), constants.armGearRatio(), null);
         pid = new PIDController(0.0, 0.0, 0.0);
     }
 
