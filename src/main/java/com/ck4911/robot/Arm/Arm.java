@@ -1,26 +1,25 @@
-package com.ck4911.robot.Arm;
+// Copyright (c) 2024 FRC 4911
+// https://github.com/frc4911
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
 
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+package com.ck4911.robot.arm;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
-public class Arm extends SubsystemBase {
-    
-    private final ArmIO armIO;
-    private final ArmIOInputsAutoLogged inputs = new ArmIOInputsAutoLogged();
+@Singleton
+public final class Arm extends SubsystemBase {
 
-    public Arm(ArmConstants constants, ArmIO armIO) {
-        super();
-        this.armIO = armIO;
-        armKp.initDefault(constants.armFeedBackValues().kP());
-        armKd.initDefault(constants.armFeedBackValues().kD());
-        armTime.initDefault(constants.armTime());
-        forwardLimit.initDefault(constants.armForwardLimit());
-        backwardLimit.initDefault(constants.armBackwardLimit());
+  private final ArmIo armIo;
+  private final ArmIoInputsAutoLogged inputs = new ArmIoInputsAutoLogged();
 
-        feedforward = new SimpleMotorFeedforward(armKs.get(), armKv.get());
-        armIO.configureAimerPID(armKp.get(), 0.0, armKd.get());
-
-        
-    }
+  @Inject
+  public Arm(ArmConstants constants, ArmIo armIo) {
+    super();
+    this.armIo = armIo;
+  }
 }
