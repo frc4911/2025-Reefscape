@@ -7,9 +7,17 @@
 
 package com.ck4911.control;
 
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import com.ck4911.commands.VirtualSubsystem;
+import com.ck4911.drive.Drive;
+import com.ck4911.drive.TunerConstants;
 import com.ck4911.util.Alert;
 import com.ck4911.util.Alert.AlertType;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -25,9 +33,26 @@ public final class ControllerBinding implements VirtualSubsystem {
 
   private final CommandXboxController driver;
   private final CommandXboxController operator;
+  private final Drive drive;
+
+  private double MaxSpeed =
+      TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+  private double MaxAngularRate =
+      RotationsPerSecond.of(0.75)
+          .in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+
+  /* Setting up bindings for necessary control of the swerve drive platform */
+  private final SwerveRequest.FieldCentric driveRequest =
+      new SwerveRequest.FieldCentric()
+          .withDeadband(MaxSpeed * 0.1)
+          .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+          .withDriveRequestType(
+              DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 
   @Inject
-  public ControllerBinding() {
+  public ControllerBinding(Drive drive) {
+    this.drive = drive;
+
     driver = new CommandXboxController(0);
     operator = new CommandXboxController(1);
 
@@ -45,7 +70,19 @@ public final class ControllerBinding implements VirtualSubsystem {
   }
 
   private void setupControls() {
-    // TODO: inject drive subsystem and set default command
+    drive.setDefaultCommand(
+        // Drivetrain will execute this command periodically
+        drive.applyRequest(
+            () ->
+                driveRequest
+                    .withVelocityX(
+                        -driver.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(
+                        -driver.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                    .withRotationalRate(
+                        -driver.getRightX()
+                            * MaxAngularRate) // Drive counterclockwise with negative X (left)
+            ));
   }
 
   public void setDriverRumble(boolean enabled) {

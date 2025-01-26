@@ -32,9 +32,9 @@ public interface AutoModule {
   @Provides
   public static AutoFactory provideAutoFactory(TrajectoryFollower trajectoryFollower, Drive drive) {
     return new AutoFactory(
-        drive::getPose, // A function that returns the current robot pose
-        drive::setPose, // A function that resets the current robot pose to the provided Pose2d
-        trajectoryFollower::follow, // The drive subsystem trajectory follower
+        () -> drive.getState().Pose,
+        drive::resetPose,
+        trajectoryFollower::follow,
         DriverStation.getAlliance().isPresent()
             && DriverStation.getAlliance().get() == Alliance.Red,
         drive);
