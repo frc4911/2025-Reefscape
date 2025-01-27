@@ -5,6 +5,13 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package com.ck4911.robot.elevator;
+package com.ck4911.elevator;
 
-public interface ElevatorIo {}
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
+public final class ElevatorIoReal implements ElevatorIo {
+  @Inject
+  ElevatorIoReal() {}
+}

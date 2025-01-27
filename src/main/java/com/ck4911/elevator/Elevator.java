@@ -5,21 +5,15 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package com.ck4911.robot.arm;
+package com.ck4911.elevator;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public final class Arm extends SubsystemBase {
-
-  private final ArmIo armIo;
-  private final ArmIoInputsAutoLogged inputs = new ArmIoInputsAutoLogged();
+public final class Elevator extends SubsystemBase {
 
   @Inject
-  public Arm(ArmConstants constants, ArmIo armIo) {
-    super();
-    this.armIo = armIo;
-  }
+  public Elevator() {}
 }

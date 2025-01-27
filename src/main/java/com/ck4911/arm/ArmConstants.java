@@ -5,7 +5,7 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package com.ck4911.robot.arm;
+package com.ck4911.arm;
 
 import com.ck4911.util.FeedForwardValues;
 import com.ck4911.util.PidValues;

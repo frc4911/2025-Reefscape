@@ -5,11 +5,11 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package com.ck4911.robot.arm;
+package com.ck4911.arm;
 
-public final class ArmIoReal implements ArmIo {
+public final class ArmIoSim implements ArmIo {
 
-  public ArmIoReal(ArmConstants constants) {}
+  public ArmIoSim(ArmConstants constants) {}
 
   @Override
   public void stop() {}
