@@ -10,11 +10,14 @@ package com.ck4911.auto;
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import com.ck4911.commands.VirtualSubsystem;
+import com.ck4911.drive.Drive;
+import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -22,13 +25,15 @@ import javax.inject.Singleton;
 public final class AutoCommandHandler implements VirtualSubsystem {
   private final AutoChooser autoChooser;
   private final AutoFactory autoFactory;
+  private final Drive drive;
   private double autoStart;
   private boolean autoMessagePrinted;
   private Command currentAutoCommand;
 
   @Inject
-  public AutoCommandHandler(AutoFactory autoFactory, AutoChooser autoChooser) {
+  public AutoCommandHandler(AutoFactory autoFactory, Drive drive, AutoChooser autoChooser) {
     this.autoChooser = autoChooser;
+    this.drive = drive;
     this.autoFactory = autoFactory;
 
     setupAutos();
@@ -53,9 +58,16 @@ public final class AutoCommandHandler implements VirtualSubsystem {
 
   private void setupAutos() {
     autoChooser.addCmd("test", () -> Commands.print("hi"));
-    autoChooser.addRoutine("1m", () -> autoFactory.newRoutine("1m"));
+    autoChooser.addCmd("1m", () -> autoFactory.trajectoryCmd("1m"));
+    autoChooser.addCmd("SysID", () -> runSysID());
 
     SmartDashboard.putData("Autos", autoChooser);
+  }
+
+  private Command runSysID() {
+    return Commands.runOnce(SignalLogger::start)
+        .andThen(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward))
+        .finallyDo(SignalLogger::stop);
   }
 
   public void startCurrentCommand() {

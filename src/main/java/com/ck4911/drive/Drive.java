@@ -184,6 +184,7 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem, VisionCon
                 m_hasAppliedOperatorPerspective = true;
               });
       Logger.recordOutput("SwerveStates/Measured", getState().ModuleStates);
+      Logger.recordOutput("Drive/Pose", getState().Pose);
     }
   }
 
