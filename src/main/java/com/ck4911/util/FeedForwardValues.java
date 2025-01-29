@@ -5,9 +5,6 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package com.ck4911.commands;
+package com.ck4911.util;
 
-public interface VirtualSubsystem {
-  /** This method is called periodically once per loop cycle. */
-  public void periodic();
-}
+public record FeedForwardValues(double s, double v) {}
