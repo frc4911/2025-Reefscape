@@ -11,26 +11,15 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
-<<<<<<< HEAD
 import com.ctre.phoenix6.SignalLogger;
-=======
-import com.ck4911.util.LocalADStarAK;
-import com.ctre.phoenix6.SignalLogger;
-import com.pathplanner.lib.pathfinding.Pathfinding;
-import com.pathplanner.lib.util.PathPlannerLogging;
-import edu.wpi.first.math.geometry.Pose2d;
->>>>>>> main
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-<<<<<<< HEAD
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-=======
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
->>>>>>> main
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -89,7 +78,7 @@ public final class AutoCommandHandler implements VirtualSubsystem {
   private void setupAutos() {
     autoChooser.addCmd("test", () -> Commands.print("hi"));
     autoChooser.addCmd("1m", () -> autoFactory.trajectoryCmd("1m"));
-    autoChooser.addCmd("SysID", () -> runSysID());
+    autoChooser.addCmd("characterization", () -> fullCharacterization());
 
     SmartDashboard.putData("Autos", autoChooser);
   }
