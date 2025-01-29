@@ -54,9 +54,11 @@ public final class ControllerBinding implements VirtualSubsystem {
               DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 
   @Inject
-  public ControllerBinding(Drive drive, AutoCommandHandler autoCommandHandler) {
+  public ControllerBinding(
+      Drive drive, AutoCommandHandler autoCommandHandler, Characterization characterization) {
     this.drive = drive;
     this.autoCommandHandler = autoCommandHandler;
+    this.characterization = characterization;
 
     driver = new CommandXboxController(0);
     operator = new CommandXboxController(1);

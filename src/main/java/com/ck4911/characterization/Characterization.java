@@ -23,10 +23,6 @@ public final class Characterization {
     this.drive = drive;
   }
 
-  /**
-   * Runs full SysId routines for drivetrain. After this is complete, logs can be extracted from
-   * the robot and analyzed to find constants.
-   */
   public Command fullDriveCharacterization(Trigger cancelAction) {
     return Commands.runOnce(SignalLogger::start)
         .andThen(drive.sysIdDynamic(Direction.kForward).until(cancelAction))
@@ -39,4 +35,11 @@ public final class Characterization {
         .finallyDo(SignalLogger::stop);
   }
 
+  public Command fullElevatorCharaterization(Trigger cancelAction) {
+    return Commands.none();
+  }
+
+  public Command fullArmCharaterization(Trigger cancelAction) {
+    return Commands.none();
+  }
 }
