@@ -10,6 +10,7 @@ package com.ck4911.auto;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
 import com.ck4911.util.LocalADStarAK;
+import com.ctre.phoenix6.SignalLogger;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -17,6 +18,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.littletonrobotics.junction.Logger;
@@ -29,6 +32,7 @@ public final class AutoCommandHandler implements VirtualSubsystem {
   private double autoStart;
   private boolean autoMessagePrinted;
   private Command currentAutoCommand;
+  private Trigger cancelAction = new Trigger(() -> false);
 
   @Inject
   public AutoCommandHandler(Drive drive, AutoConstants autoConstants) {
@@ -67,6 +71,22 @@ public final class AutoCommandHandler implements VirtualSubsystem {
         autoMessagePrinted = true;
       }
     }
+  }
+
+  public void setCancelAction(Trigger cancelAction) {
+    this.cancelAction = cancelAction;
+  }
+
+  private Command fullCharacterization() {
+    return Commands.runOnce(SignalLogger::start)
+        .andThen(drive.sysIdDynamic(Direction.kForward).until(cancelAction))
+        .andThen(Commands.waitSeconds(1))
+        .andThen(drive.sysIdDynamic(Direction.kReverse).until(cancelAction))
+        .andThen(Commands.waitSeconds(1))
+        .andThen(drive.sysIdQuasistatic(Direction.kForward).until(cancelAction))
+        .andThen(Commands.waitSeconds(1))
+        .andThen(drive.sysIdQuasistatic(Direction.kReverse).until(cancelAction))
+        .finallyDo(SignalLogger::stop);
   }
 
   private void setupAutos() {
