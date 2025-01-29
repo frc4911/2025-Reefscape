@@ -5,9 +5,13 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package com.ck4911.commands;
+package com.ck4911.elevator;
 
-public interface VirtualSubsystem {
-  /** This method is called periodically once per loop cycle. */
-  public void periodic();
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
+public final class ElevatorIoReal implements ElevatorIo {
+  @Inject
+  ElevatorIoReal() {}
 }

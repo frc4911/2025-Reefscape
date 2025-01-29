@@ -1,4 +1,4 @@
-// Copyright (c) 2024 FRC 4911
+// Copyright (c) 2025 FRC 4911
 // https://github.com/frc4911
 //
 // Use of this source code is governed by an MIT-style
@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import javax.inject.Named;
-import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 /**
  * Class for a tunable number. Gets value from dashboard in tuning mode, returns default if not or
@@ -28,7 +28,7 @@ public final class LoggedTunableNumber implements DoubleSupplier {
   private final String key;
   private boolean hasDefault = false;
   private double defaultValue;
-  private LoggedDashboardNumber dashboardNumber;
+  private LoggedNetworkNumber dashboardNumber;
   private Map<Integer, Double> lastHasChangedValues = new HashMap<>();
   private final boolean tuningMode;
 
@@ -63,7 +63,7 @@ public final class LoggedTunableNumber implements DoubleSupplier {
       hasDefault = true;
       this.defaultValue = defaultValue;
       if (tuningMode) {
-        dashboardNumber = new LoggedDashboardNumber(key, defaultValue);
+        dashboardNumber = new LoggedNetworkNumber(key, defaultValue);
       }
     }
   }
