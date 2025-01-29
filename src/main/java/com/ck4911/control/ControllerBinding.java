@@ -12,20 +12,17 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ck4911.auto.AutoCommandHandler;
+import com.ck4911.characterization.Characterization;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
 import com.ck4911.drive.TunerConstants;
 import com.ck4911.util.Alert;
 import com.ck4911.util.Alert.AlertType;
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -40,6 +37,7 @@ public final class ControllerBinding implements VirtualSubsystem {
   private final CommandXboxController operator;
   private final Drive drive;
   private final AutoCommandHandler autoCommandHandler;
+  private final Characterization characterization;
 
   private double MaxSpeed =
       TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -90,20 +88,8 @@ public final class ControllerBinding implements VirtualSubsystem {
                         -driver.getRightX()
                             * MaxAngularRate) // Drive counterclockwise with negative X (left)
             ));
-    // autoCommandHandler.setCancelAction(driver.x());
-    driver.a().onTrue(fullCharacterization());
-  }
 
-  private Command fullCharacterization() {
-    return Commands.runOnce(SignalLogger::start)
-        .andThen(drive.sysIdDynamic(Direction.kForward).until(driver.x()))
-        .andThen(Commands.waitSeconds(1))
-        .andThen(drive.sysIdDynamic(Direction.kReverse).until(driver.x()))
-        .andThen(Commands.waitSeconds(1))
-        .andThen(drive.sysIdQuasistatic(Direction.kForward).until(driver.x()))
-        .andThen(Commands.waitSeconds(1))
-        .andThen(drive.sysIdQuasistatic(Direction.kReverse).until(driver.x()))
-        .finallyDo(SignalLogger::stop);
+    driver.a().onTrue(characterization.fullDriveCharacterization(driver.x()));
   }
 
   public void setDriverRumble(boolean enabled) {

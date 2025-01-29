@@ -11,15 +11,11 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
-import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -31,7 +27,6 @@ public final class AutoCommandHandler implements VirtualSubsystem {
   private double autoStart;
   private boolean autoMessagePrinted;
   private Command currentAutoCommand;
-  private Trigger cancelAction = new Trigger(() -> false);
 
   @Inject
   public AutoCommandHandler(AutoFactory autoFactory, Drive drive, AutoChooser autoChooser) {
@@ -59,34 +54,11 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     }
   }
 
-  public void setCancelAction(Trigger cancelAction) {
-    this.cancelAction = cancelAction;
-  }
-
-  private Command fullCharacterization() {
-    return Commands.runOnce(SignalLogger::start)
-        .andThen(drive.sysIdDynamic(Direction.kForward).until(cancelAction))
-        .andThen(Commands.waitSeconds(1))
-        .andThen(drive.sysIdDynamic(Direction.kReverse).until(cancelAction))
-        .andThen(Commands.waitSeconds(1))
-        .andThen(drive.sysIdQuasistatic(Direction.kForward).until(cancelAction))
-        .andThen(Commands.waitSeconds(1))
-        .andThen(drive.sysIdQuasistatic(Direction.kReverse).until(cancelAction))
-        .finallyDo(SignalLogger::stop);
-  }
-
   private void setupAutos() {
     autoChooser.addCmd("test", () -> Commands.print("hi"));
     autoChooser.addCmd("1m", () -> autoFactory.trajectoryCmd("1m"));
-    autoChooser.addCmd("characterization", () -> fullCharacterization());
 
     SmartDashboard.putData("Autos", autoChooser);
-  }
-
-  private Command runSysID() {
-    return Commands.runOnce(SignalLogger::start)
-        .andThen(drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward))
-        .finallyDo(SignalLogger::stop);
   }
 
   public void startCurrentCommand() {
