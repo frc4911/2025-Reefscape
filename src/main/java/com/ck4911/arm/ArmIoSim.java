@@ -7,9 +7,14 @@
 
 package com.ck4911.arm;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public final class ArmIoSim implements ArmIo {
 
-  public ArmIoSim(ArmConstants constants) {}
+  @Inject
+  ArmIoSim(ArmConstants constants) {}
 
   @Override
   public void stop() {}

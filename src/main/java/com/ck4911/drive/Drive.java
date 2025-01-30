@@ -10,7 +10,7 @@ package com.ck4911.drive;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
-import choreo.trajectory.SwerveSample;
+import com.ck4911.characterization.Characterizable;
 import com.ck4911.drive.TunerConstants.TunerSwerveDrivetrain;
 import com.ck4911.vision.VisionConsumer;
 import com.ctre.phoenix6.SignalLogger;
@@ -22,7 +22,6 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -39,7 +38,8 @@ import org.littletonrobotics.junction.Logger;
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements Subsystem so it can easily
  * be used in command-based projects.
  */
-public class Drive extends TunerSwerveDrivetrain implements Subsystem, VisionConsumer {
+public class Drive extends TunerSwerveDrivetrain
+    implements Subsystem, VisionConsumer, Characterizable {
   private static final double kSimLoopPeriod = 0.005; // 5 ms
   private Notifier m_simNotifier = null;
   private double m_lastSimTime;
@@ -142,28 +142,6 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem, VisionCon
     return run(() -> this.setControl(requestSupplier.get()));
   }
 
-  /**
-   * Runs the SysId Quasistatic test in the given direction for the routine specified by {@link
-   * #m_sysIdRoutineToApply}.
-   *
-   * @param direction Direction of the SysId Quasistatic test
-   * @return Command to run
-   */
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return m_sysIdRoutineToApply.quasistatic(direction);
-  }
-
-  /**
-   * Runs the SysId Dynamic test in the given direction for the routine specified by {@link
-   * #m_sysIdRoutineToApply}.
-   *
-   * @param direction Direction of the SysId Dynamic test
-   * @return Command to run
-   */
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return m_sysIdRoutineToApply.dynamic(direction);
-  }
-
   @Override
   public void periodic() {
     /*
@@ -210,19 +188,8 @@ public class Drive extends TunerSwerveDrivetrain implements Subsystem, VisionCon
     super.addVisionMeasurement(pose, timestamp, stdDevs);
   }
 
-  public void followTrajectory(SwerveSample sample) {
-    // Get the current pose of the robot
-    Pose2d pose = getState().Pose;
-
-    // Generate the next speeds for the robot
-    ChassisSpeeds speeds =
-        new ChassisSpeeds(
-            sample.vx + xController.calculate(pose.getX(), sample.x),
-            sample.vy + yController.calculate(pose.getY(), sample.y),
-            sample.omega
-                + headingController.calculate(pose.getRotation().getRadians(), sample.heading));
-
-    // Apply the generated speeds
-    // driveFieldRelative(speeds);
+  @Override
+  public SysIdRoutine getSysIdRoutine() {
+    return m_sysIdRoutineToApply;
   }
 }

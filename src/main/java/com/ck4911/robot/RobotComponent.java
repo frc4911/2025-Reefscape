@@ -7,10 +7,12 @@
 
 package com.ck4911.robot;
 
+import com.ck4911.arm.ArmModule;
 import com.ck4911.auto.AutoModule;
 import com.ck4911.commands.CommandsModule;
 import com.ck4911.control.ControlModule;
 import com.ck4911.drive.DriveModule;
+import com.ck4911.elevator.ElevatorModule;
 import com.ck4911.leds.LedModule;
 import com.ck4911.vision.VisionModule;
 import dagger.Component;
@@ -18,10 +20,12 @@ import javax.inject.Singleton;
 
 @Component(
     modules = {
+      ArmModule.class,
       AutoModule.class,
       ControlModule.class,
       CommandsModule.class,
       DriveModule.class,
+      ElevatorModule.class,
       LedModule.class,
       RobotModule.class,
       VisionModule.class,
