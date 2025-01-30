@@ -12,6 +12,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ck4911.auto.AutoCommandHandler;
+import com.ck4911.characterization.Characterization;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
 import com.ck4911.drive.TunerConstants;
@@ -36,6 +37,7 @@ public final class ControllerBinding implements VirtualSubsystem {
   private final CommandXboxController operator;
   private final Drive drive;
   private final AutoCommandHandler autoCommandHandler;
+  private final Characterization characterization;
 
   private double MaxSpeed =
       TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -52,9 +54,11 @@ public final class ControllerBinding implements VirtualSubsystem {
               DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 
   @Inject
-  public ControllerBinding(Drive drive, AutoCommandHandler autoCommandHandler) {
+  public ControllerBinding(
+      Drive drive, AutoCommandHandler autoCommandHandler, Characterization characterization) {
     this.drive = drive;
     this.autoCommandHandler = autoCommandHandler;
+    this.characterization = characterization;
 
     driver = new CommandXboxController(0);
     operator = new CommandXboxController(1);
@@ -86,7 +90,8 @@ public final class ControllerBinding implements VirtualSubsystem {
                         -driver.getRightX()
                             * MaxAngularRate) // Drive counterclockwise with negative X (left)
             ));
-    autoCommandHandler.setCancelAction(driver.x());
+
+    driver.a().onTrue(characterization.fullDriveCharacterization(driver.x()));
   }
 
   public void setDriverRumble(boolean enabled) {

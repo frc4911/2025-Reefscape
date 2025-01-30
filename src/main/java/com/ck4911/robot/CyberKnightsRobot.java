@@ -11,6 +11,7 @@ import au.grapplerobotics.CanBridge;
 import com.ck4911.BuildConstants;
 import com.ck4911.Constants.Mode;
 import com.ck4911.commands.VirtualSubsystem;
+import com.ck4911.drive.*;
 import com.ck4911.util.Alert;
 import com.ck4911.util.Alert.AlertType;
 import com.ctre.phoenix6.CANBus;
@@ -89,7 +90,7 @@ public class CyberKnightsRobot extends LoggedRobot {
       Set<VirtualSubsystem> virtualSubsystems,
       @Named("RobotName") String robotName,
       @Named("TuningMode") boolean tuningMode,
-      @Named("canivore") CANBus canivore,
+      @Named("Bob") CANBus canivore,
       Mode robotMode,
       Provider<RobotContainer> containerProvider) {
     super();

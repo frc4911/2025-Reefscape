@@ -31,10 +31,12 @@ public class RobotContainer {
   }
 
   public void autonomousInit() {
+    System.out.println("AutoOn");
     autoCommandHandler.startCurrentCommand();
   }
 
   public void teleopInit() {
+    System.out.println("Teleop");
     autoCommandHandler.stopCurrentCommand();
   }
 }

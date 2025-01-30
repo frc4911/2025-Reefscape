@@ -12,7 +12,9 @@ import com.ck4911.drive.Drive;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.controller.PIDController;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public final class TrajectoryFollower {
   private final PIDController xController;
   private final PIDController yController;

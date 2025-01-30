@@ -7,6 +7,7 @@
 
 package com.ck4911.auto;
 
+import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import com.ck4911.Constants.Mode;
 import com.ck4911.commands.VirtualSubsystem;
@@ -17,10 +18,12 @@ import dagger.Provides;
 import dagger.multibindings.IntoSet;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import javax.inject.Singleton;
 
 @Module
 public interface AutoModule {
   @Provides
+  @Singleton
   public static AutoConstants provideAutoConstants(Mode mode) {
     return AutoConstantsBuilder.builder().xkD(10.0).ykD(10.0).thetakD(7.0).build();
   }
@@ -30,6 +33,7 @@ public interface AutoModule {
   public VirtualSubsystem bindsAutoCommandHandler(AutoCommandHandler autoCommandHandler);
 
   @Provides
+  @Singleton
   public static AutoFactory provideAutoFactory(TrajectoryFollower trajectoryFollower, Drive drive) {
     return new AutoFactory(
         () -> drive.getState().Pose,
@@ -38,5 +42,11 @@ public interface AutoModule {
         DriverStation.getAlliance().isPresent()
             && DriverStation.getAlliance().get() == Alliance.Red,
         drive);
+  }
+
+  @Provides
+  @Singleton
+  public static AutoChooser provideAutoChooser() {
+    return new AutoChooser();
   }
 }
