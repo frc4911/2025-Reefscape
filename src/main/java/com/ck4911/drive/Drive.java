@@ -20,7 +20,6 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
@@ -42,30 +41,27 @@ import org.littletonrobotics.junction.Logger;
  */
 public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
     implements Subsystem, VisionConsumer, Characterizable {
-  private static final double kSimLoopPeriod = 0.005; // 5 ms
-  private Notifier m_simNotifier = null;
-  private double m_lastSimTime;
-
+  private static final double SIM_LOOP_PERIOD = 0.005; // 5 ms
   /* Blue alliance sees forward as 0 degrees (toward red alliance wall) */
-  private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
+  private static final Rotation2d BLUE_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.kZero;
   /* Red alliance sees forward as 180 degrees (toward blue alliance wall) */
-  private static final Rotation2d kRedAlliancePerspectiveRotation = Rotation2d.k180deg;
+  private static final Rotation2d RED_ALLIANCE_PERSPECTIVE_ROTATION = Rotation2d.k180deg;
+
+  private Notifier simNotifier = null;
+  private double lastSimTime;
   /* Keep track if we've ever applied the operator perspective before or not */
-  private boolean m_hasAppliedOperatorPerspective = false;
+  private boolean hasAppliedOperatorPerspective = false;
 
   /* Swerve requests to apply during SysId characterization */
-  private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization =
+  private final SwerveRequest.SysIdSwerveTranslation translationCharacterization =
       new SwerveRequest.SysIdSwerveTranslation();
-  private final SwerveRequest.SysIdSwerveSteerGains m_steerCharacterization =
+  private final SwerveRequest.SysIdSwerveSteerGains steerCharacterization =
       new SwerveRequest.SysIdSwerveSteerGains();
-  private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization =
+  private final SwerveRequest.SysIdSwerveRotation rotationCharacterization =
       new SwerveRequest.SysIdSwerveRotation();
-  private final PIDController xController = new PIDController(10.0, 0.0, 0.0);
-  private final PIDController yController = new PIDController(10.0, 0.0, 0.0);
-  private final PIDController headingController = new PIDController(7.5, 0.0, 0.0);
 
   /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
-  private final SysIdRoutine m_sysIdRoutineTranslation =
+  private final SysIdRoutine sysIdRoutineTranslation =
       new SysIdRoutine(
           new SysIdRoutine.Config(
               null, // Use default ramp rate (1 V/s)
@@ -74,10 +70,10 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
               // Log state with SignalLogger class
               state -> SignalLogger.writeString("SysIdTranslation_State", state.toString())),
           new SysIdRoutine.Mechanism(
-              output -> setControl(m_translationCharacterization.withVolts(output)), null, this));
+              output -> setControl(translationCharacterization.withVolts(output)), null, this));
 
   /* SysId routine for characterizing steer. This is used to find PID gains for the steer motors. */
-  private final SysIdRoutine m_sysIdRoutineSteer =
+  private final SysIdRoutine sysIdRoutineSteer =
       new SysIdRoutine(
           new SysIdRoutine.Config(
               null, // Use default ramp rate (1 V/s)
@@ -86,14 +82,14 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
               // Log state with SignalLogger class
               state -> SignalLogger.writeString("SysIdSteer_State", state.toString())),
           new SysIdRoutine.Mechanism(
-              volts -> setControl(m_steerCharacterization.withVolts(volts)), null, this));
+              volts -> setControl(steerCharacterization.withVolts(volts)), null, this));
 
   /*
    * SysId routine for characterizing rotation.
    * This is used to find PID gains for the FieldCentricFacingAngle HeadingController.
    * See the documentation of SwerveRequest.SysIdSwerveRotation for info on importing the log to SysId.
    */
-  private final SysIdRoutine m_sysIdRoutineRotation =
+  private final SysIdRoutine sysIdRoutineRotation =
       new SysIdRoutine(
           new SysIdRoutine.Config(
               /* This is in radians per second², but SysId only supports "volts per second" */
@@ -106,7 +102,7 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
           new SysIdRoutine.Mechanism(
               output -> {
                 /* output is actually radians per second, but SysId only supports "volts" */
-                setControl(m_rotationCharacterization.withRotationalRate(output.in(Volts)));
+                setControl(rotationCharacterization.withRotationalRate(output.in(Volts)));
                 /* also log the requested output for SysId */
                 SignalLogger.writeDouble("Rotational_Rate", output.in(Volts));
               },
@@ -114,7 +110,7 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
               this));
 
   /* The SysId routine to test */
-  private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
+  private SysIdRoutine sysIdRoutineToApply = sysIdRoutineTranslation;
 
   @Inject
   Drive() {
@@ -130,7 +126,6 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
     if (Utils.isSimulation()) {
       startSimThread();
     }
-    headingController.enableContinuousInput(-Math.PI, Math.PI);
   }
 
   /**
@@ -143,6 +138,28 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
     return run(() -> this.setControl(requestSupplier.get()));
   }
 
+  /**
+   * Runs the SysId Quasistatic test in the given direction for the routine specified by {@link
+   * #sysIdRoutineToApply}.
+   *
+   * @param direction Direction of the SysId Quasistatic test
+   * @return Command to run
+   */
+  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
+    return sysIdRoutineToApply.quasistatic(direction);
+  }
+
+  /**
+   * Runs the SysId Dynamic test in the given direction for the routine specified by {@link
+   * #sysIdRoutineToApply}.
+   *
+   * @param direction Direction of the SysId Dynamic test
+   * @return Command to run
+   */
+  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
+    return sysIdRoutineToApply.dynamic(direction);
+  }
+
   @Override
   public void periodic() {
     /*
@@ -152,15 +169,15 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
      * Otherwise, only check and apply the operator perspective if the DS is disabled.
      * This ensures driving behavior doesn't change until an explicit disable event occurs during testing.
      */
-    if (!m_hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
+    if (!hasAppliedOperatorPerspective || DriverStation.isDisabled()) {
       DriverStation.getAlliance()
           .ifPresent(
               allianceColor -> {
                 setOperatorPerspectiveForward(
                     allianceColor == Alliance.Red
-                        ? kRedAlliancePerspectiveRotation
-                        : kBlueAlliancePerspectiveRotation);
-                m_hasAppliedOperatorPerspective = true;
+                        ? RED_ALLIANCE_PERSPECTIVE_ROTATION
+                        : BLUE_ALLIANCE_PERSPECTIVE_ROTATION);
+                hasAppliedOperatorPerspective = true;
               });
       Logger.recordOutput("SwerveStates/Measured", getState().ModuleStates);
       Logger.recordOutput("Drive/Pose", getState().Pose);
@@ -168,20 +185,20 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
   }
 
   private void startSimThread() {
-    m_lastSimTime = Utils.getCurrentTimeSeconds();
+    lastSimTime = Utils.getCurrentTimeSeconds();
 
     /* Run simulation at a faster rate so PID gains behave more reasonably */
-    m_simNotifier =
+    simNotifier =
         new Notifier(
             () -> {
               final double currentTime = Utils.getCurrentTimeSeconds();
-              double deltaTime = currentTime - m_lastSimTime;
-              m_lastSimTime = currentTime;
+              double deltaTime = currentTime - lastSimTime;
+              lastSimTime = currentTime;
 
               /* use the measured time delta, get battery voltage from WPILib */
               updateSimState(deltaTime, RobotController.getBatteryVoltage());
             });
-    m_simNotifier.startPeriodic(kSimLoopPeriod);
+    simNotifier.startPeriodic(SIM_LOOP_PERIOD);
   }
 
   @Override
