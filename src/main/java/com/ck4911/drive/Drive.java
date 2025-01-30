@@ -10,8 +10,8 @@ package com.ck4911.drive;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
-import choreo.trajectory.SwerveSample;
 import com.ck4911.characterization.Characterizable;
+import com.ck4911.quest.QuestNav;
 import com.ck4911.vision.VisionConsumer;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
@@ -109,11 +109,10 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
               null,
               this));
 
-  /* The SysId routine to test */
-  private SysIdRoutine sysIdRoutineToApply = sysIdRoutineTranslation;
+  private final QuestNav questNav;
 
   @Inject
-  Drive() {
+  Drive(QuestNav questNav) {
     super(
         TalonFX::new,
         TalonFX::new,
@@ -123,9 +122,11 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
         TunerConstants.FrontRight,
         TunerConstants.BackLeft,
         TunerConstants.BackRight);
+    this.questNav = questNav;
     if (Utils.isSimulation()) {
       startSimThread();
     }
+    questNav.zeroHeading();
   }
 
   /**
@@ -136,28 +137,6 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
    */
   public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
     return run(() -> this.setControl(requestSupplier.get()));
-  }
-
-  /**
-   * Runs the SysId Quasistatic test in the given direction for the routine specified by {@link
-   * #sysIdRoutineToApply}.
-   *
-   * @param direction Direction of the SysId Quasistatic test
-   * @return Command to run
-   */
-  public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return sysIdRoutineToApply.quasistatic(direction);
-  }
-
-  /**
-   * Runs the SysId Dynamic test in the given direction for the routine specified by {@link
-   * #sysIdRoutineToApply}.
-   *
-   * @param direction Direction of the SysId Dynamic test
-   * @return Command to run
-   */
-  public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return sysIdRoutineToApply.dynamic(direction);
   }
 
   @Override
@@ -180,8 +159,16 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
                 hasAppliedOperatorPerspective = true;
               });
       Logger.recordOutput("SwerveStates/Measured", getState().ModuleStates);
-      Logger.recordOutput("Drive/Pose", getState().Pose);
+      Logger.recordOutput("Drive/OdometryPose", getState().Pose);
+      Logger.recordOutput("Drive/QuestPose", questNav.getPose());
+      Logger.recordOutput("Drive/OculusQuaternion", questNav.getQuaternion());
     }
+  }
+
+  @Override
+  public SysIdRoutine getSysIdRoutine() {
+    // The SysId routine to test
+    return sysIdRoutineTranslation;
   }
 
   private void startSimThread() {
@@ -204,10 +191,5 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
   @Override
   public void accept(double timestamp, Pose2d pose, Matrix<N3, N1> stdDevs) {
     super.addVisionMeasurement(pose, timestamp, stdDevs);
-  }
-
-  @Override
-  public SysIdRoutine getSysIdRoutine() {
-    return m_sysIdRoutineToApply;
   }
 }
