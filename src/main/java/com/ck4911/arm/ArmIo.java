@@ -7,6 +7,7 @@
 
 package com.ck4911.arm;
 
+import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ArmIo {
@@ -24,7 +25,7 @@ public interface ArmIo {
   public default void setArmOutput(double percent) {}
 
   /** Run the arm at the specified voltage. */
-  public default void setArmVoltage(double volts) {}
+  public default void runVolts(Voltage voltage) {}
 
   /** Run closed loop to the specified position. */
   public default void setArmPosition(double position, double ffVolts) {}
