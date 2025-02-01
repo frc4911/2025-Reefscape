@@ -11,4 +11,6 @@ import edu.wpi.first.units.measure.Voltage;
 
 public interface ElevatorIo {
   public default void runVolts(Voltage voltage) {}
+
+  public default void moveElevevator(double rotations) {}
 }

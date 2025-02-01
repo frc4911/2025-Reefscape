@@ -27,4 +27,10 @@ public interface ElevatorModule {
         return new ElevatorIo() {};
     }
   }
+
+  @Provides
+  static ElevatorConstants provideElevatorConstants() {
+    // TODO: Fill in the constants
+    return new ElevatorConstants(10, 11);
+  }
 }

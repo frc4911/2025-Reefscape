@@ -7,4 +7,4 @@
 
 package com.ck4911.elevator;
 
-public record ElevatorConstants() {}
+public record ElevatorConstants(int motorId, int motorRightId) {}
