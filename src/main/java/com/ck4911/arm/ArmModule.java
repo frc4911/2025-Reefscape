@@ -30,6 +30,7 @@ public interface ArmModule {
 
   @Provides
   static ArmConstants provideArmConstants() {
-    return new ArmConstants(0, 0, 0, 0, 0, 0, 0, 0, 0, null, null);
+    // TODO: Fill in the constants
+    return new ArmConstants(10, 11, 0, 0, 0, 0, 0, 0, 0, null, null);
   }
 }
