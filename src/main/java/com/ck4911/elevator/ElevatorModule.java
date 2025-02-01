@@ -31,6 +31,6 @@ public interface ElevatorModule {
   @Provides
   static ElevatorConstants provideElevatorConstants() {
     // TODO: Fill in the constants
-    return new ElevatorConstants(10, 11);
+    return new ElevatorConstants(20, 21);
   }
 }
