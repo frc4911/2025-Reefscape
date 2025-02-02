@@ -39,4 +39,8 @@ public final class Elevator extends SubsystemBase implements Characterizable {
   public SysIdRoutine getSysIdRoutine() {
     return sysIdRoutine;
   }
+
+  public void moveElevevator(double rotations) {
+    elevatorIo.moveElevevator(rotations);
+  }
 }

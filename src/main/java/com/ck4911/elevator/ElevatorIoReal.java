@@ -7,8 +7,11 @@
 
 package com.ck4911.elevator;
 
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.Voltage;
@@ -22,10 +25,20 @@ public final class ElevatorIoReal implements ElevatorIo {
   private final VoltageOut voltageRequest;
 
   @Inject
-  ElevatorIoReal() {
-    motorLeft = new TalonFX(0);
-    motorRight = new TalonFX(0);
+  ElevatorIoReal(ElevatorConstants elevatorConstants) {
+    motorLeft = new TalonFX(elevatorConstants.motorLeftId());
+    motorRight = new TalonFX(elevatorConstants.motorRightId());
+    motorRight.setControl(new Follower(elevatorConstants.motorLeftId(), true));
     voltageRequest = new VoltageOut(0.0);
+
+    TalonFXConfiguration fxConfiguration = new TalonFXConfiguration();
+    fxConfiguration.Feedback.RotorToSensorRatio = elevatorConstants.gearRatio();
+    motorLeft.getConfigurator().apply(fxConfiguration);
+  }
+
+  @Override
+  public void moveElevevator(double rotations) {
+    motorLeft.setPosition(Rotations.of(rotations));
   }
 
   @Override

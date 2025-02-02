@@ -7,6 +7,7 @@
 
 package com.ck4911.arm;
 
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -27,17 +28,11 @@ public interface ArmIo {
   /** Run the arm at the specified voltage. */
   public default void runVolts(Voltage voltage) {}
 
-  /** Run closed loop to the specified position. */
-  public default void setArmPosition(double position, double ffVolts) {}
-
   /** Stop aimer in open loop. */
   public default void stop() {}
 
   /** Set feed back constants. */
   public default void configurePid(double p, double i, double d) {}
 
-  /** Set feed forward constants. */
-  public default void configureFeedForward(double p, double i, double d) {}
-
-  public default void configureLimits(double forwardLimit, double backwardLimit) {}
+  public default void setArmPosition(Angle angle) {}
 }
