@@ -34,11 +34,5 @@ public interface ArmIo {
   /** Set feed back constants. */
   public default void configurePid(double p, double i, double d) {}
 
-  /** Set feed forward constants. */
-  public default void configureFeedForward(double p, double i, double d) {}
-
-  public default void configureLimits(double forwardLimit, double backwardLimit) {}
-
   public default void setArmPosition(Angle angle) {}
-  ;
 }

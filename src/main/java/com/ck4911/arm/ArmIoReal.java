@@ -25,25 +25,25 @@ import javax.inject.Singleton;
 @Singleton
 public final class ArmIoReal implements ArmIo {
   private final TalonFX motor;
-  private final CANcoder armEncoder;
+  private final CANcoder armCancoder;
   private final VoltageOut voltageRequest;
 
   @Inject
   ArmIoReal(ArmConstants armConstants) {
     motor = new TalonFX(armConstants.motorId());
     voltageRequest = new VoltageOut(0.0);
-    armEncoder = new CANcoder(armConstants.sensorId());
-    CANcoderConfiguration cc_cfg = new CANcoderConfiguration();
-    cc_cfg.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(Rotations.of(0.5));
-    cc_cfg.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
-    cc_cfg.MagnetSensor.withMagnetOffset(Rotations.of(0.4));
-    armEncoder.getConfigurator().apply(cc_cfg);
+    armCancoder = new CANcoder(armConstants.encoderId());
+    CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
+    cancoderConfig.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(Rotations.of(0.5));
+    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
+    cancoderConfig.MagnetSensor.withMagnetOffset(Rotations.of(0.4));
+    armCancoder.getConfigurator().apply(cancoderConfig);
 
-    TalonFXConfiguration fx_cfg = new TalonFXConfiguration();
-    fx_cfg.Feedback.FeedbackRemoteSensorID = armEncoder.getDeviceID();
-    fx_cfg.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-    fx_cfg.Feedback.RotorToSensorRatio = armConstants.armGearRatio();
-    motor.getConfigurator().apply(fx_cfg);
+    TalonFXConfiguration fxConfiguration = new TalonFXConfiguration();
+    fxConfiguration.Feedback.FeedbackRemoteSensorID = armCancoder.getDeviceID();
+    fxConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
+    fxConfiguration.Feedback.RotorToSensorRatio = armConstants.gearRatio();
+    motor.getConfigurator().apply(fxConfiguration);
   }
 
   @Override
@@ -52,10 +52,14 @@ public final class ArmIoReal implements ArmIo {
   }
 
   @Override
-  public void stop() {}
+  public void stop() {
+    // TODO: stop
+  }
 
   @Override
-  public void configurePid(double p, double i, double d) {}
+  public void configurePid(double p, double i, double d) {
+    // TODO: pass these onto the motor controller
+  }
 
   @Override
   public void runVolts(Voltage voltage) {

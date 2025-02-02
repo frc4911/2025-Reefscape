@@ -7,4 +7,12 @@
 
 package com.ck4911.elevator;
 
-public record ElevatorConstants(int motorId, int motorRightId) {}
+import com.ck4911.util.FeedForwardValues;
+import com.ck4911.util.PidValues;
+
+public record ElevatorConstants(
+    int motorLeftId,
+    int motorRightId,
+    double gearRatio,
+    PidValues feedBackValues,
+    FeedForwardValues feedForwardValues) {}

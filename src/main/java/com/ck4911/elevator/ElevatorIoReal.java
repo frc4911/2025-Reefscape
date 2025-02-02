@@ -10,6 +10,7 @@ package com.ck4911.elevator;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -19,26 +20,30 @@ import javax.inject.Singleton;
 
 @Singleton
 public final class ElevatorIoReal implements ElevatorIo {
-  private final TalonFX motor;
+  private final TalonFX motorLeft;
   private final TalonFX motorRight;
   private final VoltageOut voltageRequest;
 
   @Inject
   ElevatorIoReal(ElevatorConstants elevatorConstants) {
-    motor = new TalonFX(elevatorConstants.motorId());
+    motorLeft = new TalonFX(elevatorConstants.motorLeftId());
     motorRight = new TalonFX(elevatorConstants.motorRightId());
-    motorRight.setControl(new Follower(elevatorConstants.motorId(), false));
+    motorRight.setControl(new Follower(elevatorConstants.motorLeftId(), true));
     voltageRequest = new VoltageOut(0.0);
+
+    TalonFXConfiguration fxConfiguration = new TalonFXConfiguration();
+    fxConfiguration.Feedback.RotorToSensorRatio = elevatorConstants.gearRatio();
+    motorLeft.getConfigurator().apply(fxConfiguration);
   }
 
   @Override
   public void moveElevevator(double rotations) {
-    motor.setPosition(Rotations.of(rotations));
+    motorLeft.setPosition(Rotations.of(rotations));
   }
 
   @Override
   public void runVolts(Voltage voltage) {
-    motor.setControl(voltageRequest.withOutput(voltage.in(Volts)));
+    motorLeft.setControl(voltageRequest.withOutput(voltage.in(Volts)));
     motorRight.setControl(voltageRequest.withOutput(voltage.in(Volts)));
   }
 }
