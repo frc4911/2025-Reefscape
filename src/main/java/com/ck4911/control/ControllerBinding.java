@@ -23,6 +23,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -106,56 +107,56 @@ public final class ControllerBinding implements VirtualSubsystem {
   private Command level1Score() {
     /* Elevator to trough position
     Arm to trough Position */
-    return null;
+    return Commands.none();
   }
 
   private Command level2Prep() {
     /* Elevator to L2 position
     Arm to L2&3 Position */
-    return null;
+    return Commands.none();
   }
 
   private Command level2Score() {
     // Arm stow
-    return null;
+    return Commands.none();
   }
 
   private Command level3Prep() {
     /* Elevator to L3 position
     Arm to L2&3 Position */
-    return null;
+    return Commands.none();
   }
 
   private Command level3Score() {
     // Arm stow
-    return null;
+    return Commands.none();
   }
 
   private Command level4Prep() {
     /* Elevator to L4 position
     Arm to L4 Position */
-    return null;
+    return Commands.none();
   }
 
   private Command level4Score() {
     // Arm stow
-    return null;
+    return Commands.none();
   }
 
   private Command collect() {
     // wait until coral detected
-    return null;
+    return Commands.none();
   }
 
   private Command climbShallow() {
     // elevator down
-    return null;
+    return Commands.none();
   }
 
   private Command climbDeep() {
     /* climb mechanism on
     if pigeon ever reads pitch or roll >= |(tbd) deg|:
     climb mechanism down/set robot on floor */
-    return null;
+    return Commands.none();
   }
 }
