@@ -7,12 +7,14 @@
 
 package com.ck4911.arm;
 
+import com.ck4911.characterization.Characterizable;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public final class Arm extends SubsystemBase {
+public final class Arm extends SubsystemBase implements Characterizable {
 
   private final ArmIo armIo;
   private final ArmIoInputsAutoLogged inputs = new ArmIoInputsAutoLogged();
@@ -21,5 +23,10 @@ public final class Arm extends SubsystemBase {
   public Arm(ArmConstants constants, ArmIo armIo) {
     super();
     this.armIo = armIo;
+  }
+
+  @Override
+  public SysIdRoutine getSysIdRoutine() {
+    throw new UnsupportedOperationException("Unimplemented method 'getSysIdRoutine'");
   }
 }

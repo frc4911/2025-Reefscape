@@ -7,6 +7,7 @@
 
 package com.ck4911.elevator;
 
+import edu.wpi.first.units.measure.Voltage;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -14,4 +15,7 @@ import javax.inject.Singleton;
 public final class ElevatorIoSim implements ElevatorIo {
   @Inject
   ElevatorIoSim() {}
+
+  @Override
+  public void runVolts(Voltage voltage) {}
 }

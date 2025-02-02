@@ -5,10 +5,10 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package com.ck4911.elevator;
+package com.ck4911.characterization;
 
-import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
-public interface ElevatorIo {
-  public default void runVolts(Voltage voltage) {}
+public interface Characterizable {
+  public SysIdRoutine getSysIdRoutine();
 }
