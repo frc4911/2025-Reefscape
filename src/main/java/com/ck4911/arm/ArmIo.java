@@ -8,31 +8,43 @@
 package com.ck4911.arm;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ArmIo {
   @AutoLog
   public static class ArmIoInputs {
-    public double armPositionRad;
-    public double armVelocityRadPerSec;
-    public double armAppliedVolts;
-    public double armCurrentAmps;
+    public boolean motorConnected = true;
+    public boolean absoluteEncoderConnected = true;
+
+    public double positionRads;
+    public double absoluteEncoderPositionRads;
+    public double relativeEncoderPositionRads;
+    public double velocityRadsPerSec;
+    public double appliedVolts;
+    public double supplyCurrentAmps;
+    public double torqueCurrentAmps;
+    public double tempCelcius;
   }
 
   /** Updates the set of loggable inputs. */
   public default void updateInputs(ArmIoInputs inputs) {}
 
-  public default void setArmOutput(double percent) {}
-
   /** Run the arm at the specified voltage. */
   public default void runVolts(Voltage voltage) {}
+
+  public default void runPostion(Angle angle) {}
+
+  public default void runCurrent(Current amps) {}
+
+  default void setBrakeMode(boolean enabled) {}
 
   /** Stop aimer in open loop. */
   public default void stop() {}
 
   /** Set feed back constants. */
-  public default void configurePid(double p, double i, double d) {}
+  public default void setPid(double p, double i, double d) {}
 
-  public default void setArmPosition(Angle angle) {}
+  public default void setFeedForward(double s, double v) {}
 }

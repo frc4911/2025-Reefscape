@@ -20,5 +20,5 @@ public final class ArmIoSim implements ArmIo {
   public void stop() {}
 
   @Override
-  public void configurePid(double p, double i, double d) {}
+  public void setPid(double p, double i, double d) {}
 }
