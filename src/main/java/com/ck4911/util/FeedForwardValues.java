@@ -7,4 +7,4 @@
 
 package com.ck4911.util;
 
-public record FeedForwardValues(double s, double v) {}
+public record FeedForwardValues(double s, double g, double v, double a) {}

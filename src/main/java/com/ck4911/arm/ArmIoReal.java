@@ -7,6 +7,7 @@
 
 package com.ck4911.arm;
 
+import static com.ck4911.util.PhoenixUtils.tryUntilOk;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -14,6 +15,7 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.BaseStatusSignal;
+import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -34,6 +36,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 @Singleton
@@ -59,10 +62,10 @@ public final class ArmIoReal implements ArmIo {
   private final TalonFXConfiguration config;
 
   @Inject
-  ArmIoReal(ArmConstants armConstants) {
+  ArmIoReal(ArmConstants armConstants, @Named("Bob") CANBus canbus) {
     this.armConstants = armConstants;
-    motor = new TalonFX(armConstants.motorId());
-    cancoder = new CANcoder(armConstants.encoderId());
+    motor = new TalonFX(armConstants.motorId(), canbus);
+    cancoder = new CANcoder(armConstants.encoderId(), canbus);
 
     voltageControl = new VoltageOut(0.0).withEnableFOC(true).withUpdateFreqHz(0.0);
     currentControl = new TorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
@@ -87,7 +90,7 @@ public final class ArmIoReal implements ArmIo {
             ? InvertedValue.Clockwise_Positive
             : InvertedValue.CounterClockwise_Positive;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.Feedback.FeedbackRemoteSensorID = armConstants.encoderId();
+    config.Feedback.FeedbackRemoteSensorID = cancoder.getDeviceID();
     config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     config.Feedback.RotorToSensorRatio = armConstants.gearRatio();
     config.Feedback.SensorToMechanismRatio = 1.0;
@@ -150,10 +153,8 @@ public final class ArmIoReal implements ArmIo {
   }
 
   @Override
-  public void runPostion(Angle angle) {
-    motor.setPosition(angle);
-    motor.setControl(positionControl.withPosition(angle));
-    // .withFeedForward(feedforward));
+  public void runPosition(Angle position, Current feedforward) {
+    motor.setControl(positionControl.withPosition(position).withFeedForward(feedforward));
   }
 
   @Override
@@ -168,10 +169,14 @@ public final class ArmIoReal implements ArmIo {
 
   @Override
   public void setPid(double p, double i, double d) {
-    config.Slot0.kP = p;
-    config.Slot0.kI = i;
-    config.Slot0.kD = d;
-    motor.getConfigurator().apply(config, 0.01);
+    config.Slot0.withKP(p).withKI(i).withKD(d);
+    tryUntilOk(5, () -> motor.getConfigurator().apply(config));
+  }
+
+  @Override
+  public void setFeedForward(double s, double g, double v, double a) {
+    config.Slot0.withKS(s).withKS(s).withKV(v).withKA(a);
+    tryUntilOk(5, () -> motor.getConfigurator().apply(config));
   }
 
   @Override

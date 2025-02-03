@@ -34,7 +34,7 @@ public interface ArmIo {
   /** Run the arm at the specified voltage. */
   public default void runVolts(Voltage voltage) {}
 
-  public default void runPostion(Angle angle) {}
+  public default void runPosition(Angle position, Current feedforward) {}
 
   public default void runCurrent(Current amps) {}
 
@@ -46,5 +46,5 @@ public interface ArmIo {
   /** Set feed back constants. */
   public default void setPid(double p, double i, double d) {}
 
-  public default void setFeedForward(double s, double v) {}
+  public default void setFeedForward(double s, double g, double v, double a) {}
 }
