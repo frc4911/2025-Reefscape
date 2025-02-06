@@ -19,10 +19,8 @@ import javax.inject.Singleton;
 
 @Singleton
 public final class TrajectoryFollower implements VirtualSubsystem {
-  private final LoggedTunableNumber xP;
-  private final LoggedTunableNumber xD;
-  private final LoggedTunableNumber yP;
-  private final LoggedTunableNumber yD;
+  private final LoggedTunableNumber p;
+  private final LoggedTunableNumber d;
   private final LoggedTunableNumber thetaP;
   private final LoggedTunableNumber thetaD;
   private final PIDController xController;
@@ -35,14 +33,12 @@ public final class TrajectoryFollower implements VirtualSubsystem {
   public TrajectoryFollower(
       AutoConstants autoConstants, Drive drive, TunableNumbers tunableNumbers) {
     this.drive = drive;
-    xP = tunableNumbers.create("Drive/xp", autoConstants.xFeedback().p());
-    xD = tunableNumbers.create("Drive/xd", autoConstants.xFeedback().d());
-    yP = tunableNumbers.create("Drive/yp", autoConstants.yFeedback().p());
-    yD = tunableNumbers.create("Drive/yd", autoConstants.yFeedback().d());
+    p = tunableNumbers.create("Drive/p", autoConstants.feedback().p());
+    d = tunableNumbers.create("Drive/d", autoConstants.feedback().d());
     thetaP = tunableNumbers.create("Drive/thetap", autoConstants.thetaFeedback().p());
     thetaD = tunableNumbers.create("Drive/thetad", autoConstants.thetaFeedback().d());
-    xController = new PIDController(xP.get(), 0, xD.get());
-    yController = new PIDController(yP.get(), 0, yD.get());
+    xController = new PIDController(p.get(), 0, d.get());
+    yController = new PIDController(p.get(), 0, d.get());
     thetaController = new PIDController(thetaP.get(), 0, thetaD.get());
     pathApplyFieldSpeeds = new SwerveRequest.ApplyFieldSpeeds();
   }
@@ -70,19 +66,13 @@ public final class TrajectoryFollower implements VirtualSubsystem {
     LoggedTunableNumber.ifChanged(
         hashCode(),
         () -> {
-          xController.setP(xP.get());
-          xController.setD(xD.get());
+          xController.setP(p.get());
+          xController.setD(d.get());
+          yController.setP(p.get());
+          yController.setD(d.get());
         },
-        xP,
-        xD);
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        () -> {
-          yController.setP(yP.get());
-          yController.setD(yD.get());
-        },
-        yP,
-        yD);
+        p,
+        d);
     LoggedTunableNumber.ifChanged(
         hashCode(),
         () -> {

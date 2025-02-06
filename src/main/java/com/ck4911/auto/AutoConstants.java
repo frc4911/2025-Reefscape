@@ -11,4 +11,4 @@ import com.ck4911.util.PidValues;
 import io.soabase.recordbuilder.core.RecordBuilder;
 
 @RecordBuilder
-public record AutoConstants(PidValues xFeedback, PidValues yFeedback, PidValues thetaFeedback) {}
+public record AutoConstants(PidValues feedback, PidValues thetaFeedback) {}

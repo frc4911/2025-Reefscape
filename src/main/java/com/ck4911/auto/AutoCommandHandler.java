@@ -34,7 +34,8 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     this.drive = drive;
     this.autoFactory = autoFactory;
 
-    setupAutos();
+    bindNamedCommands();
+    addAutos();
   }
 
   @Override
@@ -54,7 +55,11 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     }
   }
 
-  private void setupAutos() {
+  private void bindNamedCommands() {
+    // TODO: bind name commands so that waypoints trigger them
+  }
+
+  private void addAutos() {
     autoChooser.addCmd("test", () -> Commands.print("hi"));
     autoChooser.addCmd("1m", () -> autoFactory.trajectoryCmd("1m"));
 

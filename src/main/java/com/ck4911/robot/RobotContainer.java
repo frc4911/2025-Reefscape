@@ -8,7 +8,6 @@
 package com.ck4911.robot;
 
 import com.ck4911.auto.AutoCommandHandler;
-import com.ck4911.control.ControllerBinding;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import javax.inject.Inject;
@@ -16,13 +15,10 @@ import javax.inject.Inject;
 public class RobotContainer {
 
   private final AutoCommandHandler autoCommandHandler;
-  private final ControllerBinding controllerBinding;
 
   @Inject
-  public RobotContainer(
-      AutoCommandHandler autoCommandHandler, ControllerBinding controllerBinding) {
+  public RobotContainer(AutoCommandHandler autoCommandHandler) {
     this.autoCommandHandler = autoCommandHandler;
-    this.controllerBinding = controllerBinding;
   }
 
   /** Updates dashboard data. */

@@ -27,8 +27,7 @@ public interface AutoModule {
   @Singleton
   public static AutoConstants provideAutoConstants(Mode mode) {
     return AutoConstantsBuilder.builder()
-        .xFeedback(new PidValues(10.0, 0, 0))
-        .yFeedback(new PidValues(10.0, 0, 0))
+        .feedback(new PidValues(10.0, 0, 0))
         .thetaFeedback(new PidValues(7.0, 0, 0))
         .build();
   }

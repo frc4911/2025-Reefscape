@@ -11,7 +11,6 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import com.ck4911.auto.AutoCommandHandler;
 import com.ck4911.characterization.Characterization;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
@@ -38,7 +37,6 @@ public final class ControllerBinding implements VirtualSubsystem {
   private final CommandXboxController driver;
   private final CommandXboxController operator;
   private final Drive drive;
-  private final AutoCommandHandler autoCommandHandler;
   private final Characterization characterization;
 
   private double MaxSpeed =
@@ -56,10 +54,8 @@ public final class ControllerBinding implements VirtualSubsystem {
               DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 
   @Inject
-  public ControllerBinding(
-      Drive drive, AutoCommandHandler autoCommandHandler, Characterization characterization) {
+  public ControllerBinding(Drive drive, Characterization characterization) {
     this.drive = drive;
-    this.autoCommandHandler = autoCommandHandler;
     this.characterization = characterization;
 
     driver = new CommandXboxController(0);
