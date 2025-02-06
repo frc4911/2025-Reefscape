@@ -82,6 +82,6 @@ public final class Arm extends SubsystemBase implements Characterizable {
   }
 
   public void setAngle(Angle angle) {
-    armIo.runPostion(angle);
+    // TODO: run to position, passing feedforward current
   }
 }
