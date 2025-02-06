@@ -28,6 +28,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
@@ -83,10 +84,7 @@ public final class ArmIoReal implements ArmIo {
     cancoder.getConfigurator().apply(cancoderConfig, 1.0);
 
     config = new TalonFXConfiguration();
-
-    config.Slot0.kP = armConstants.feedBackValues().p();
-    config.Slot0.kI = armConstants.feedBackValues().i();
-    config.Slot0.kD = armConstants.feedBackValues().d();
+    config.Slot0.withGravityType(GravityTypeValue.Arm_Cosine);
     config.TorqueCurrent.PeakForwardTorqueCurrent = 80.0;
     config.TorqueCurrent.PeakReverseTorqueCurrent = -80.0;
     config.MotorOutput.Inverted =
@@ -158,16 +156,7 @@ public final class ArmIoReal implements ArmIo {
     inputs.tempCelcius = tempCelsius.getValue().in(Celsius);
 
     Measurement measurement = distanceSensor.getMeasurement();
-    inputs.sensorConnected = measurement != null;
-    if (measurement != null) {
-      inputs.sensorStatus = measurement.status;
-      inputs.sensorAmbient = measurement.ambient;
-      inputs.sensorDistanceMillimeters = measurement.distance_mm;
-    } else {
-      inputs.sensorStatus = 0;
-      inputs.sensorAmbient = 0;
-      inputs.sensorDistanceMillimeters = 0;
-    }
+    // TODO: populate the sensor values in inputs
   }
 
   @Override

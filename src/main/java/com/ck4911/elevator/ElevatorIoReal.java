@@ -15,13 +15,13 @@ import static edu.wpi.first.units.Units.Volts;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.filter.Debouncer;
@@ -73,13 +73,8 @@ public final class ElevatorIoReal implements ElevatorIo {
     connectedDebouncer = new Debouncer(0.5);
 
     config = new TalonFXConfiguration();
-
+    config.Slot0.withGravityType(GravityTypeValue.Elevator_Static);
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.Slot0 =
-        new Slot0Configs()
-            .withKP(elevatorConstants.feedBackValues().p())
-            .withKI(elevatorConstants.feedBackValues().i())
-            .withKD(elevatorConstants.feedBackValues().d());
     config.Feedback.SensorToMechanismRatio = elevatorConstants.gearRatio();
     config.TorqueCurrent.PeakForwardTorqueCurrent = 80.0;
     config.TorqueCurrent.PeakReverseTorqueCurrent = -80.0;

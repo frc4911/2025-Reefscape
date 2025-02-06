@@ -57,6 +57,8 @@ public final class Arm extends SubsystemBase implements Characterizable {
     g = tunableNumbers.create("Arm/g", constants.feedForwardValues().g());
     v = tunableNumbers.create("Arm/v", constants.feedForwardValues().v());
     a = tunableNumbers.create("Arm/a", constants.feedForwardValues().a());
+    armIo.setPid(p.get(), i.get(), d.get());
+    armIo.setFeedForward(s.get(), g.get(), v.get(), a.get());
 
     motorDisconnected = new Alert("Arm motor disconnected!", Alert.AlertType.WARNING);
     encoderDisconnected = new Alert("Arm absolute encoder disconnected!", Alert.AlertType.WARNING);

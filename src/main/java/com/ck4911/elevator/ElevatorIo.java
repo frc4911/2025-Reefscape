@@ -17,6 +17,7 @@ public interface ElevatorIo {
   class ElevatorIoInputs {
     public boolean leaderConnected = true;
     public boolean followerConnected = true;
+
     public double positionRads = 0.0;
     public double velocityRadPerSec = 0.0;
     public double leaderAppliedVolts = 0.0;
