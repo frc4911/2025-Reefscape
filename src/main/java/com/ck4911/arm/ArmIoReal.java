@@ -14,6 +14,8 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
+import au.grapplerobotics.LaserCan;
+import au.grapplerobotics.interfaces.LaserCanInterface.Measurement;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
@@ -60,6 +62,8 @@ public final class ArmIoReal implements ArmIo {
   private final PositionTorqueCurrentFOC positionControl;
 
   private final TalonFXConfiguration config;
+
+  private final LaserCan distanceSensor;
 
   @Inject
   ArmIoReal(ArmConstants armConstants, @Named("Bob") CANBus canbus) {
@@ -120,6 +124,8 @@ public final class ArmIoReal implements ArmIo {
     // Optimize bus utilization
     motor.optimizeBusUtilization(0, 1.0);
     cancoder.optimizeBusUtilization(0, 1.0);
+
+    distanceSensor = new LaserCan(armConstants.sensorId());
   }
 
   @Override
@@ -150,6 +156,18 @@ public final class ArmIoReal implements ArmIo {
     inputs.supplyCurrentAmps = supplyCurrent.getValue().in(Amps);
     inputs.torqueCurrentAmps = torqueCurrent.getValue().in(Amps);
     inputs.tempCelcius = tempCelsius.getValue().in(Celsius);
+
+    Measurement measurement = distanceSensor.getMeasurement();
+    inputs.sensorConnected = measurement != null;
+    if (measurement != null) {
+      inputs.sensorStatus = measurement.status;
+      inputs.sensorAmbient = measurement.ambient;
+      inputs.sensorDistanceMillimeters = measurement.distance_mm;
+    } else {
+      inputs.sensorStatus = 0;
+      inputs.sensorAmbient = 0;
+      inputs.sensorDistanceMillimeters = 0;
+    }
   }
 
   @Override

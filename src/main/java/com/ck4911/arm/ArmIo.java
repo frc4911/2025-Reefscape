@@ -26,6 +26,11 @@ public interface ArmIo {
     public double supplyCurrentAmps;
     public double torqueCurrentAmps;
     public double tempCelcius;
+
+    public boolean sensorConnected;
+    public int sensorStatus;
+    public int sensorAmbient;
+    public int sensorDistanceMillimeters;
   }
 
   /** Updates the set of loggable inputs. */
