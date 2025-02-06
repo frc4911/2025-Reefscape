@@ -45,23 +45,14 @@ public final class Leds implements VirtualSubsystem {
   private final Notifier loadingNotifier;
 
   // Constants
-  private static final int minLoopCycleCount = 10;
-  private static final int length = 12;
-  private static final double strobeDuration = 0.1;
-  private static final double breathDuration = 1.0;
-  private static final double waveExponent = 0.4;
-  private static final double waveFastCycleLength = 25.0;
-  private static final double waveFastDuration = 0.25;
-  private static final double waveAllianceCycleLength = 15.0;
-  private static final double waveAllianceDuration = 2.0;
-  private static final double autoFadeTime = 2.5; // 3s nominal
-  private static final double autoFadeMaxTime = 5.0; // Return to normal
+  private final LedConstants constants;
 
   @Inject
-  public Leds() {
-    leds = new AddressableLED(0);
-    buffer = new AddressableLEDBuffer(length);
-    leds.setLength(length);
+  public Leds(LedConstants constants) {
+    this.constants = constants;
+    leds = new AddressableLED(constants.pwmPort());
+    buffer = new AddressableLEDBuffer(constants.length());
+    leds.setLength(constants.length());
     leds.setData(buffer);
     leds.start();
     loadingNotifier =
@@ -102,7 +93,7 @@ public final class Leds implements VirtualSubsystem {
 
     // Exit during initial cycles
     loopCycleCount += 1;
-    if (loopCycleCount < minLoopCycleCount) {
+    if (loopCycleCount < constants.minLoopCycleCount()) {
       return;
     }
 
@@ -114,26 +105,40 @@ public final class Leds implements VirtualSubsystem {
     if (estopped) {
       solid(Color.kRed);
     } else if (DriverStation.isDisabled()) {
-      if (lastEnabledAuto && Timer.getFPGATimestamp() - lastEnabledTime < autoFadeMaxTime) {
+      if (lastEnabledAuto
+          && Timer.getFPGATimestamp() - lastEnabledTime < constants.autoFadeMaxTime()) {
         // Auto fade
-        solid(1.0 - ((Timer.getFPGATimestamp() - lastEnabledTime) / autoFadeTime), Color.kGreen);
+        solid(
+            1.0 - ((Timer.getFPGATimestamp() - lastEnabledTime) / constants.autoFadeTime()),
+            Color.kGreen);
       } else if (lowBatteryAlert) {
         // Low battery
         solid(Color.kOrangeRed);
       } else {
         // Default pattern
-        wave(allianceColor, secondaryDisabledColor, waveAllianceCycleLength, waveAllianceDuration);
+        wave(
+            allianceColor,
+            secondaryDisabledColor,
+            constants.waveAllianceCycleLength(),
+            constants.waveAllianceDuration());
       }
     } else if (DriverStation.isAutonomous()) {
-      wave(Color.kGold, Color.kDarkBlue, waveFastCycleLength, waveFastDuration);
+      wave(
+          Color.kGold,
+          Color.kDarkBlue,
+          constants.waveFastCycleLength(),
+          constants.waveFastDuration());
       if (autoFinished) {
-        double fullTime = (double) length / waveFastCycleLength * waveFastDuration;
+        double fullTime =
+            (double) constants.length()
+                / constants.waveFastCycleLength()
+                * constants.waveFastDuration();
         solid((Timer.getFPGATimestamp() - autoFinishedTime) / fullTime, Color.kGreen);
       }
     } else { // Enabled
 
       if (endgameAlert) {
-        strobe(Color.kRed, Color.kGold, strobeDuration);
+        strobe(Color.kRed, Color.kGold, constants.strobeDuration());
       }
     }
 
@@ -143,14 +148,14 @@ public final class Leds implements VirtualSubsystem {
 
   private void solid(Color color) {
     if (color != null) {
-      for (int i = 0; i < length; i++) {
+      for (int i = 0; i < constants.length(); i++) {
         buffer.setLED(i, color);
       }
     }
   }
 
   private void solid(double percent, Color color) {
-    for (int i = 0; i < MathUtil.clamp(length * percent, 0, length); i++) {
+    for (int i = 0; i < MathUtil.clamp(constants.length() * percent, 0, constants.length()); i++) {
       buffer.setLED(i, color);
     }
   }
@@ -169,7 +174,8 @@ public final class Leds implements VirtualSubsystem {
   }
 
   private void breath(Color c1, Color c2, double timestamp) {
-    double x = ((timestamp % breathDuration) / breathDuration) * 2.0 * Math.PI;
+    double x =
+        ((timestamp % constants.breathDuration()) / constants.breathDuration()) * 2.0 * Math.PI;
     double ratio = (Math.sin(x) + 1.0) / 2.0;
     double red = (c1.red * (1 - ratio)) + (c2.red * ratio);
     double green = (c1.green * (1 - ratio)) + (c2.green * ratio);
@@ -180,7 +186,7 @@ public final class Leds implements VirtualSubsystem {
   private void rainbow(double cycleLength, double duration) {
     double x = (1 - ((Timer.getFPGATimestamp() / duration) % 1.0)) * 180.0;
     double xDiffPerLed = 180.0 / cycleLength;
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i < constants.length(); i++) {
       x += xDiffPerLed;
       x %= 180.0;
       buffer.setHSV(i, (int) x, 255, 255);
@@ -190,11 +196,11 @@ public final class Leds implements VirtualSubsystem {
   private void wave(Color c1, Color c2, double cycleLength, double duration) {
     double x = (1 - ((Timer.getFPGATimestamp() % duration) / duration)) * 2.0 * Math.PI;
     double xDiffPerLed = (2.0 * Math.PI) / cycleLength;
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i < constants.length(); i++) {
       x += xDiffPerLed;
-      double ratio = (Math.pow(Math.sin(x), waveExponent) + 1.0) / 2.0;
+      double ratio = (Math.pow(Math.sin(x), constants.waveExponent()) + 1.0) / 2.0;
       if (Double.isNaN(ratio)) {
-        ratio = (-Math.pow(Math.sin(x + Math.PI), waveExponent) + 1.0) / 2.0;
+        ratio = (-Math.pow(Math.sin(x + Math.PI), constants.waveExponent()) + 1.0) / 2.0;
       }
       if (Double.isNaN(ratio)) {
         ratio = 0.5;
@@ -209,7 +215,7 @@ public final class Leds implements VirtualSubsystem {
   private void stripes(List<Color> colors, int stripeLength, double duration) {
     int offset =
         (int) (Timer.getFPGATimestamp() % duration / duration * stripeLength * colors.size());
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i < constants.length(); i++) {
       int colorIndex =
           (int) (Math.floor((double) (i - offset) / stripeLength) + colors.size()) % colors.size();
       colorIndex = colors.size() - 1 - colorIndex;
