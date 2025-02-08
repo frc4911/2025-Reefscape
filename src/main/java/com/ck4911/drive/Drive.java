@@ -158,11 +158,11 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
                         : BLUE_ALLIANCE_PERSPECTIVE_ROTATION);
                 hasAppliedOperatorPerspective = true;
               });
-      Logger.recordOutput("SwerveStates/Measured", getState().ModuleStates);
-      Logger.recordOutput("Drive/OdometryPose", getState().Pose);
-      Logger.recordOutput("Drive/QuestPose", questNav.getPose());
-      Logger.recordOutput("Drive/OculusQuaternion", questNav.getQuaternion());
     }
+    Logger.recordOutput("SwerveStates/Measured", getState().ModuleStates);
+    Logger.recordOutput("Drive/OdometryPose", getState().Pose);
+    Logger.recordOutput("Drive/QuestPose", questNav.getPose());
+    Logger.recordOutput("Drive/OculusQuaternion", questNav.getQuaternion());
   }
 
   @Override

@@ -8,14 +8,21 @@
 package com.ck4911.auto;
 
 import choreo.trajectory.SwerveSample;
+import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
+import com.ck4911.util.LoggedTunableNumber;
+import com.ck4911.util.LoggedTunableNumber.TunableNumbers;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.controller.PIDController;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public final class TrajectoryFollower {
+public final class TrajectoryFollower implements VirtualSubsystem {
+  private final LoggedTunableNumber p;
+  private final LoggedTunableNumber d;
+  private final LoggedTunableNumber thetaP;
+  private final LoggedTunableNumber thetaD;
   private final PIDController xController;
   private final PIDController yController;
   private final PIDController thetaController;
@@ -23,11 +30,16 @@ public final class TrajectoryFollower {
   private final Drive drive;
 
   @Inject
-  public TrajectoryFollower(AutoConstants autoConstants, Drive drive) {
+  public TrajectoryFollower(
+      AutoConstants autoConstants, Drive drive, TunableNumbers tunableNumbers) {
     this.drive = drive;
-    xController = new PIDController(autoConstants.xkD(), 0, autoConstants.xkP());
-    yController = new PIDController(autoConstants.ykD(), 0, autoConstants.ykP());
-    thetaController = new PIDController(autoConstants.thetakD(), 0, autoConstants.thetakP());
+    p = tunableNumbers.create("Drive/p", autoConstants.feedback().p());
+    d = tunableNumbers.create("Drive/d", autoConstants.feedback().d());
+    thetaP = tunableNumbers.create("Drive/thetap", autoConstants.thetaFeedback().p());
+    thetaD = tunableNumbers.create("Drive/thetad", autoConstants.thetaFeedback().d());
+    xController = new PIDController(p.get(), 0, d.get());
+    yController = new PIDController(p.get(), 0, d.get());
+    thetaController = new PIDController(thetaP.get(), 0, thetaD.get());
     pathApplyFieldSpeeds = new SwerveRequest.ApplyFieldSpeeds();
   }
 
@@ -47,5 +59,27 @@ public final class TrajectoryFollower {
             .withSpeeds(targetSpeeds)
             .withWheelForceFeedforwardsX(sample.moduleForcesX())
             .withWheelForceFeedforwardsY(sample.moduleForcesY()));
+  }
+
+  @Override
+  public void periodic() {
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () -> {
+          xController.setP(p.get());
+          xController.setD(d.get());
+          yController.setP(p.get());
+          yController.setD(d.get());
+        },
+        p,
+        d);
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () -> {
+          thetaController.setP(thetaP.get());
+          thetaController.setD(thetaD.get());
+        },
+        thetaP,
+        thetaD);
   }
 }

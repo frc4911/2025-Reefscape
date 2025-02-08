@@ -12,6 +12,7 @@ import choreo.auto.AutoFactory;
 import com.ck4911.Constants.Mode;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
+import com.ck4911.util.PidValues;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
@@ -25,7 +26,10 @@ public interface AutoModule {
   @Provides
   @Singleton
   public static AutoConstants provideAutoConstants(Mode mode) {
-    return AutoConstantsBuilder.builder().xkD(10.0).ykD(10.0).thetakD(7.0).build();
+    return AutoConstantsBuilder.builder()
+        .feedback(new PidValues(10.0, 0, 0))
+        .thetaFeedback(new PidValues(7.0, 0, 0))
+        .build();
   }
 
   @Binds
@@ -49,4 +53,8 @@ public interface AutoModule {
   public static AutoChooser provideAutoChooser() {
     return new AutoChooser();
   }
+
+  @Binds
+  @IntoSet
+  public VirtualSubsystem bindsTrajectoryFolloer(TrajectoryFollower trajectoryFollower);
 }

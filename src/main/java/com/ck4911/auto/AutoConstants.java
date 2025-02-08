@@ -7,8 +7,8 @@
 
 package com.ck4911.auto;
 
+import com.ck4911.util.PidValues;
 import io.soabase.recordbuilder.core.RecordBuilder;
 
 @RecordBuilder
-public record AutoConstants(
-    double xkP, double xkD, double ykP, double ykD, double thetakP, double thetakD) {}
+public record AutoConstants(PidValues feedback, PidValues thetaFeedback) {}

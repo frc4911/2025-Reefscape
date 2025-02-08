@@ -31,6 +31,6 @@ public interface ArmModule {
   @Provides
   static ArmConstants provideArmConstants() {
     // TODO: Fill in the constants
-    return new ArmConstants(10, 11, 0, 1.0, 1.0, 1.0, 1.0, 0, null, null);
+    return ArmConstantsBuilder.builder().build();
   }
 }
