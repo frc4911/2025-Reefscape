@@ -8,6 +8,8 @@
 package com.ck4911.arm;
 
 import com.ck4911.characterization.Characterizable;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import javax.inject.Inject;
@@ -28,5 +30,30 @@ public final class Arm extends SubsystemBase implements Characterizable {
   @Override
   public SysIdRoutine getSysIdRoutine() {
     throw new UnsupportedOperationException("Unimplemented method 'getSysIdRoutine'");
+  }
+
+  public Command stowPosition() {
+    // TODO: this
+    return Commands.none();
+  }
+
+  public Command collectPosition() {
+    // TODO: this
+    return Commands.none();
+  }
+
+  public Command prepareScoreL1Position() {
+    // TODO: this
+    return Commands.none();
+  }
+
+  public Command prepareScoreMidPosition() {
+    // TODO: this
+    return Commands.none();
+  }
+
+  public Command prepareScoreL4Position() {
+    // TODO: this
+    return Commands.none();
   }
 }
