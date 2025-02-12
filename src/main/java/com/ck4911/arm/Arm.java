@@ -10,13 +10,13 @@ package com.ck4911.arm;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ck4911.characterization.Characterizable;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import com.ck4911.util.Alert;
 import com.ck4911.util.LoggedTunableNumber;
 import com.ck4911.util.LoggedTunableNumber.TunableNumbers;
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import javax.inject.Inject;
@@ -50,7 +50,7 @@ public final class Arm extends SubsystemBase implements Characterizable {
                 Volts.of(4), // Reduce dynamic step voltage to 4 to prevent brownout
                 null, // Use default timeout (10 s)
                 // Log state with Phoenix SignalLogger class
-                (state) -> SignalLogger.writeString("Elevator_State", state.toString())),
+                (state) -> SignalLogger.writeString("Arm_State", state.toString())),
             new SysIdRoutine.Mechanism(armIo::runVolts, null, this));
     p = tunableNumbers.create("Arm/p", constants.feedBackValues().p());
     i = tunableNumbers.create("Arm/i", constants.feedBackValues().i());
