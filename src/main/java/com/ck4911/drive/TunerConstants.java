@@ -8,9 +8,9 @@
 package com.ck4911.drive;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.FeetPerSecond;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -105,9 +105,9 @@ public class TunerConstants {
   public static final CANBus kCANBus = new CANBus("Bob", "./logs/example.hoot");
 
   // Theoretical free speed (m/s) at 12 V applied output;
-  // This is the SDS free speed for mk4i with L3 gearing
+  // The free speed for mk4i with L3 gearing and Kraken x60s is 17.1 ft/sec
   // https://www.swervedrivespecialties.com/products/mk4i-swerve-module
-  public static final LinearVelocity kSpeedAt12Volts = FeetPerSecond.of(17.1);
+  public static final LinearVelocity kSpeedAt12Volts = MetersPerSecond.of(5.21208);
 
   // Every 1 rotation of the azimuth results in kCoupleRatio drive motor turns;
   // This may need to be tuned to your individual robot

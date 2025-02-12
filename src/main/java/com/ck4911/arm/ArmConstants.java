@@ -14,10 +14,11 @@ import io.soabase.recordbuilder.core.RecordBuilder;
 @RecordBuilder
 public record ArmConstants(
     int motorId,
+    int encoderId,
     int sensorId,
-    double armGearRatio,
-    double armForwardLimit,
-    double armBackwardLimit,
+    boolean inverted,
+    double gearRatio,
+    double armEncoderOffsetRads,
     double collectPositionDegrees,
     double troughPositionDegrees,
     double levelTwoAndThreePositionDegrees,

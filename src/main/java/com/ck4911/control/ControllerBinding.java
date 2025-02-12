@@ -11,7 +11,6 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import com.ck4911.auto.AutoCommandHandler;
 import com.ck4911.characterization.Characterization;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
@@ -19,10 +18,12 @@ import com.ck4911.drive.TunerConstants;
 import com.ck4911.util.Alert;
 import com.ck4911.util.Alert.AlertType;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -37,28 +38,26 @@ public final class ControllerBinding implements VirtualSubsystem {
   private final CommandXboxController driver;
   private final CommandXboxController operator;
   private final Drive drive;
-  private final AutoCommandHandler autoCommandHandler;
   private final Characterization characterization;
 
-  private double MaxSpeed =
-      TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-  private double MaxAngularRate =
-      RotationsPerSecond.of(0.75)
-          .in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+  // kSpeedAt12Volts desired top speed
+  private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+  // 3/4 of a rotation per second max angular velocity
+  private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
 
   /* Setting up bindings for necessary control of the swerve drive platform */
   private final SwerveRequest.FieldCentric driveRequest =
+      // Add a 10% deadband
+      // Use open-loop control for drive motors
       new SwerveRequest.FieldCentric()
           .withDeadband(MaxSpeed * 0.1)
-          .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-          .withDriveRequestType(
-              DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+          .withRotationalDeadband(MaxAngularRate * 0.1)
+          .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+          .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
   @Inject
-  public ControllerBinding(
-      Drive drive, AutoCommandHandler autoCommandHandler, Characterization characterization) {
+  public ControllerBinding(Drive drive, Characterization characterization) {
     this.drive = drive;
-    this.autoCommandHandler = autoCommandHandler;
     this.characterization = characterization;
 
     driver = new CommandXboxController(0);
@@ -79,18 +78,15 @@ public final class ControllerBinding implements VirtualSubsystem {
 
   private void setupControls() {
     drive.setDefaultCommand(
-        // Drivetrain will execute this command periodically
         drive.applyRequest(
             () ->
+                // Drive forward with negative Y (forward)
+                // Drive left with negative X (left)
+                // Drive counterclockwise with negative X (left)
                 driveRequest
-                    .withVelocityX(
-                        -driver.getLeftY() * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(
-                        -driver.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(
-                        -driver.getRightX()
-                            * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            ));
+                    .withVelocityX(-driver.getLeftY())
+                    .withVelocityY(-driver.getLeftX())
+                    .withRotationalRate(-driver.getRightX())));
 
     driver.a().onTrue(characterization.fullDriveCharacterization(driver.x()));
   }
@@ -106,56 +102,56 @@ public final class ControllerBinding implements VirtualSubsystem {
   private Command level1Score() {
     /* Elevator to trough position
     Arm to trough Position */
-    return null;
+    return Commands.none();
   }
 
   private Command level2Prep() {
     /* Elevator to L2 position
     Arm to L2&3 Position */
-    return null;
+    return Commands.none();
   }
 
   private Command level2Score() {
     // Arm stow
-    return null;
+    return Commands.none();
   }
 
   private Command level3Prep() {
     /* Elevator to L3 position
     Arm to L2&3 Position */
-    return null;
+    return Commands.none();
   }
 
   private Command level3Score() {
     // Arm stow
-    return null;
+    return Commands.none();
   }
 
   private Command level4Prep() {
     /* Elevator to L4 position
     Arm to L4 Position */
-    return null;
+    return Commands.none();
   }
 
   private Command level4Score() {
     // Arm stow
-    return null;
+    return Commands.none();
   }
 
   private Command collect() {
     // wait until coral detected
-    return null;
+    return Commands.none();
   }
 
   private Command climbShallow() {
     // elevator down
-    return null;
+    return Commands.none();
   }
 
   private Command climbDeep() {
     /* climb mechanism on
     if pigeon ever reads pitch or roll >= |(tbd) deg|:
     climb mechanism down/set robot on floor */
-    return null;
+    return Commands.none();
   }
 }
