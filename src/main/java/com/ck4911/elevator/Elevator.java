@@ -14,6 +14,8 @@ import com.ck4911.util.Alert;
 import com.ck4911.util.LoggedTunableNumber;
 import com.ck4911.util.LoggedTunableNumber.TunableNumbers;
 import com.ctre.phoenix6.SignalLogger;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import javax.inject.Inject;
@@ -86,5 +88,40 @@ public final class Elevator extends SubsystemBase implements Characterizable {
   @Override
   public SysIdRoutine getSysIdRoutine() {
     return sysIdRoutine;
+  }
+
+  public Command stowPosition() {
+    // TODO: this
+    return Commands.none();
+  }
+
+  public Command prepareCollectPosition() {
+    // TODO: this
+    return Commands.none();
+  }
+
+  public Command collectPosition() {
+    // TODO: this
+    return Commands.none();
+  }
+
+  public Command prepareScoreL1Position() {
+    // TODO: this
+    return Commands.none();
+  }
+
+  public Command prepareScoreL2Position() {
+    // TODO: this
+    return Commands.none();
+  }
+
+  public Command prepareScoreL3Position() {
+    // TODO: this
+    return Commands.none();
+  }
+
+  public Command prepareScoreL4Position() {
+    // TODO: this
+    return Commands.none();
   }
 }
