@@ -8,6 +8,8 @@
 package com.ck4911.elevator;
 
 import com.ck4911.Constants.Mode;
+import com.ck4911.util.FeedForwardValues;
+import com.ck4911.util.PidValues;
 import dagger.Module;
 import dagger.Provides;
 import javax.inject.Provider;
@@ -35,8 +37,8 @@ public interface ElevatorModule {
         .motorLeftId(20)
         .motorLeftId(21)
         .gearRatio(1.0)
-        .feedBackValues(null)
-        .feedForwardValues(null)
+        .feedBackValues(new PidValues(0, 0, 0))
+        .feedForwardValues(new FeedForwardValues(0, 0, 0, 0))
         .build();
   }
 }
