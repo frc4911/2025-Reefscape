@@ -89,6 +89,7 @@ public final class ControllerBinding implements VirtualSubsystem {
                     .withRotationalRate(-driver.getRightX())));
 
     driver.a().onTrue(characterization.fullDriveCharacterization(driver.x()));
+    driver.leftBumper().onTrue(null);
   }
 
   public void setDriverRumble(boolean enabled) {

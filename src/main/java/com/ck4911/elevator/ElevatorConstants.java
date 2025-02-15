@@ -9,7 +9,9 @@ package com.ck4911.elevator;
 
 import com.ck4911.util.FeedForwardValues;
 import com.ck4911.util.PidValues;
+import io.soabase.recordbuilder.core.RecordBuilder;
 
+@RecordBuilder
 public record ElevatorConstants(
     int motorLeftId,
     int motorRightId,

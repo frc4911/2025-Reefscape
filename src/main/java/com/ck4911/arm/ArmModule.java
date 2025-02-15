@@ -19,8 +19,8 @@ public interface ArmModule {
   static ArmIo providesArmIo(
       Mode mode, Provider<ArmIoReal> realProvider, Provider<ArmIoSim> simProvider) {
     switch (mode) {
-        //   case REAL:
-        //     return realProvider.get();
+        // case REAL:
+        // return realProvider.get();
       case SIM:
         return simProvider.get();
       default:
@@ -31,6 +31,19 @@ public interface ArmModule {
   @Provides
   static ArmConstants provideArmConstants() {
     // TODO: Fill in the constants
-    return ArmConstantsBuilder.builder().build();
+    return ArmConstantsBuilder.builder()
+        .motorId(10)
+        .encoderId(11)
+        .sensorId(12)
+        .inverted(false)
+        .gearRatio(1)
+        .armEncoderOffsetRads(1)
+        .collectPositionDegrees(1)
+        .troughPositionDegrees(1)
+        .levelTwoAndThreePositionDegrees(1)
+        .levelFourPositionDegrees(1)
+        .feedBackValues(null)
+        .feedForwardValues(null)
+        .build();
   }
 }

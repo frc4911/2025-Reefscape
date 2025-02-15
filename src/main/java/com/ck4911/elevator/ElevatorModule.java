@@ -31,6 +31,12 @@ public interface ElevatorModule {
   @Provides
   static ElevatorConstants provideElevatorConstants() {
     // TODO: Fill in the constants
-    return new ElevatorConstants(20, 21, 1.0, null, null);
+    return ElevatorConstantsBuilder.builder()
+        .motorLeftId(20)
+        .motorLeftId(21)
+        .gearRatio(1.0)
+        .feedBackValues(null)
+        .feedForwardValues(null)
+        .build();
   }
 }
