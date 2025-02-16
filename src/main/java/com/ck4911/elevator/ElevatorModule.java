@@ -35,9 +35,16 @@ public interface ElevatorModule {
     // TODO: Fill in the constants
     return ElevatorConstantsBuilder.builder()
         .motorLeftId(20)
-        .motorLeftId(21)
+        .motorRightId(21)
+        .sprocketRadius(0.88)
         .gearRatio(1.0)
-        .feedBackValues(new PidValues(0, 0, 0))
+        .stowPositionRotations(0)
+        .collectPositionRotations(.5)
+        .troughPositionRotations(2)
+        .levelTwoPositionRotations(3)
+        .levelThreePositionRotations(4)
+        .levelFourPositionRotations(6)
+        .feedBackValues(new PidValues(1, 0, 0))
         .feedForwardValues(new FeedForwardValues(0, 0, 0, 0))
         .build();
   }

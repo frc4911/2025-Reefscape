@@ -15,6 +15,14 @@ import io.soabase.recordbuilder.core.RecordBuilder;
 public record ElevatorConstants(
     int motorLeftId,
     int motorRightId,
+    double sprocketRadius,
     double gearRatio,
+    double stowPositionRotations,
+    double prepareCollectPositionRotations,
+    double collectPositionRotations,
+    double troughPositionRotations,
+    double levelTwoPositionRotations,
+    double levelThreePositionRotations,
+    double levelFourPositionRotations,
     PidValues feedBackValues,
     FeedForwardValues feedForwardValues) {}

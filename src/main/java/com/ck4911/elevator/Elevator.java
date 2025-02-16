@@ -7,6 +7,9 @@
 
 package com.ck4911.elevator;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ck4911.characterization.Characterizable;
@@ -14,6 +17,7 @@ import com.ck4911.util.Alert;
 import com.ck4911.util.LoggedTunableNumber;
 import com.ck4911.util.LoggedTunableNumber.TunableNumbers;
 import com.ctre.phoenix6.SignalLogger;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -25,6 +29,7 @@ import org.littletonrobotics.junction.Logger;
 @Singleton
 public final class Elevator extends SubsystemBase implements Characterizable {
   private final ElevatorIo elevatorIo;
+  private final ElevatorConstants constants;
   private final ElevatorIoInputsAutoLogged inputs = new ElevatorIoInputsAutoLogged();
   private final SysIdRoutine sysIdRoutine;
   private final LoggedTunableNumber p;
@@ -41,6 +46,7 @@ public final class Elevator extends SubsystemBase implements Characterizable {
   public Elevator(
       ElevatorIo elevatorIo, ElevatorConstants constants, TunableNumbers tunableNumbers) {
     this.elevatorIo = elevatorIo;
+    this.constants = constants;
     sysIdRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
@@ -90,38 +96,45 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     return sysIdRoutine;
   }
 
-  public Command stowPosition() {
-    // TODO: this
-    return Commands.none();
+  public void setAngle(Angle angle) {
+    // TODO: calculate feed forward
+    elevatorIo.runPosition(angle, Amps.of(0));
   }
 
-  public Command prepareCollectPosition() {
-    // TODO: this
-    return Commands.none();
+  public Angle getAngle() {
+    return Radians.of(inputs.positionRads);
   }
 
-  public Command collectPosition() {
-    // TODO: this
-    return Commands.none();
+  private Command goTo(Angle angle) {
+    return Commands.runOnce(() -> setAngle(angle), this)
+        .andThen(Commands.waitUntil(() -> getAngle().isNear(angle, .01)));
   }
 
-  public Command prepareScoreL1Position() {
-    // TODO: this
-    return Commands.none();
+  public Command stow() {
+    return goTo(Rotations.of(constants.stowPositionRotations()));
   }
 
-  public Command prepareScoreL2Position() {
-    // TODO: this
-    return Commands.none();
+  public Command prepareCollect() {
+    return goTo(Rotations.of(constants.prepareCollectPositionRotations()));
   }
 
-  public Command prepareScoreL3Position() {
-    // TODO: this
-    return Commands.none();
+  public Command collect() {
+    return goTo(Rotations.of(constants.collectPositionRotations()));
   }
 
-  public Command prepareScoreL4Position() {
-    // TODO: this
-    return Commands.none();
+  public Command trough() {
+    return goTo(Rotations.of(constants.troughPositionRotations()));
+  }
+
+  public Command levelTwo() {
+    return goTo(Rotations.of(constants.levelTwoPositionRotations()));
+  }
+
+  public Command levelThree() {
+    return goTo(Rotations.of(constants.levelThreePositionRotations()));
+  }
+
+  public Command levelFour() {
+    return goTo(Rotations.of(constants.levelFourPositionRotations()));
   }
 }

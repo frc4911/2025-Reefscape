@@ -25,34 +25,34 @@ public final class CyberCommands {
   }
 
   public Command prepareForCollectionCommand() {
-    // TODO: run these at the same time SAFELY (optional)
-    return arm.collectPosition().andThen(elevator.prepareCollectPosition());
-    // TODO: detect coral in corral
+    return elevator.prepareCollect().andThen(arm.collect());
   }
 
   // ONLY CALL AFTER PREPARE
   public Command collectCommand() {
-    return elevator.collectPosition();
+    return elevator.collect();
     // TODO: detect coral in arm
   }
 
-  public Command prepareScoreL1Command() {
-    return elevator.prepareScoreL1Position().andThen(arm.prepareScoreL1Position());
+  public Command trough() {
+    return elevator.trough().andThen(arm.trough());
   }
 
-  public Command prepareScoreL2Command() {
-    return elevator.prepareScoreL2Position().andThen(arm.prepareScoreMidPosition());
+  public Command levelTwo() {
+    return elevator.levelTwo().andThen(arm.levelTwoAndThree());
   }
 
-  public Command prepareScoreL3Command() {
-    return elevator.prepareScoreL3Position().andThen(arm.prepareScoreMidPosition());
+  public Command levelThree() {
+    return elevator.levelThree().andThen(arm.levelTwoAndThree());
   }
 
-  public Command prepareScoreL4Command() {
-    return elevator.prepareScoreL4Position().andThen(arm.prepareScoreL4Position());
+  public Command levelFour() {
+    return elevator.levelFour().andThen(arm.levelFour());
   }
 
   public Command stowCommand() {
-    return arm.stowPosition().andThen(elevator.stowPosition());
+    // TODO: move to a safe height first
+    // If the elevator is too low, this could be bad
+    return arm.stow().andThen(elevator.stow());
   }
 }

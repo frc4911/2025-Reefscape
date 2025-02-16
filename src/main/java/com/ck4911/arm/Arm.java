@@ -107,23 +107,23 @@ public final class Arm extends SubsystemBase implements Characterizable {
         .andThen(Commands.waitUntil(() -> getAngle().isNear(angle, .01)));
   }
 
-  public Command stowPosition() {
+  public Command stow() {
     return goTo(Degrees.of(constants.stowPositionDegrees()));
   }
 
-  public Command collectPosition() {
+  public Command collect() {
     return goTo(Degrees.of(constants.collectPositionDegrees()));
   }
 
-  public Command prepareScoreL1Position() {
+  public Command trough() {
     return goTo(Degrees.of(constants.troughPositionDegrees()));
   }
 
-  public Command prepareScoreMidPosition() {
+  public Command levelTwoAndThree() {
     return goTo(Degrees.of(constants.levelTwoAndThreePositionDegrees()));
   }
 
-  public Command prepareScoreL4Position() {
+  public Command levelFour() {
     return goTo(Degrees.of(constants.levelFourPositionDegrees()));
   }
 }
