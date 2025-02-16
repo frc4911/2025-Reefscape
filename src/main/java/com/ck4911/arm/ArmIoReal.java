@@ -27,6 +27,7 @@ import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.GravityTypeValue;
@@ -81,7 +82,7 @@ public final class ArmIoReal implements ArmIo {
     cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     cancoderConfig.MagnetSensor.MagnetOffset =
         Units.radiansToRotations(armConstants.armEncoderOffsetRads());
-    cancoder.getConfigurator().apply(cancoderConfig, 1.0);
+    tryUntilOk(5, () -> cancoder.getConfigurator().apply(cancoderConfig, 1.0));
 
     config = new TalonFXConfiguration();
     config.Slot0.withGravityType(GravityTypeValue.Arm_Cosine);
@@ -93,8 +94,7 @@ public final class ArmIoReal implements ArmIo {
     config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
     config.Feedback.RotorToSensorRatio = armConstants.gearRatio();
     config.Feedback.SensorToMechanismRatio = 1.0;
-
-    motor.getConfigurator().apply(config, 1.0);
+    tryUntilOk(5, () -> motor.getConfigurator().apply(config, 1.0));
 
     internalPositionRotations = motor.getPosition();
     encoderAbsolutePositionRotations = cancoder.getAbsolutePosition();
@@ -111,12 +111,8 @@ public final class ArmIoReal implements ArmIo {
         supplyCurrent,
         torqueCurrent,
         tempCelsius);
-
     BaseStatusSignal.setUpdateFrequencyForAll(500, encoderAbsolutePositionRotations);
-
-    // Optimize bus utilization
-    motor.optimizeBusUtilization(0, 1.0);
-    cancoder.optimizeBusUtilization(0, 1.0);
+    ParentDevice.optimizeBusUtilizationForAll(motor, cancoder);
 
     distanceSensor = new LaserCan(armConstants.sensorId());
   }
@@ -136,11 +132,7 @@ public final class ArmIoReal implements ArmIo {
         BaseStatusSignal.refreshAll(encoderAbsolutePositionRotations).isOK();
 
     inputs.positionRads = internalPositionRotations.getValue().in(Radians);
-    inputs.absoluteEncoderPositionRads =
-        encoderAbsolutePositionRotations
-            .getValue()
-            // .minus(Radians.of(armConstants.armEncoderOffsetRads()))
-            .in(Radians);
+    inputs.absoluteEncoderPositionRads = encoderAbsolutePositionRotations.getValue().in(Radians);
     inputs.velocityRadsPerSec = velocityRps.getValue().in(RadiansPerSecond);
     inputs.appliedVolts = appliedVoltage.getValue().in(Volts);
     inputs.supplyCurrentAmps = supplyCurrent.getValue().in(Amps);
@@ -180,11 +172,12 @@ public final class ArmIoReal implements ArmIo {
 
   @Override
   public void setBrakeMode(boolean enabled) {
-    motor.setNeutralMode(enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast);
+    tryUntilOk(
+        5, () -> motor.setNeutralMode(enabled ? NeutralModeValue.Brake : NeutralModeValue.Coast));
   }
 
   @Override
   public void stop() {
-    motor.setControl(new NeutralOut());
+    tryUntilOk(5, () -> motor.setControl(new NeutralOut()));
   }
 }

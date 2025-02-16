@@ -8,6 +8,8 @@
 package com.ck4911.arm;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -40,16 +42,19 @@ public final class Arm extends SubsystemBase implements Characterizable {
   private final LoggedTunableNumber a;
   private final Alert motorDisconnected;
   private final Alert encoderDisconnected;
+  private final ArmConstants constants;
 
   @Inject
   public Arm(ArmConstants constants, ArmIo armIo, TunableNumbers tunableNumbers) {
     super();
     this.armIo = armIo;
+    this.constants = constants;
+
+    // TODO: adjust these values
     sysIdRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
                 Volts.per(Second).of(0.1),
-                // null, // Use default ramp rate (1 V/s)
                 Volts.of(0.1), // Reduce dynamic step voltage to 4 to prevent brownout
                 null, // Use default timeout (10 s)
                 // Log state with Phoenix SignalLogger class
@@ -89,31 +94,36 @@ public final class Arm extends SubsystemBase implements Characterizable {
   }
 
   public void setAngle(Angle angle) {
+    // TODO: calculate feed forward
     armIo.runPosition(angle, Amps.of(0));
   }
 
+  public Angle getAngle() {
+    return Radians.of(inputs.absoluteEncoderPositionRads);
+  }
+
+  private Command goTo(Angle angle) {
+    return Commands.runOnce(() -> setAngle(angle), this)
+        .andThen(Commands.waitUntil(() -> getAngle().isNear(angle, .01)));
+  }
+
   public Command stowPosition() {
-    // TODO: this
-    return Commands.none();
+    return goTo(Degrees.of(constants.stowPositionDegrees()));
   }
 
   public Command collectPosition() {
-    // TODO: this
-    return Commands.none();
+    return goTo(Degrees.of(constants.collectPositionDegrees()));
   }
 
   public Command prepareScoreL1Position() {
-    // TODO: this
-    return Commands.none();
+    return goTo(Degrees.of(constants.troughPositionDegrees()));
   }
 
   public Command prepareScoreMidPosition() {
-    // TODO: this
-    return Commands.none();
+    return goTo(Degrees.of(constants.levelTwoAndThreePositionDegrees()));
   }
 
   public Command prepareScoreL4Position() {
-    // TODO: this
-    return Commands.none();
+    return goTo(Degrees.of(constants.levelFourPositionDegrees()));
   }
 }
