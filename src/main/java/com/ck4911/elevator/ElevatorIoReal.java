@@ -10,6 +10,8 @@ package com.ck4911.elevator;
 import static com.ck4911.util.PhoenixUtils.tryUntilOk;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -25,7 +27,6 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -55,7 +56,8 @@ public final class ElevatorIoReal implements ElevatorIo {
   private final StatusSignal<Current> followerSupplyCurrent;
   private final StatusSignal<Temperature> followerTemp;
 
-  private final Debouncer connectedDebouncer;
+  private final Debouncer leaderConnectedDebouncer;
+  private final Debouncer followerConnectedDebouncer;
 
   private final TorqueCurrentFOC torqueCurrentRequest;
   private final PositionTorqueCurrentFOC positionTorqueCurrentRequest;
@@ -70,7 +72,8 @@ public final class ElevatorIoReal implements ElevatorIo {
     positionTorqueCurrentRequest = new PositionTorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
     voltageRequest = new VoltageOut(0.0).withUpdateFreqHz(0.0);
 
-    connectedDebouncer = new Debouncer(0.5);
+    leaderConnectedDebouncer = new Debouncer(0.5);
+    followerConnectedDebouncer = new Debouncer(0.5);
 
     config = new TalonFXConfiguration();
     config.Slot0.withGravityType(GravityTypeValue.Elevator_Static);
@@ -110,10 +113,10 @@ public final class ElevatorIoReal implements ElevatorIo {
                 followerAppliedVolts, followerTorqueCurrent, followerSupplyCurrent, followerTemp)
             .isOK();
 
-    inputs.leaderConnected = connectedDebouncer.calculate(connected);
-    inputs.followerConnected = connectedDebouncer.calculate(followerConnected);
-    inputs.positionRads = Units.rotationsToRadians(position.getValueAsDouble());
-    inputs.velocityRadPerSec = Units.rotationsToRadians(velocity.getValueAsDouble());
+    inputs.leaderConnected = leaderConnectedDebouncer.calculate(connected);
+    inputs.followerConnected = followerConnectedDebouncer.calculate(followerConnected);
+    inputs.positionRads = position.getValue().in(Radians);
+    inputs.velocityRadPerSec = velocity.getValue().in(RadiansPerSecond);
     inputs.leaderAppliedVolts = appliedVolts.getValue().in(Volts);
     inputs.leaderSupplyCurrentAmps = supplyCurrent.getValue().in(Amps);
     inputs.leaderTorqueCurrentAmps = torqueCurrent.getValue().in(Amps);

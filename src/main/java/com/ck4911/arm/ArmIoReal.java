@@ -34,6 +34,7 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -65,6 +66,9 @@ public final class ArmIoReal implements ArmIo {
 
   private final TalonFXConfiguration config;
 
+  private final Debouncer motorConnectedDebouncer;
+  private final Debouncer encoderConnectedDebouncer;
+
   private final LaserCan distanceSensor;
 
   @Inject
@@ -76,6 +80,9 @@ public final class ArmIoReal implements ArmIo {
     voltageControl = new VoltageOut(0.0).withEnableFOC(true).withUpdateFreqHz(0.0);
     currentControl = new TorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
     positionControl = new PositionTorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
+
+    motorConnectedDebouncer = new Debouncer(0.5);
+    encoderConnectedDebouncer = new Debouncer(0.5);
 
     CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
     cancoderConfig.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(Rotations.of(0.5));
@@ -119,7 +126,7 @@ public final class ArmIoReal implements ArmIo {
 
   @Override
   public void updateInputs(ArmIoInputs inputs) {
-    inputs.motorConnected =
+    boolean motorConnected =
         BaseStatusSignal.refreshAll(
                 internalPositionRotations,
                 velocityRps,
@@ -128,8 +135,11 @@ public final class ArmIoReal implements ArmIo {
                 torqueCurrent,
                 tempCelsius)
             .isOK();
-    inputs.absoluteEncoderConnected =
+    boolean absoluteEncoderConnected =
         BaseStatusSignal.refreshAll(encoderAbsolutePositionRotations).isOK();
+
+    inputs.motorConnected = motorConnectedDebouncer.calculate(motorConnected);
+    inputs.absoluteEncoderConnected = encoderConnectedDebouncer.calculate(absoluteEncoderConnected);
 
     inputs.positionRads = internalPositionRotations.getValue().in(Radians);
     inputs.absoluteEncoderPositionRads = encoderAbsolutePositionRotations.getValue().in(Radians);
