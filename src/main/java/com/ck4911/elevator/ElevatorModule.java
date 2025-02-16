@@ -21,8 +21,8 @@ public interface ElevatorModule {
   static ElevatorIo providesArmIo(
       Mode mode, Provider<ElevatorIoReal> realProvider, Provider<ElevatorIoSim> simProvider) {
     switch (mode) {
-        //   case REAL:
-        //     return realProvider.get();
+        // case REAL:
+        //   return realProvider.get();
       case SIM:
         return simProvider.get();
       default:

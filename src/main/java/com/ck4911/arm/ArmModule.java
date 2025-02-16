@@ -21,8 +21,8 @@ public interface ArmModule {
   static ArmIo providesArmIo(
       Mode mode, Provider<ArmIoReal> realProvider, Provider<ArmIoSim> simProvider) {
     switch (mode) {
-        // case REAL:
-        // return realProvider.get();
+      case REAL:
+        return realProvider.get();
       case SIM:
         return simProvider.get();
       default:
@@ -38,13 +38,13 @@ public interface ArmModule {
         .encoderId(11)
         .sensorId(12)
         .inverted(false)
-        .gearRatio(1)
-        .armEncoderOffsetRads(1)
-        .collectPositionDegrees(1)
-        .troughPositionDegrees(1)
-        .levelTwoAndThreePositionDegrees(1)
-        .levelFourPositionDegrees(1)
-        .feedBackValues(new PidValues(0, 0, 0))
+        .gearRatio(9)
+        .armEncoderOffsetRads(-1.83)
+        .collectPositionDegrees(-90)
+        .troughPositionDegrees(-90)
+        .levelTwoAndThreePositionDegrees(45)
+        .levelFourPositionDegrees(45)
+        .feedBackValues(new PidValues(1, 0, 0))
         .feedForwardValues(new FeedForwardValues(0, 0, 0, 0))
         .build();
   }

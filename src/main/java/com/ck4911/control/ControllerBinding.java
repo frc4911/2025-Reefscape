@@ -7,10 +7,12 @@
 
 package com.ck4911.control;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import com.ck4911.arm.Arm;
 import com.ck4911.characterization.Characterization;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
@@ -38,6 +40,7 @@ public final class ControllerBinding implements VirtualSubsystem {
   private final CommandXboxController driver;
   private final CommandXboxController operator;
   private final Drive drive;
+  private final Arm arm;
   private final Characterization characterization;
 
   // kSpeedAt12Volts desired top speed
@@ -56,8 +59,9 @@ public final class ControllerBinding implements VirtualSubsystem {
           .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
   @Inject
-  public ControllerBinding(Drive drive, Characterization characterization) {
+  public ControllerBinding(Drive drive, Arm arm, Characterization characterization) {
     this.drive = drive;
+    this.arm = arm;
     this.characterization = characterization;
 
     driver = new CommandXboxController(0);
@@ -71,9 +75,9 @@ public final class ControllerBinding implements VirtualSubsystem {
     driverDisconnected.set(
         !DriverStation.isJoystickConnected(driver.getHID().getPort())
             || !DriverStation.getJoystickIsXbox(driver.getHID().getPort()));
-    operatorDisconnected.set(
-        !DriverStation.isJoystickConnected(operator.getHID().getPort())
-            || !DriverStation.getJoystickIsXbox(operator.getHID().getPort()));
+    // operatorDisconnected.set(
+    //     !DriverStation.isJoystickConnected(operator.getHID().getPort())
+    //         || !DriverStation.getJoystickIsXbox(operator.getHID().getPort()));
   }
 
   private void setupControls() {
@@ -88,8 +92,10 @@ public final class ControllerBinding implements VirtualSubsystem {
                     .withVelocityY(-driver.getLeftX())
                     .withRotationalRate(-driver.getRightX())));
 
-    driver.a().onTrue(characterization.fullDriveCharacterization(driver.x()));
-    driver.leftBumper().onTrue(null);
+    // driver.a().onTrue(characterization.fullDriveCharacterization(driver.x()));
+    // driver.y().onTrue(characterization.fullArmCharaterization(driver.x()));
+    // driver.leftBumper().onTrue(null);
+    driver.b().onTrue(Commands.runOnce(() -> arm.setAngle(Degrees.of(0)), arm));
   }
 
   public void setDriverRumble(boolean enabled) {

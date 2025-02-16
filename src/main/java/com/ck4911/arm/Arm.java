@@ -7,6 +7,8 @@
 
 package com.ck4911.arm;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ck4911.characterization.Characterizable;
@@ -46,8 +48,9 @@ public final class Arm extends SubsystemBase implements Characterizable {
     sysIdRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
-                null, // Use default ramp rate (1 V/s)
-                Volts.of(4), // Reduce dynamic step voltage to 4 to prevent brownout
+                Volts.per(Second).of(0.1),
+                // null, // Use default ramp rate (1 V/s)
+                Volts.of(0.1), // Reduce dynamic step voltage to 4 to prevent brownout
                 null, // Use default timeout (10 s)
                 // Log state with Phoenix SignalLogger class
                 (state) -> SignalLogger.writeString("Arm_State", state.toString())),
@@ -86,7 +89,7 @@ public final class Arm extends SubsystemBase implements Characterizable {
   }
 
   public void setAngle(Angle angle) {
-    // TODO: run to position, passing feedforward current
+    armIo.runPosition(angle, Amps.of(0));
   }
 
   public Command stowPosition() {

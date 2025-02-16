@@ -10,6 +10,7 @@ package com.ck4911.arm;
 import static com.ck4911.util.PhoenixUtils.tryUntilOk;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Volts;
@@ -51,7 +52,6 @@ public final class ArmIoReal implements ArmIo {
 
   private final StatusSignal<Angle> internalPositionRotations;
   private final StatusSignal<Angle> encoderAbsolutePositionRotations;
-  private final StatusSignal<Angle> encoderRelativePositionRotations;
   private final StatusSignal<AngularVelocity> velocityRps;
   private final StatusSignal<Voltage> appliedVoltage;
   private final StatusSignal<Current> supplyCurrent;
@@ -78,19 +78,16 @@ public final class ArmIoReal implements ArmIo {
 
     CANcoderConfiguration cancoderConfig = new CANcoderConfiguration();
     cancoderConfig.MagnetSensor.withAbsoluteSensorDiscontinuityPoint(Rotations.of(0.5));
-    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.Clockwise_Positive;
+    cancoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;
     cancoderConfig.MagnetSensor.MagnetOffset =
         Units.radiansToRotations(armConstants.armEncoderOffsetRads());
     cancoder.getConfigurator().apply(cancoderConfig, 1.0);
 
     config = new TalonFXConfiguration();
     config.Slot0.withGravityType(GravityTypeValue.Arm_Cosine);
-    config.TorqueCurrent.PeakForwardTorqueCurrent = 80.0;
-    config.TorqueCurrent.PeakReverseTorqueCurrent = -80.0;
-    config.MotorOutput.Inverted =
-        armConstants.inverted()
-            ? InvertedValue.Clockwise_Positive
-            : InvertedValue.CounterClockwise_Positive;
+    config.TorqueCurrent.PeakForwardTorqueCurrent = 30.0;
+    config.TorqueCurrent.PeakReverseTorqueCurrent = -30.0;
+    config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.Feedback.FeedbackRemoteSensorID = cancoder.getDeviceID();
     config.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
@@ -101,7 +98,6 @@ public final class ArmIoReal implements ArmIo {
 
     internalPositionRotations = motor.getPosition();
     encoderAbsolutePositionRotations = cancoder.getAbsolutePosition();
-    encoderRelativePositionRotations = cancoder.getPosition();
     velocityRps = motor.getVelocity();
     appliedVoltage = motor.getMotorVoltage();
     supplyCurrent = motor.getSupplyCurrent();
@@ -116,8 +112,7 @@ public final class ArmIoReal implements ArmIo {
         torqueCurrent,
         tempCelsius);
 
-    BaseStatusSignal.setUpdateFrequencyForAll(
-        500, encoderAbsolutePositionRotations, encoderRelativePositionRotations);
+    BaseStatusSignal.setUpdateFrequencyForAll(500, encoderAbsolutePositionRotations);
 
     // Optimize bus utilization
     motor.optimizeBusUtilization(0, 1.0);
@@ -138,17 +133,14 @@ public final class ArmIoReal implements ArmIo {
                 tempCelsius)
             .isOK();
     inputs.absoluteEncoderConnected =
-        BaseStatusSignal.refreshAll(
-                encoderAbsolutePositionRotations, encoderRelativePositionRotations)
-            .isOK();
+        BaseStatusSignal.refreshAll(encoderAbsolutePositionRotations).isOK();
 
-    inputs.positionRads = Units.rotationsToRadians(internalPositionRotations.getValueAsDouble());
+    inputs.positionRads = internalPositionRotations.getValue().in(Radians);
     inputs.absoluteEncoderPositionRads =
-        Units.rotationsToRadians(encoderAbsolutePositionRotations.getValueAsDouble())
-            - armConstants.armEncoderOffsetRads(); // Negate internal offset
-    inputs.relativeEncoderPositionRads =
-        Units.rotationsToRadians(encoderRelativePositionRotations.getValueAsDouble())
-            - armConstants.armEncoderOffsetRads();
+        encoderAbsolutePositionRotations
+            .getValue()
+            // .minus(Radians.of(armConstants.armEncoderOffsetRads()))
+            .in(Radians);
     inputs.velocityRadsPerSec = velocityRps.getValue().in(RadiansPerSecond);
     inputs.appliedVolts = appliedVoltage.getValue().in(Volts);
     inputs.supplyCurrentAmps = supplyCurrent.getValue().in(Amps);
