@@ -8,8 +8,10 @@
 package com.ck4911.elevator;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ck4911.characterization.Characterizable;
@@ -17,7 +19,9 @@ import com.ck4911.util.Alert;
 import com.ck4911.util.LoggedTunableNumber;
 import com.ck4911.util.LoggedTunableNumber.TunableNumbers;
 import com.ctre.phoenix6.SignalLogger;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -39,19 +43,26 @@ public final class Elevator extends SubsystemBase implements Characterizable {
   private final LoggedTunableNumber g;
   private final LoggedTunableNumber v;
   private final LoggedTunableNumber a;
+  private final LoggedTunableNumber tolerance;
+  private final LoggedTunableNumber homingTimeSeconds;
   private final Alert leaderDisonnected;
   private final Alert followerDisconnected;
+
+  private Debouncer homingDebouncer;
+
+  private double homedPosition = 0;
 
   @Inject
   public Elevator(
       ElevatorIo elevatorIo, ElevatorConstants constants, TunableNumbers tunableNumbers) {
     this.elevatorIo = elevatorIo;
     this.constants = constants;
+    // TODO: adjust these values
     sysIdRoutine =
         new SysIdRoutine(
             new SysIdRoutine.Config(
-                null, // Use default ramp rate (1 V/s)
-                Volts.of(4), // Reduce dynamic step voltage to 4 to prevent brownout
+                Volts.per(Second).of(0.1),
+                Volts.of(0.1), // Reduce dynamic step voltage to 4 to prevent brownout
                 null, // Use default timeout (10 s)
                 // Log state with Phoenix SignalLogger class
                 (state) -> SignalLogger.writeString("Elevator_State", state.toString())),
@@ -64,6 +75,12 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     g = tunableNumbers.create("Elevator/g", constants.feedForwardValues().g());
     v = tunableNumbers.create("Elevator/v", constants.feedForwardValues().v());
     a = tunableNumbers.create("Elevator/a", constants.feedForwardValues().a());
+    tolerance = tunableNumbers.create("Elevator/Tolerance", constants.tolerance());
+    homingTimeSeconds =
+        tunableNumbers.create("Elevator/HomingTimeSecs", constants.homingTimeSeconds());
+
+    homingDebouncer = new Debouncer(homingTimeSeconds.get());
+
     elevatorIo.setPid(p.get(), i.get(), d.get());
     elevatorIo.setFeedForward(s.get(), g.get(), v.get(), a.get());
 
@@ -89,6 +106,11 @@ public final class Elevator extends SubsystemBase implements Characterizable {
         g,
         v,
         a);
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () -> homingDebouncer = new Debouncer(homingTimeSeconds.get()),
+        homingTimeSeconds);
+    checkLimits();
   }
 
   @Override
@@ -97,6 +119,15 @@ public final class Elevator extends SubsystemBase implements Characterizable {
   }
 
   public void setAngle(Angle angle) {
+    // TODO: Use Alerts and also cap angles beyond limits
+    if (angle.compareTo(Radians.of(constants.maxPositionRads())) > 0) {
+      System.out.println("ERROR: angle above max");
+      return;
+    }
+    if (angle.compareTo(Radians.of(constants.minPositionRads())) < 0) {
+      System.out.println("ERROR: angle below min");
+      return;
+    }
     // TODO: calculate feed forward
     elevatorIo.runPosition(angle, Amps.of(0));
   }
@@ -105,9 +136,16 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     return Radians.of(inputs.positionRads);
   }
 
+  public Distance getPosition() {
+    Distance position =
+        Meters.of(constants.sprocketRadius() * (inputs.positionRads - homedPosition));
+    Logger.recordOutput("Elevator/MeasuredHeightMeters", position.baseUnitMagnitude());
+    return position;
+  }
+
   private Command goTo(Angle angle) {
     return Commands.runOnce(() -> setAngle(angle), this)
-        .andThen(Commands.waitUntil(() -> getAngle().isNear(angle, .01)));
+        .andThen(Commands.waitUntil(() -> getAngle().isNear(angle, tolerance.get())));
   }
 
   public Command stow() {
@@ -136,5 +174,14 @@ public final class Elevator extends SubsystemBase implements Characterizable {
 
   public Command levelFour() {
     return goTo(Rotations.of(constants.levelFourPositionRotations()));
+  }
+
+  // TODO: a command to gently move the elevator to the home position and mark it.
+  public Command home() {
+    return Commands.none();
+  }
+
+  private void checkLimits() {
+    // TODO: check position limits (upper and lower)
   }
 }

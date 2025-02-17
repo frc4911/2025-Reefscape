@@ -86,6 +86,7 @@ public final class Arm extends SubsystemBase implements Characterizable {
         hashCode(), () -> armIo.setPid(p.get(), i.get(), d.get()), p, i, d);
     LoggedTunableNumber.ifChanged(
         hashCode(), () -> armIo.setFeedForward(s.get(), g.get(), v.get(), a.get()), s, g, v, a);
+    checkLimits();
   }
 
   @Override
@@ -94,6 +95,15 @@ public final class Arm extends SubsystemBase implements Characterizable {
   }
 
   public void setAngle(Angle angle) {
+    // TODO: Use Alerts and also cap angles beyond limits
+    if (angle.compareTo(Radians.of(constants.maxPositionRads())) > 0) {
+      System.out.println("ERROR: angle above max");
+      return;
+    }
+    if (angle.compareTo(Radians.of(constants.minPositionRads())) < 0) {
+      System.out.println("ERROR: angle below min");
+      return;
+    }
     // TODO: calculate feed forward
     armIo.runPosition(angle, Amps.of(0));
   }
@@ -125,5 +135,9 @@ public final class Arm extends SubsystemBase implements Characterizable {
 
   public Command levelFour() {
     return goTo(Degrees.of(constants.levelFourPositionDegrees()));
+  }
+
+  private void checkLimits() {
+    // TODO: check position limits (upper and lower)
   }
 }

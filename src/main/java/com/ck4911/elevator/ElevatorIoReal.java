@@ -18,6 +18,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -68,6 +69,8 @@ public final class ElevatorIoReal implements ElevatorIo {
     motorLeader = new TalonFX(elevatorConstants.motorLeftId(), canbus);
     motorFollower = new TalonFX(elevatorConstants.motorRightId(), canbus);
 
+    motorFollower.setControl(new Follower(motorLeader.getDeviceID(), true));
+
     torqueCurrentRequest = new TorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
     positionTorqueCurrentRequest = new PositionTorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
     voltageRequest = new VoltageOut(0.0).withUpdateFreqHz(0.0);
@@ -79,9 +82,10 @@ public final class ElevatorIoReal implements ElevatorIo {
     config.Slot0.withGravityType(GravityTypeValue.Elevator_Static);
     config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     config.Feedback.SensorToMechanismRatio = elevatorConstants.gearRatio();
-    config.TorqueCurrent.PeakForwardTorqueCurrent = 80.0;
-    config.TorqueCurrent.PeakReverseTorqueCurrent = -80.0;
-    config.CurrentLimits.StatorCurrentLimit = 80.0;
+    // TODO: Increase these later
+    config.TorqueCurrent.PeakForwardTorqueCurrent = 20.0;
+    config.TorqueCurrent.PeakReverseTorqueCurrent = -20.0;
+    config.CurrentLimits.StatorCurrentLimit = 20.0;
     config.CurrentLimits.StatorCurrentLimitEnable = true;
     config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
     tryUntilOk(5, () -> motorLeader.getConfigurator().apply(config, 0.25));

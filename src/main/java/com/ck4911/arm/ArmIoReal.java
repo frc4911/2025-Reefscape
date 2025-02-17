@@ -93,6 +93,7 @@ public final class ArmIoReal implements ArmIo {
 
     config = new TalonFXConfiguration();
     config.Slot0.withGravityType(GravityTypeValue.Arm_Cosine);
+    // TODO: increase these (maybe) after bringup
     config.TorqueCurrent.PeakForwardTorqueCurrent = 30.0;
     config.TorqueCurrent.PeakReverseTorqueCurrent = -30.0;
     config.MotorOutput.Inverted = InvertedValue.CounterClockwise_Positive;

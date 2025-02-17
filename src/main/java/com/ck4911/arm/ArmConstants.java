@@ -18,6 +18,8 @@ public record ArmConstants(
     int sensorId,
     double gearRatio,
     double armEncoderOffsetRads,
+    double minPositionRads,
+    double maxPositionRads,
     double stowPositionDegrees,
     double collectPositionDegrees,
     double troughPositionDegrees,

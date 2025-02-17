@@ -36,8 +36,12 @@ public interface ElevatorModule {
     return ElevatorConstantsBuilder.builder()
         .motorLeftId(20)
         .motorRightId(21)
-        .sprocketRadius(0.88)
+        .sprocketRadius(1.7567 / 2.0)
         .gearRatio(1.0)
+        .homingTimeSeconds(1.0)
+        .tolerance(0.01) // 1%
+        .minPositionRads(0)
+        .maxPositionRads(0)
         .stowPositionRotations(0)
         .collectPositionRotations(.5)
         .troughPositionRotations(2)
