@@ -93,7 +93,6 @@ public class CyberKnightsRobot extends LoggedRobot {
       Mode robotMode,
       Provider<RobotContainer> containerProvider) {
     super();
-    CanBridge.runTCP();
     this.scheduler = scheduler;
     this.virtualSubsystems = virtualSubsystems;
     this.robotName = robotName;
@@ -101,6 +100,10 @@ public class CyberKnightsRobot extends LoggedRobot {
     this.robotMode = robotMode;
     this.canivore = canivore;
     this.containerProvider = containerProvider;
+
+    if (tuningMode) {
+      CanBridge.runTCP();
+    }
   }
 
   /**
