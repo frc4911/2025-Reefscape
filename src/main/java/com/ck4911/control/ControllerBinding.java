@@ -13,6 +13,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ck4911.characterization.Characterization;
 import com.ck4911.commands.VirtualSubsystem;
+import com.ck4911.control.Controller.Role;
 import com.ck4911.drive.Drive;
 import com.ck4911.drive.TunerConstants;
 import com.ck4911.util.Alert;
@@ -24,7 +25,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -35,8 +35,8 @@ public final class ControllerBinding implements VirtualSubsystem {
   private final Alert operatorDisconnected =
       new Alert("Operator controller disconnected (port 1).", AlertType.WARNING);
 
-  private final CommandXboxController driver;
-  private final CommandXboxController operator;
+  private final CyberKnightsController driver;
+  private final CyberKnightsController operator;
   private final Drive drive;
   private final Characterization characterization;
 
@@ -56,12 +56,15 @@ public final class ControllerBinding implements VirtualSubsystem {
           .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
   @Inject
-  public ControllerBinding(Drive drive, Characterization characterization) {
+  public ControllerBinding(
+      Drive drive,
+      @Controller(Role.DRIVER) CyberKnightsController driver,
+      @Controller(Role.OPERATOR) CyberKnightsController operator,
+      Characterization characterization) {
     this.drive = drive;
+    this.driver = driver;
+    this.operator = operator;
     this.characterization = characterization;
-
-    driver = new CommandXboxController(0);
-    operator = new CommandXboxController(1);
 
     setupControls();
   }
