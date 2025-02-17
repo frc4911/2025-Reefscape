@@ -17,7 +17,12 @@ import static edu.wpi.first.units.Units.Volts;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
@@ -78,16 +83,23 @@ public final class ElevatorIoReal implements ElevatorIo {
     leaderConnectedDebouncer = new Debouncer(0.5);
     followerConnectedDebouncer = new Debouncer(0.5);
 
-    config = new TalonFXConfiguration();
-    config.Slot0.withGravityType(GravityTypeValue.Elevator_Static);
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.Feedback.SensorToMechanismRatio = elevatorConstants.gearRatio();
-    // TODO: Increase these later
-    config.TorqueCurrent.PeakForwardTorqueCurrent = 20.0;
-    config.TorqueCurrent.PeakReverseTorqueCurrent = -20.0;
-    config.CurrentLimits.StatorCurrentLimit = 20.0;
-    config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config =
+        new TalonFXConfiguration()
+            .withSlot0(new Slot0Configs().withGravityType(GravityTypeValue.Elevator_Static))
+            .withMotorOutput(
+                new MotorOutputConfigs()
+                    .withNeutralMode(NeutralModeValue.Brake)
+                    .withInverted(InvertedValue.Clockwise_Positive))
+            .withFeedback(
+                new FeedbackConfigs().withSensorToMechanismRatio(elevatorConstants.gearRatio()))
+            .withTorqueCurrent(
+                new TorqueCurrentConfigs()
+                    .withPeakForwardTorqueCurrent(Amps.of(80.0))
+                    .withPeakReverseTorqueCurrent(Amps.of(-80)))
+            .withCurrentLimits(
+                new CurrentLimitsConfigs()
+                    .withStatorCurrentLimit(Amps.of(20))
+                    .withStatorCurrentLimitEnable(true));
     tryUntilOk(5, () -> motorLeader.getConfigurator().apply(config, 0.25));
 
     position = motorLeader.getPosition();
