@@ -10,7 +10,6 @@ package com.ck4911.elevator;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -50,7 +49,7 @@ public final class Elevator extends SubsystemBase implements Characterizable {
 
   private Debouncer homingDebouncer;
 
-  private double homedPosition = 0;
+  private double homedPosition = -37;
 
   @Inject
   public Elevator(
@@ -64,7 +63,7 @@ public final class Elevator extends SubsystemBase implements Characterizable {
                 Volts.per(Second).of(0.1),
                 Volts.of(0.1), // Reduce dynamic step voltage to 4 to prevent brownout
                 null, // Use default timeout (10 s)
-                // Log state with Phoenix SignalLogger class
+                // Log state with Phoenix SignalLogger clas
                 (state) -> SignalLogger.writeString("Elevator_State", state.toString())),
             new SysIdRoutine.Mechanism(elevatorIo::runVolts, null, this));
 
@@ -120,14 +119,14 @@ public final class Elevator extends SubsystemBase implements Characterizable {
 
   public void setAngle(Angle angle) {
     // TODO: Use Alerts and also cap angles beyond limits
-    if (angle.compareTo(Radians.of(constants.maxPositionRads())) > 0) {
-      System.out.println("ERROR: angle above max");
-      return;
-    }
-    if (angle.compareTo(Radians.of(constants.minPositionRads())) < 0) {
-      System.out.println("ERROR: angle below min");
-      return;
-    }
+    // if (angle.compareTo(Radians.of(constants.maxPositionRads())) > 0) {
+    //   System.out.println("ERROR: angle above max");
+    //   return;
+    // }
+    // if (angle.compareTo(Radians.of(constants.minPositionRads())) < 0) {
+    //   System.out.println("ERROR: angle below min");
+    //   return;
+    // }
     // TODO: calculate feed forward
     elevatorIo.runPosition(angle, Amps.of(0));
   }
@@ -144,36 +143,37 @@ public final class Elevator extends SubsystemBase implements Characterizable {
   }
 
   private Command goTo(Angle angle) {
-    return Commands.runOnce(() -> setAngle(angle), this)
-        .andThen(Commands.waitUntil(() -> getAngle().isNear(angle, tolerance.get())));
+    return Commands.run(() -> setAngle(angle), this);
+    // return Commands.runOnce(() -> setAngle(angle), this)
+    // .andThen(Commands.waitUntil(() -> getAngle().isNear(angle, tolerance.get())));
   }
 
   public Command stow() {
-    return goTo(Rotations.of(constants.stowPositionRotations()));
+    return goTo(Radians.of(constants.stowPositionRadians()));
   }
 
   public Command prepareCollect() {
-    return goTo(Rotations.of(constants.prepareCollectPositionRotations()));
+    return goTo(Radians.of(constants.prepareCollectPositionRadians()));
   }
 
   public Command collect() {
-    return goTo(Rotations.of(constants.collectPositionRotations()));
+    return goTo(Radians.of(constants.collectPositionRadians()));
   }
 
   public Command trough() {
-    return goTo(Rotations.of(constants.troughPositionRotations()));
+    return goTo(Radians.of(constants.troughPositionRadians()));
   }
 
   public Command levelTwo() {
-    return goTo(Rotations.of(constants.levelTwoPositionRotations()));
+    return goTo(Radians.of(constants.levelTwoPositionRadians()));
   }
 
   public Command levelThree() {
-    return goTo(Rotations.of(constants.levelThreePositionRotations()));
+    return goTo(Radians.of(constants.levelThreePositionRadians()));
   }
 
   public Command levelFour() {
-    return goTo(Rotations.of(constants.levelFourPositionRotations()));
+    return goTo(Radians.of(constants.levelFourPositionRadians()));
   }
 
   // TODO: a command to gently move the elevator to the home position and mark it.

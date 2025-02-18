@@ -44,9 +44,9 @@ public interface ArmModule {
         .stowPositionDegrees(75)
         .collectPositionDegrees(-90)
         .troughPositionDegrees(0)
-        .levelTwoAndThreePositionDegrees(45)
+        .levelTwoAndThreePositionDegrees(57)
         .levelFourPositionDegrees(45)
-        .feedBackValues(new PidValues(1, 0, 0))
+        .feedBackValues(new PidValues(1500, 0, 100))
         .feedForwardValues(new FeedForwardValues(0, 0, 0, 0))
         .build();
   }

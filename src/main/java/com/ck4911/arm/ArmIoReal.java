@@ -106,12 +106,12 @@ public final class ArmIoReal implements ArmIo {
                     .withPeakForwardTorqueCurrent(Amps.of(80.0))
                     .withPeakReverseTorqueCurrent(Amps.of(-80)))
             .withCurrentLimits(
-              new CurrentLimitsConfigs()
-                  .withStatorCurrentLimit(Amps.of(80.0))
-                  .withStatorCurrentLimitEnable(true))
+                new CurrentLimitsConfigs()
+                    .withStatorCurrentLimit(Amps.of(80.0))
+                    .withStatorCurrentLimitEnable(true))
             .withMotorOutput(
                 new MotorOutputConfigs()
-                    .withInverted(InvertedValue.CounterClockwise_Positive)
+                    .withInverted(InvertedValue.Clockwise_Positive)
                     .withNeutralMode(NeutralModeValue.Brake))
             .withFeedback(
                 new FeedbackConfigs()
@@ -173,7 +173,7 @@ public final class ArmIoReal implements ArmIo {
 
   @Override
   public void runPosition(Angle position, Current feedforward) {
-    motor.setControl(positionControl.withPosition(position).withFeedForward(feedforward));
+    motor.setControl(positionControl.withPosition(position));
   }
 
   @Override

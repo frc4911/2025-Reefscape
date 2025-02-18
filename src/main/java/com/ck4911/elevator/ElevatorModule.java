@@ -21,8 +21,8 @@ public interface ElevatorModule {
   static ElevatorIo providesArmIo(
       Mode mode, Provider<ElevatorIoReal> realProvider, Provider<ElevatorIoSim> simProvider) {
     switch (mode) {
-        // case REAL:
-        //   return realProvider.get();
+      case REAL:
+        return realProvider.get();
       case SIM:
         return simProvider.get();
       default:
@@ -34,21 +34,21 @@ public interface ElevatorModule {
   static ElevatorConstants provideElevatorConstants() {
     // TODO: Fill in the constants
     return ElevatorConstantsBuilder.builder()
-        .motorLeftId(20)
-        .motorRightId(21)
+        .motorLeftId(21)
+        .motorRightId(22)
         .sprocketRadius(1.7567 / 2.0)
         .gearRatio(1.0)
         .homingTimeSeconds(1.0)
         .tolerance(0.01) // 1%
         .minPositionRads(0)
         .maxPositionRads(0)
-        .stowPositionRotations(0)
-        .collectPositionRotations(.5)
-        .troughPositionRotations(2)
-        .levelTwoPositionRotations(3)
-        .levelThreePositionRotations(4)
-        .levelFourPositionRotations(6)
-        .feedBackValues(new PidValues(1, 0, 0))
+        .stowPositionRadians(0)
+        .collectPositionRadians(.5)
+        .troughPositionRadians(50)
+        .levelTwoPositionRadians(200)
+        .levelThreePositionRadians(200)
+        .levelFourPositionRadians(254)
+        .feedBackValues(new PidValues(5, 0, 1))
         .feedForwardValues(new FeedForwardValues(0, 0, 0, 0))
         .build();
   }

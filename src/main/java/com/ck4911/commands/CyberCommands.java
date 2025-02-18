@@ -35,19 +35,23 @@ public final class CyberCommands {
   }
 
   public Command trough() {
-    return elevator.trough().andThen(arm.trough());
+    // return elevator.trough().andThen(arm.trough());
+    return arm.trough();
   }
 
   public Command levelTwo() {
-    return elevator.levelTwo().andThen(arm.levelTwoAndThree());
+    return arm.levelTwoAndThree();
+    // return elevator.levelTwo().andThen(arm.levelTwoAndThree());
   }
 
   public Command levelThree() {
-    return elevator.levelThree().andThen(arm.levelTwoAndThree());
+    return elevator.levelThree();
+    // return elevator.levelThree().andThen(arm.levelTwoAndThree());
   }
 
   public Command levelFour() {
-    return elevator.levelFour().andThen(arm.levelFour());
+    return elevator.trough();
+    // return elevator.levelFour().andThen(arm.levelFour());
   }
 
   public Command stowCommand() {

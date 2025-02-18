@@ -96,14 +96,14 @@ public final class Arm extends SubsystemBase implements Characterizable {
 
   public void setAngle(Angle angle) {
     // TODO: Use Alerts and also cap angles beyond limits
-    if (angle.compareTo(Radians.of(constants.maxPositionRads())) > 0) {
-      System.out.println("ERROR: angle above max");
-      return;
-    }
-    if (angle.compareTo(Radians.of(constants.minPositionRads())) < 0) {
-      System.out.println("ERROR: angle below min");
-      return;
-    }
+    // if (angle.compareTo(Radians.of(constants.maxPositionRads())) > 0) {
+    //   System.out.println("ERROR: angle above max");
+    //   return;
+    // }
+    // if (angle.compareTo(Radians.of(constants.minPositionRads())) < 0) {
+    //   System.out.println("ERROR: angle below min");
+    //   return;
+    // }
     // TODO: calculate feed forward
     armIo.runPosition(angle, Amps.of(0));
   }
@@ -113,8 +113,8 @@ public final class Arm extends SubsystemBase implements Characterizable {
   }
 
   private Command goTo(Angle angle) {
-    return Commands.runOnce(() -> setAngle(angle), this)
-        .andThen(Commands.waitUntil(() -> getAngle().isNear(angle, .01)));
+    return Commands.run(() -> setAngle(angle), this);
+    // .andThen(Commands.waitUntil(() -> getAngle().isNear(angle, .01)));
   }
 
   public Command stow() {
