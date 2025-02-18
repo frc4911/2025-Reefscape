@@ -49,14 +49,13 @@ public final class Elevator extends SubsystemBase implements Characterizable {
   private final LoggedTunableNumber jerk;
   private final LoggedTunableNumber variance;
   private final LoggedTunableNumber debounceTime;
-  private final LoggedTunableNumber tolerance;
   private final LoggedTunableNumber homingTimeSeconds;
+  private final LoggedTunableNumber homingVolts;
+  private final LoggedTunableNumber homingVelocityThresh;
   private final Alert leaderDisonnected;
   private final Alert followerDisconnected;
 
-  private Debouncer homingDebouncer;
-
-  private double homedPosition = -37;
+  private double homedPositionRads = 0;
 
   @Inject
   public Elevator(
@@ -87,11 +86,11 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     jerk = tunableNumbers.create("Elevator/ProfileJerk", constants.profileJerk());
     debounceTime = tunableNumbers.create("Arm/DebounceTime", constants.debounceTimeSeconds());
     variance = tunableNumbers.create("Arm/Variance", constants.variance());
-    tolerance = tunableNumbers.create("Elevator/Tolerance", constants.tolerance());
+    homingVolts = tunableNumbers.create("Elevator/HomingVolts", constants.homingVolts());
+    homingVelocityThresh =
+        tunableNumbers.create("Elevator/HomingVelocityThresh", constants.homingVelocityThresh());
     homingTimeSeconds =
         tunableNumbers.create("Elevator/HomingTimeSecs", constants.homingTimeSeconds());
-
-    homingDebouncer = new Debouncer(homingTimeSeconds.get());
 
     elevatorIo.setPid(p.get(), i.get(), d.get());
     elevatorIo.setFeedForward(s.get(), g.get(), v.get(), a.get());
@@ -132,10 +131,6 @@ public final class Elevator extends SubsystemBase implements Characterizable {
         velocity,
         acceleration,
         jerk);
-    LoggedTunableNumber.ifChanged(
-        hashCode(),
-        () -> homingDebouncer = new Debouncer(homingTimeSeconds.get()),
-        homingTimeSeconds);
     checkLimits();
   }
 
@@ -164,7 +159,7 @@ public final class Elevator extends SubsystemBase implements Characterizable {
 
   public Distance getPosition() {
     Distance position =
-        Meters.of(constants.sprocketRadius() * (inputs.positionRads - homedPosition));
+        Meters.of(constants.sprocketRadius() * (inputs.positionRads - homedPositionRads));
     Logger.recordOutput("Elevator/MeasuredHeightMeters", position.baseUnitMagnitude());
     return position;
   }
@@ -203,9 +198,34 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     return goTo(Radians.of(constants.levelFourPositionRadians()));
   }
 
-  // TODO: a command to gently move the elevator to the home position and mark it.
+  // A command to gently move the elevator to the home position and mark it.
   public Command home() {
-    return Commands.none();
+    return new Command() {
+      Debouncer homingDebouncer;
+
+      @Override
+      public void initialize() {
+        homingDebouncer = new Debouncer(homingTimeSeconds.get());
+      }
+
+      @Override
+      public void execute() {
+        elevatorIo.runVolts(Volts.of(homingVolts.get()));
+      }
+
+      @Override
+      public boolean isFinished() {
+        return homingDebouncer.calculate(
+            Math.abs(inputs.velocityRadPerSec) <= homingVelocityThresh.get());
+      }
+
+      @Override
+      public void end(boolean interrupted) {
+        if (!interrupted) {
+          homedPositionRads = inputs.positionRads;
+        }
+      }
+    };
   }
 
   private void checkLimits() {

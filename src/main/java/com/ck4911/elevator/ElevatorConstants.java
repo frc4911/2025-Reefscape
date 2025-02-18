@@ -17,6 +17,8 @@ public record ElevatorConstants(
     int motorRightId,
     double sprocketRadius,
     double gearRatio,
+    double homingVolts,
+    double homingVelocityThresh,
     double homingTimeSeconds,
     double tolerance,
     double minPositionRads,
