@@ -21,6 +21,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -104,6 +105,10 @@ public final class ArmIoReal implements ArmIo {
                 new TorqueCurrentConfigs()
                     .withPeakForwardTorqueCurrent(Amps.of(80.0))
                     .withPeakReverseTorqueCurrent(Amps.of(-80)))
+            .withCurrentLimits(
+              new CurrentLimitsConfigs()
+                  .withStatorCurrentLimit(Amps.of(80.0))
+                  .withStatorCurrentLimitEnable(true))
             .withMotorOutput(
                 new MotorOutputConfigs()
                     .withInverted(InvertedValue.CounterClockwise_Positive)
