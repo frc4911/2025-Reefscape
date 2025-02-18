@@ -7,8 +7,12 @@
 
 package com.ck4911.elevator;
 
+import edu.wpi.first.units.AngularAccelerationUnit;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -44,6 +48,11 @@ public interface ElevatorIo {
   default void setPid(double p, double i, double d) {}
 
   default void setFeedForward(double s, double g, double v, double a) {}
+
+  public default void setProfile(
+      AngularVelocity velocity,
+      AngularAcceleration acceleration,
+      Velocity<AngularAccelerationUnit> jerk) {}
 
   default void setBrakeMode(boolean enabled) {}
 }

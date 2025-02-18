@@ -10,6 +10,8 @@ package com.ck4911.arm;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -40,6 +42,9 @@ public final class Arm extends SubsystemBase implements Characterizable {
   private final LoggedTunableNumber g;
   private final LoggedTunableNumber v;
   private final LoggedTunableNumber a;
+  private final LoggedTunableNumber velocity;
+  private final LoggedTunableNumber acceleration;
+  private final LoggedTunableNumber jerk;
   private final Alert motorDisconnected;
   private final Alert encoderDisconnected;
   private final ArmConstants constants;
@@ -67,8 +72,16 @@ public final class Arm extends SubsystemBase implements Characterizable {
     g = tunableNumbers.create("Arm/g", constants.feedForwardValues().g());
     v = tunableNumbers.create("Arm/v", constants.feedForwardValues().v());
     a = tunableNumbers.create("Arm/a", constants.feedForwardValues().a());
+    velocity = tunableNumbers.create("Arm/ProfileVelocity", constants.profileVelocity());
+    acceleration =
+        tunableNumbers.create("Arm/ProfileAcceleration", constants.profileAcceleration());
+    jerk = tunableNumbers.create("Arm/ProfileJerk", constants.profileJerk());
     armIo.setPid(p.get(), i.get(), d.get());
     armIo.setFeedForward(s.get(), g.get(), v.get(), a.get());
+    armIo.setProfile(
+        RotationsPerSecond.of(velocity.get()),
+        RotationsPerSecondPerSecond.of(acceleration.get()),
+        RotationsPerSecondPerSecond.per(Second).of(jerk.get()));
 
     motorDisconnected = new Alert("Arm motor disconnected!", Alert.AlertType.WARNING);
     encoderDisconnected = new Alert("Arm absolute encoder disconnected!", Alert.AlertType.WARNING);
@@ -86,6 +99,16 @@ public final class Arm extends SubsystemBase implements Characterizable {
         hashCode(), () -> armIo.setPid(p.get(), i.get(), d.get()), p, i, d);
     LoggedTunableNumber.ifChanged(
         hashCode(), () -> armIo.setFeedForward(s.get(), g.get(), v.get(), a.get()), s, g, v, a);
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () ->
+            armIo.setProfile(
+                RotationsPerSecond.of(velocity.get()),
+                RotationsPerSecondPerSecond.of(acceleration.get()),
+                RotationsPerSecondPerSecond.per(Second).of(jerk.get())),
+        velocity,
+        acceleration,
+        jerk);
     checkLimits();
   }
 

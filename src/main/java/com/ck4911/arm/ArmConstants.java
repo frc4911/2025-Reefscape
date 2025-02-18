@@ -25,5 +25,8 @@ public record ArmConstants(
     double troughPositionDegrees,
     double levelTwoAndThreePositionDegrees,
     double levelFourPositionDegrees,
+    double profileVelocity,
+    double profileAcceleration,
+    double profileJerk,
     PidValues feedBackValues,
     FeedForwardValues feedForwardValues) {}

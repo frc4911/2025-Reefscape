@@ -37,7 +37,7 @@ public interface ElevatorModule {
         .motorLeftId(21)
         .motorRightId(22)
         .sprocketRadius(1.7567 / 2.0)
-        .gearRatio(1.0)
+        .gearRatio(4.0 * 3.0)
         .homingTimeSeconds(1.0)
         .tolerance(0.01) // 1%
         .minPositionRads(0)

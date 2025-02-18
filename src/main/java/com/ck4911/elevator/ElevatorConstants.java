@@ -28,5 +28,8 @@ public record ElevatorConstants(
     double levelTwoPositionRadians,
     double levelThreePositionRadians,
     double levelFourPositionRadians,
+    double profileVelocity,
+    double profileAcceleration,
+    double profileJerk,
     PidValues feedBackValues,
     FeedForwardValues feedForwardValues) {}

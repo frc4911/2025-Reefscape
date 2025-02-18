@@ -10,6 +10,8 @@ package com.ck4911.elevator;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -42,6 +44,9 @@ public final class Elevator extends SubsystemBase implements Characterizable {
   private final LoggedTunableNumber g;
   private final LoggedTunableNumber v;
   private final LoggedTunableNumber a;
+  private final LoggedTunableNumber velocity;
+  private final LoggedTunableNumber acceleration;
+  private final LoggedTunableNumber jerk;
   private final LoggedTunableNumber tolerance;
   private final LoggedTunableNumber homingTimeSeconds;
   private final Alert leaderDisonnected;
@@ -74,6 +79,10 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     g = tunableNumbers.create("Elevator/g", constants.feedForwardValues().g());
     v = tunableNumbers.create("Elevator/v", constants.feedForwardValues().v());
     a = tunableNumbers.create("Elevator/a", constants.feedForwardValues().a());
+    velocity = tunableNumbers.create("Elevator/ProfileVelocity", constants.profileVelocity());
+    acceleration =
+        tunableNumbers.create("Elevator/ProfileAcceleration", constants.profileAcceleration());
+    jerk = tunableNumbers.create("Elevator/ProfileJerk", constants.profileJerk());
     tolerance = tunableNumbers.create("Elevator/Tolerance", constants.tolerance());
     homingTimeSeconds =
         tunableNumbers.create("Elevator/HomingTimeSecs", constants.homingTimeSeconds());
@@ -82,6 +91,10 @@ public final class Elevator extends SubsystemBase implements Characterizable {
 
     elevatorIo.setPid(p.get(), i.get(), d.get());
     elevatorIo.setFeedForward(s.get(), g.get(), v.get(), a.get());
+    elevatorIo.setProfile(
+        RotationsPerSecond.of(velocity.get()),
+        RotationsPerSecondPerSecond.of(acceleration.get()),
+        RotationsPerSecondPerSecond.per(Second).of(jerk.get()));
 
     leaderDisonnected = new Alert("Elevator lead motor disconnected!", Alert.AlertType.WARNING);
     followerDisconnected =
@@ -105,6 +118,16 @@ public final class Elevator extends SubsystemBase implements Characterizable {
         g,
         v,
         a);
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () ->
+            elevatorIo.setProfile(
+                RotationsPerSecond.of(velocity.get()),
+                RotationsPerSecondPerSecond.of(acceleration.get()),
+                RotationsPerSecondPerSecond.per(Second).of(jerk.get())),
+        velocity,
+        acceleration,
+        jerk);
     LoggedTunableNumber.ifChanged(
         hashCode(),
         () -> homingDebouncer = new Debouncer(homingTimeSeconds.get()),

@@ -33,10 +33,13 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.units.AngularAccelerationUnit;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -172,7 +175,18 @@ public final class ElevatorIoReal implements ElevatorIo {
 
   @Override
   public void setFeedForward(double s, double g, double v, double a) {
-    config.Slot0.withKS(s).withKS(s).withKV(v).withKA(a);
+    config.Slot0.withKS(s).withKG(g).withKV(v).withKA(a);
+    tryUntilOk(5, () -> motorLeader.getConfigurator().apply(config));
+  }
+
+  @Override
+  public void setProfile(
+      AngularVelocity velocity,
+      AngularAcceleration acceleration,
+      Velocity<AngularAccelerationUnit> jerk) {
+    config.MotionMagic.withMotionMagicCruiseVelocity(velocity)
+        .withMotionMagicAcceleration(acceleration)
+        .withMotionMagicJerk(jerk);
     tryUntilOk(5, () -> motorLeader.getConfigurator().apply(config));
   }
 

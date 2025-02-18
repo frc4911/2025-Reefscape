@@ -13,6 +13,9 @@ import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 import au.grapplerobotics.LaserCan;
@@ -24,6 +27,7 @@ import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -41,10 +45,13 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.units.AngularAccelerationUnit;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -118,7 +125,12 @@ public final class ArmIoReal implements ArmIo {
                     .withFeedbackRemoteSensorID(cancoder.getDeviceID())
                     .withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder)
                     .withRotorToSensorRatio(armConstants.gearRatio())
-                    .withSensorToMechanismRatio(1.0));
+                    .withSensorToMechanismRatio(1.0))
+            .withMotionMagic(
+                new MotionMagicConfigs()
+                    .withMotionMagicCruiseVelocity(RotationsPerSecond.of(5))
+                    .withMotionMagicAcceleration(RotationsPerSecondPerSecond.of(10))
+                    .withMotionMagicJerk(RotationsPerSecondPerSecond.per(Second).of(100)));
     tryUntilOk(5, () -> motor.getConfigurator().apply(config, 1.0));
 
     internalPositionRotations = motor.getPosition();
@@ -194,7 +206,18 @@ public final class ArmIoReal implements ArmIo {
 
   @Override
   public void setFeedForward(double s, double g, double v, double a) {
-    config.Slot0.withKS(s).withKS(s).withKV(v).withKA(a);
+    config.Slot0.withKS(s).withKG(g).withKV(v).withKA(a);
+    tryUntilOk(5, () -> motor.getConfigurator().apply(config));
+  }
+
+  @Override
+  public void setProfile(
+      AngularVelocity velocity,
+      AngularAcceleration acceleration,
+      Velocity<AngularAccelerationUnit> jerk) {
+    config.MotionMagic.withMotionMagicCruiseVelocity(velocity)
+        .withMotionMagicAcceleration(acceleration)
+        .withMotionMagicJerk(jerk);
     tryUntilOk(5, () -> motor.getConfigurator().apply(config));
   }
 
