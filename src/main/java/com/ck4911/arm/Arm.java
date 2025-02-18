@@ -20,6 +20,7 @@ import com.ck4911.util.Alert;
 import com.ck4911.util.LoggedTunableNumber;
 import com.ck4911.util.LoggedTunableNumber.TunableNumbers;
 import com.ctre.phoenix6.SignalLogger;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -45,6 +46,8 @@ public final class Arm extends SubsystemBase implements Characterizable {
   private final LoggedTunableNumber velocity;
   private final LoggedTunableNumber acceleration;
   private final LoggedTunableNumber jerk;
+  private final LoggedTunableNumber variance;
+  private final LoggedTunableNumber debounceTime;
   private final Alert motorDisconnected;
   private final Alert encoderDisconnected;
   private final ArmConstants constants;
@@ -76,6 +79,8 @@ public final class Arm extends SubsystemBase implements Characterizable {
     acceleration =
         tunableNumbers.create("Arm/ProfileAcceleration", constants.profileAcceleration());
     jerk = tunableNumbers.create("Arm/ProfileJerk", constants.profileJerk());
+    debounceTime = tunableNumbers.create("Arm/DebounceTime", constants.debounceTimeSeconds());
+    variance = tunableNumbers.create("Arm/Variance", constants.variance());
     armIo.setPid(p.get(), i.get(), d.get());
     armIo.setFeedForward(s.get(), g.get(), v.get(), a.get());
     armIo.setProfile(
@@ -136,8 +141,9 @@ public final class Arm extends SubsystemBase implements Characterizable {
   }
 
   private Command goTo(Angle angle) {
-    return Commands.run(() -> setAngle(angle), this);
-    // .andThen(Commands.waitUntil(() -> getAngle().isNear(angle, .01)));
+    Debouncer debouncer = new Debouncer(debounceTime.get());
+    return Commands.run(() -> setAngle(angle), this)
+        .until(() -> debouncer.calculate(getAngle().isNear(angle, variance.get())));
   }
 
   public Command stow() {

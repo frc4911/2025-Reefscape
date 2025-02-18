@@ -38,6 +38,8 @@ public interface ArmModule {
         .encoderId(11)
         .sensorId(12)
         .gearRatio(9)
+        .variance(.01)
+        .debounceTimeSeconds(.25)
         .armEncoderOffsetRads(-1.83)
         .minPositionRads(-Math.PI / 2.0)
         .maxPositionRads(Math.PI / 2.0)

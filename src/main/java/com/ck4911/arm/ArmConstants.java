@@ -28,5 +28,7 @@ public record ArmConstants(
     double profileVelocity,
     double profileAcceleration,
     double profileJerk,
+    double variance,
+    double debounceTimeSeconds,
     PidValues feedBackValues,
     FeedForwardValues feedForwardValues) {}

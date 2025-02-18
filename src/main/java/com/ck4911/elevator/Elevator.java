@@ -47,6 +47,8 @@ public final class Elevator extends SubsystemBase implements Characterizable {
   private final LoggedTunableNumber velocity;
   private final LoggedTunableNumber acceleration;
   private final LoggedTunableNumber jerk;
+  private final LoggedTunableNumber variance;
+  private final LoggedTunableNumber debounceTime;
   private final LoggedTunableNumber tolerance;
   private final LoggedTunableNumber homingTimeSeconds;
   private final Alert leaderDisonnected;
@@ -83,6 +85,8 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     acceleration =
         tunableNumbers.create("Elevator/ProfileAcceleration", constants.profileAcceleration());
     jerk = tunableNumbers.create("Elevator/ProfileJerk", constants.profileJerk());
+    debounceTime = tunableNumbers.create("Arm/DebounceTime", constants.debounceTimeSeconds());
+    variance = tunableNumbers.create("Arm/Variance", constants.variance());
     tolerance = tunableNumbers.create("Elevator/Tolerance", constants.tolerance());
     homingTimeSeconds =
         tunableNumbers.create("Elevator/HomingTimeSecs", constants.homingTimeSeconds());
@@ -166,9 +170,9 @@ public final class Elevator extends SubsystemBase implements Characterizable {
   }
 
   private Command goTo(Angle angle) {
-    return Commands.run(() -> setAngle(angle), this);
-    // return Commands.runOnce(() -> setAngle(angle), this)
-    // .andThen(Commands.waitUntil(() -> getAngle().isNear(angle, tolerance.get())));
+    Debouncer debouncer = new Debouncer(debounceTime.get());
+    return Commands.run(() -> setAngle(angle), this)
+        .until(() -> debouncer.calculate(getAngle().isNear(angle, variance.get())));
   }
 
   public Command stow() {
