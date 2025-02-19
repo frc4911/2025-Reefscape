@@ -34,30 +34,38 @@ public final class CyberCommands {
     // TODO: detect coral in arm
   }
 
+  public Command score() {
+    return arm.score();
+  }
+
+  public Command home() {
+    return elevator.home().alongWith(arm.stow());
+  }
+
   public Command trough() {
-    // return elevator.trough().andThen(arm.trough());
-    return arm.trough();
+    return elevator.trough().alongWith(arm.trough());
+    // return arm.trough();
   }
 
   public Command levelTwo() {
-    return arm.levelTwoAndThree();
-    // return elevator.levelTwo().andThen(arm.levelTwoAndThree());
+    // return arm.levelTwoAndThree();
+    return elevator.levelTwo().alongWith(arm.levelTwoAndThree());
   }
 
   public Command levelThree() {
-    return elevator.levelThree();
-    // return elevator.levelThree().andThen(arm.levelTwoAndThree());
+    // return elevator.levelThree();
+    return elevator.levelThree().alongWith(arm.levelTwoAndThree());
   }
 
   public Command levelFour() {
-    return elevator.trough();
-    // return elevator.levelFour().andThen(arm.levelFour());
+    // return elevator.trough();
+    return elevator.levelFour().alongWith(arm.levelFour());
   }
 
-  public Command stowCommand() {
+  public Command stow() {
     // TODO: move to a safe height first
     // If the elevator is too low, this could be bad
-    // return arm.stow().andThen(elevator.stow());
-    return elevator.stow();
+    return arm.stow().alongWith(elevator.stow());
+    // return elevator.stow();
   }
 }

@@ -22,6 +22,7 @@ public record ArmConstants(
     double maxPositionRads,
     double stowPositionDegrees,
     double collectPositionDegrees,
+    double scorePositionDegrees,
     double troughPositionDegrees,
     double levelTwoAndThreePositionDegrees,
     double levelFourPositionDegrees,

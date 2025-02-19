@@ -52,6 +52,13 @@ public final class Elevator extends SubsystemBase implements Characterizable {
   private final LoggedTunableNumber homingTimeSeconds;
   private final LoggedTunableNumber homingVolts;
   private final LoggedTunableNumber homingVelocityThresh;
+  private final LoggedTunableNumber stowPositionRadians;
+  private final LoggedTunableNumber prepareCollectPositionRadians;
+  private final LoggedTunableNumber collectPositionRadians;
+  private final LoggedTunableNumber troughPositionRadians;
+  private final LoggedTunableNumber levelTwoPositionRadians;
+  private final LoggedTunableNumber levelThreePositionRadians;
+  private final LoggedTunableNumber levelFourPositionRadians;
   private final Alert leaderDisonnected;
   private final Alert followerDisconnected;
 
@@ -91,6 +98,21 @@ public final class Elevator extends SubsystemBase implements Characterizable {
         tunableNumbers.create("Elevator/HomingVelocityThresh", constants.homingVelocityThresh());
     homingTimeSeconds =
         tunableNumbers.create("Elevator/HomingTimeSecs", constants.homingTimeSeconds());
+    stowPositionRadians =
+        tunableNumbers.create("Elevator/StowPosition", constants.stowPositionRadians());
+    prepareCollectPositionRadians =
+        tunableNumbers.create(
+            "Elevator/PrepareCollectPosition", constants.collectPositionRadians());
+    collectPositionRadians =
+        tunableNumbers.create("Elevator/CollectPosition", constants.collectPositionRadians());
+    troughPositionRadians =
+        tunableNumbers.create("Elevator/TroughPosition", constants.troughPositionRadians());
+    levelTwoPositionRadians =
+        tunableNumbers.create("Elevator/LevelTwoPosition", constants.levelTwoPositionRadians());
+    levelThreePositionRadians =
+        tunableNumbers.create("Elevator/LevelThreePosition", constants.levelThreePositionRadians());
+    levelFourPositionRadians =
+        tunableNumbers.create("Elevator/LevelFourPosition", constants.levelFourPositionRadians());
 
     elevatorIo.setPid(p.get(), i.get(), d.get());
     elevatorIo.setFeedForward(s.get(), g.get(), v.get(), a.get());
@@ -153,7 +175,7 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     // }
     // TODO: calculate feed forward
     elevatorIo.runPosition(angle.plus(Radians.of(homedPositionRads)), Amps.of(0));
-    // Logger.recordOutput("Elevator/SetAngle", angle.plus(Radians.of(homedPositionRads)));
+    Logger.recordOutput("Elevator/SetAngle", angle.plus(Radians.of(homedPositionRads)));
   }
 
   public Angle getAngle() {
@@ -169,36 +191,36 @@ public final class Elevator extends SubsystemBase implements Characterizable {
 
   private Command goTo(Angle angle) {
     Debouncer debouncer = new Debouncer(debounceTime.get());
-    return Commands.run(() -> setAngle(angle), this)
-        .until(() -> debouncer.calculate(getAngle().isNear(angle, variance.get())));
+    return Commands.run(() -> setAngle(angle), this);
+    // .until(() -> debouncer.calculate(getAngle().isNear(angle, variance.get())));
   }
 
   public Command stow() {
-    return goTo(Radians.of(constants.stowPositionRadians()));
+    return goTo(Radians.of(stowPositionRadians.get()));
   }
 
   public Command prepareCollect() {
-    return goTo(Radians.of(constants.prepareCollectPositionRadians()));
+    return goTo(Radians.of(prepareCollectPositionRadians.get()));
   }
 
   public Command collect() {
-    return goTo(Radians.of(constants.collectPositionRadians()));
+    return goTo(Radians.of(collectPositionRadians.get()));
   }
 
   public Command trough() {
-    return goTo(Radians.of(constants.troughPositionRadians()));
+    return goTo(Radians.of(troughPositionRadians.get()));
   }
 
   public Command levelTwo() {
-    return goTo(Radians.of(constants.levelTwoPositionRadians()));
+    return goTo(Radians.of(levelTwoPositionRadians.get()));
   }
 
   public Command levelThree() {
-    return goTo(Radians.of(constants.levelThreePositionRadians()));
+    return goTo(Radians.of(levelThreePositionRadians.get()));
   }
 
   public Command levelFour() {
-    return goTo(Radians.of(constants.levelFourPositionRadians()));
+    return goTo(Radians.of(levelFourPositionRadians.get()));
   }
 
   // A command to gently move the elevator to the home position and mark it.

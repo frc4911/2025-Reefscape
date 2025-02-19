@@ -46,12 +46,12 @@ public interface ElevatorModule {
         .tolerance(0.01) // 1%
         .minPositionRads(0)
         .maxPositionRads(0)
-        .stowPositionRadians(0.1)
-        .collectPositionRadians(.5)
-        .troughPositionRadians(50)
-        .levelTwoPositionRadians(200)
-        .levelThreePositionRadians(200)
-        .levelFourPositionRadians(254)
+        .stowPositionRadians(5)
+        .collectPositionRadians(12.43)
+        .troughPositionRadians(7)
+        .levelTwoPositionRadians(10)
+        .levelThreePositionRadians(18.57)
+        .levelFourPositionRadians(32)
         .feedBackValues(new PidValues(64, 0, 5))
         .feedForwardValues(new FeedForwardValues(0, 0, 0, 0))
         .build();

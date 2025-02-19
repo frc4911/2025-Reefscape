@@ -142,8 +142,15 @@ public final class Arm extends SubsystemBase implements Characterizable {
 
   private Command goTo(Angle angle) {
     Debouncer debouncer = new Debouncer(debounceTime.get());
-    return Commands.run(() -> setAngle(angle), this)
-        .until(() -> debouncer.calculate(getAngle().isNear(angle, variance.get())));
+    return Commands.run(() -> setAngle(angle), this);
+    // .until(
+    //     () -> {
+    //       boolean done = debouncer.calculate(getAngle().isNear(angle, variance.get()));
+    //       Logger.recordOutput("Arm/GoToGetAngle", getAngle().baseUnitMagnitude());
+    //       Logger.recordOutput("Arm/GoToAngle", angle.baseUnitMagnitude());
+    //       Logger.recordOutput("Arm/GoToVariance", variance.get());
+    //       return done;
+    //     });
   }
 
   public Command stow() {
@@ -152,6 +159,10 @@ public final class Arm extends SubsystemBase implements Characterizable {
 
   public Command collect() {
     return goTo(Degrees.of(constants.collectPositionDegrees()));
+  }
+
+  public Command score() {
+    return goTo(Degrees.of(0));
   }
 
   public Command trough() {
