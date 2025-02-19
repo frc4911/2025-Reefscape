@@ -108,6 +108,7 @@ public final class Elevator extends SubsystemBase implements Characterizable {
   public void periodic() {
     elevatorIo.updateInputs(inputs);
     Logger.processInputs("Elevator", inputs);
+    Logger.recordOutput("Elevator/Home", homedPositionRads);
 
     leaderDisonnected.set(!inputs.leaderConnected);
     followerDisconnected.set(!inputs.followerConnected);

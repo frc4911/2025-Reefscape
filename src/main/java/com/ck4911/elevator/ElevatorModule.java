@@ -41,7 +41,7 @@ public interface ElevatorModule {
         .variance(.01)
         .debounceTimeSeconds(0.25)
         .homingTimeSeconds(0.25)
-        .homingVolts(-1.0)
+        .homingVolts(-1.5)
         .homingVelocityThresh(5.0)
         .tolerance(0.01) // 1%
         .minPositionRads(0)
@@ -52,7 +52,7 @@ public interface ElevatorModule {
         .levelTwoPositionRadians(200)
         .levelThreePositionRadians(200)
         .levelFourPositionRadians(254)
-        .feedBackValues(new PidValues(5, 0, 1))
+        .feedBackValues(new PidValues(64, 0, 5))
         .feedForwardValues(new FeedForwardValues(0, 0, 0, 0))
         .build();
   }

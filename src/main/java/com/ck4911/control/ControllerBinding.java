@@ -18,6 +18,7 @@ import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.control.Controller.Role;
 import com.ck4911.drive.Drive;
 import com.ck4911.drive.TunerConstants;
+import com.ck4911.elevator.Elevator;
 import com.ck4911.util.Alert;
 import com.ck4911.util.Alert.AlertType;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
@@ -41,6 +42,7 @@ public final class ControllerBinding implements VirtualSubsystem {
   private final CyberKnightsController operator;
   private final Drive drive;
   private final Arm arm;
+  private final Elevator elevator;
   private final Characterization characterization;
   private final CyberCommands cyberCommands;
 
@@ -63,12 +65,14 @@ public final class ControllerBinding implements VirtualSubsystem {
   public ControllerBinding(
       Drive drive,
       Arm arm,
+      Elevator elevator,
       @Controller(Role.DRIVER) CyberKnightsController driver,
       @Controller(Role.OPERATOR) CyberKnightsController operator,
       Characterization characterization,
       CyberCommands cyberCommands) {
     this.drive = drive;
     this.arm = arm;
+    this.elevator = elevator;
     this.driver = driver;
     this.operator = operator;
     this.characterization = characterization;
@@ -103,10 +107,11 @@ public final class ControllerBinding implements VirtualSubsystem {
     // driver.y().onTrue(characterization.fullArmCharaterization(driver.x()));
     // driver.leftBumper().onTrue(null);
     // driver.b().onTrue(Commands.runOnce(() -> arm.setAngle(Degrees.of(0)), arm));
-    driver.a().onTrue(cyberCommands.levelTwo()); // actually arm L2/l3
-    driver.b().onTrue(cyberCommands.trough()); // actually arm trough
-    driver.y().onTrue(cyberCommands.levelFour()); // actually elevator trough
-    driver.x().onTrue(cyberCommands.levelThree()); // actually elevator l3
+    // driver.a().onTrue(cyberCommands.levelTwo()); // actually arm L2/l3
+    // driver.b().onTrue(cyberCommands.trough()); // actually arm trough
+    // driver.y().onTrue(cyberCommands.levelFour()); // actually elevator trough
+    // driver.x().onTrue(cyberCommands.levelThree()); // actually elevator l3
+    driver.x().onTrue(elevator.home());
   }
 
   public void setDriverRumble(boolean enabled) {
