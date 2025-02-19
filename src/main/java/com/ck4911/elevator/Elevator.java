@@ -226,27 +226,31 @@ public final class Elevator extends SubsystemBase implements Characterizable {
   // A command to gently move the elevator to the home position and mark it.
   public Command home() {
     return new Command() {
-      Debouncer homingDebouncer;
+      private Debouncer homingDebouncer;
+      private boolean homed;
 
       @Override
       public void initialize() {
         homingDebouncer = new Debouncer(homingTimeSeconds.get());
+        homed = false;
       }
 
       @Override
       public void execute() {
         elevatorIo.runVolts(Volts.of(homingVolts.get()));
+        homed =
+            homingDebouncer.calculate(
+                Math.abs(inputs.velocityRadPerSec) <= homingVelocityThresh.get());
       }
 
       @Override
       public boolean isFinished() {
-        return homingDebouncer.calculate(
-            Math.abs(inputs.velocityRadPerSec) <= homingVelocityThresh.get());
+        return homed;
       }
 
       @Override
       public void end(boolean interrupted) {
-        if (!interrupted) {
+        if (homed && !interrupted) {
           homedPositionRads = inputs.positionRads;
         }
       }
