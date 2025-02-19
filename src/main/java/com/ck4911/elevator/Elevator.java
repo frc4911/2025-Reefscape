@@ -109,6 +109,7 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     elevatorIo.updateInputs(inputs);
     Logger.processInputs("Elevator", inputs);
     Logger.recordOutput("Elevator/Home", homedPositionRads);
+    Logger.recordOutput("Elevator/CurrentPosition", getAngle().baseUnitMagnitude());
 
     leaderDisonnected.set(!inputs.leaderConnected);
     followerDisconnected.set(!inputs.followerConnected);
@@ -151,11 +152,12 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     //   return;
     // }
     // TODO: calculate feed forward
-    elevatorIo.runPosition(angle, Amps.of(0));
+    elevatorIo.runPosition(angle.plus(Radians.of(homedPositionRads)), Amps.of(0));
+    // Logger.recordOutput("Elevator/SetAngle", angle.plus(Radians.of(homedPositionRads)));
   }
 
   public Angle getAngle() {
-    return Radians.of(inputs.positionRads);
+    return Radians.of(inputs.positionRads - homedPositionRads);
   }
 
   public Distance getPosition() {

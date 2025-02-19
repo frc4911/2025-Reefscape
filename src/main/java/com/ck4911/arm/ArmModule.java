@@ -43,7 +43,7 @@ public interface ArmModule {
         .armEncoderOffsetRads(-1.83)
         .minPositionRads(-Math.PI / 2.0)
         .maxPositionRads(Math.PI / 2.0)
-        .stowPositionDegrees(75)
+        .stowPositionDegrees(60)
         .collectPositionDegrees(-90)
         .troughPositionDegrees(0)
         .levelTwoAndThreePositionDegrees(57)

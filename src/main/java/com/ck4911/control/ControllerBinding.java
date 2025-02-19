@@ -112,6 +112,7 @@ public final class ControllerBinding implements VirtualSubsystem {
     // driver.y().onTrue(cyberCommands.levelFour()); // actually elevator trough
     // driver.x().onTrue(cyberCommands.levelThree()); // actually elevator l3
     driver.x().onTrue(elevator.home());
+    driver.b().onTrue(elevator.stow());
   }
 
   public void setDriverRumble(boolean enabled) {

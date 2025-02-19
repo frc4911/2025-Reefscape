@@ -57,6 +57,7 @@ public final class CyberCommands {
   public Command stowCommand() {
     // TODO: move to a safe height first
     // If the elevator is too low, this could be bad
-    return arm.stow().andThen(elevator.stow());
+    // return arm.stow().andThen(elevator.stow());
+    return elevator.stow();
   }
 }

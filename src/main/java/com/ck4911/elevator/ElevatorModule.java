@@ -46,7 +46,7 @@ public interface ElevatorModule {
         .tolerance(0.01) // 1%
         .minPositionRads(0)
         .maxPositionRads(0)
-        .stowPositionRadians(0)
+        .stowPositionRadians(0.1)
         .collectPositionRadians(.5)
         .troughPositionRadians(50)
         .levelTwoPositionRadians(200)
