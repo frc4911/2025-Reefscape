@@ -141,16 +141,49 @@ public final class Arm extends SubsystemBase implements Characterizable {
   }
 
   private Command goTo(Angle angle) {
-    Debouncer debouncer = new Debouncer(debounceTime.get());
     return Commands.run(() -> setAngle(angle), this);
-    // .until(
-    //     () -> {
-    //       boolean done = debouncer.calculate(getAngle().isNear(angle, variance.get()));
-    //       Logger.recordOutput("Arm/GoToGetAngle", getAngle().baseUnitMagnitude());
-    //       Logger.recordOutput("Arm/GoToAngle", angle.baseUnitMagnitude());
-    //       Logger.recordOutput("Arm/GoToVariance", variance.get());
-    //       return done;
-    //     });
+  }
+
+  private Command waitUntilAbove(Angle angle) {
+    Debouncer debouncer = new Debouncer(debounceTime.get());
+    Logger.recordOutput("Arm/waitForAngleAngle", angle.baseUnitMagnitude());
+    return Commands.waitUntil(
+        () -> {
+          boolean done =
+              debouncer.calculate(getAngle().baseUnitMagnitude() > angle.baseUnitMagnitude());
+          Logger.recordOutput("Arm/waitForAngleGet", getAngle().baseUnitMagnitude());
+          return done;
+        });
+  }
+
+  private Command waitUntilBelow(Angle angle) {
+    Debouncer debouncer = new Debouncer(debounceTime.get());
+    Logger.recordOutput("Arm/waitForAngleAngle", angle.baseUnitMagnitude());
+    return Commands.waitUntil(
+        () -> {
+          boolean done =
+              debouncer.calculate(getAngle().baseUnitMagnitude() < angle.baseUnitMagnitude());
+          Logger.recordOutput("Arm/waitForAngleGet", getAngle().baseUnitMagnitude());
+          return done;
+        });
+  }
+
+  public Command waitForCoralPresent() {
+    // TODO: use the sensor
+    return Commands.waitUntil(() -> false);
+  }
+
+  public Command waitForCoralGone() {
+    // TODO: use the sensor
+    return Commands.waitUntil(() -> false);
+  }
+
+  public Command waitForCollectPosition() {
+    return waitUntilBelow(Degrees.of(constants.collectPositionDegrees() + 3.0));
+  }
+
+  public Command waitForStowPosition() {
+    return waitUntilAbove(Degrees.of(constants.stowPositionDegrees() - 10.0));
   }
 
   public Command stow() {

@@ -24,18 +24,28 @@ public final class CyberCommands {
     this.elevator = elevator;
   }
 
-  public Command prepareForCollectionCommand() {
-    return elevator.prepareCollect().andThen(arm.collect());
+  public Command prepareForCollect() {
+    return elevator
+        .prepareCollect()
+        .alongWith(elevator.waitForCorralClearance().andThen(arm.collect()));
   }
 
-  // ONLY CALL AFTER PREPARE
-  public Command collectCommand() {
-    return elevator.collect();
-    // TODO: detect coral in arm
+  public Command collect() {
+    // TODO: safety measures (check arm position)
+    return elevator
+        .collect() // move elevator down to collect position
+        .raceWith(elevator.waitForCollect()) // wait until elevator goes down enough
+        // .raceWith(arm.waitForCoralPresent()) // use this when the sensor works
+        .andThen(
+            elevator
+                .prepareCollect()
+                .raceWith(
+                    elevator.waitForCorralClearance())) // go up and wait until clear of corral
+        .andThen(stow()); // finally stow
   }
 
   public Command score() {
-    return arm.score();
+    return arm.score().raceWith(arm.waitForCoralGone()).andThen(prepareForCollect());
   }
 
   public Command home() {
@@ -44,28 +54,23 @@ public final class CyberCommands {
 
   public Command trough() {
     return elevator.trough().alongWith(arm.trough());
-    // return arm.trough();
   }
 
   public Command levelTwo() {
-    // return arm.levelTwoAndThree();
     return elevator.levelTwo().alongWith(arm.levelTwoAndThree());
   }
 
   public Command levelThree() {
-    // return elevator.levelThree();
     return elevator.levelThree().alongWith(arm.levelTwoAndThree());
   }
 
   public Command levelFour() {
-    // return elevator.trough();
     return elevator.levelFour().alongWith(arm.levelFour());
   }
 
   public Command stow() {
-    // TODO: move to a safe height first
+    // TODO: Check if clear of corral first
     // If the elevator is too low, this could be bad
-    return arm.stow().alongWith(elevator.stow());
-    // return elevator.stow();
+    return arm.stow().raceWith(arm.waitForStowPosition().andThen(elevator.stow()));
   }
 }

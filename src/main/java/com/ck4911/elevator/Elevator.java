@@ -190,9 +190,45 @@ public final class Elevator extends SubsystemBase implements Characterizable {
   }
 
   private Command goTo(Angle angle) {
-    Debouncer debouncer = new Debouncer(debounceTime.get());
     return Commands.run(() -> setAngle(angle), this);
-    // .until(() -> debouncer.calculate(getAngle().isNear(angle, variance.get())));
+  }
+
+  public Command waitForPrepareCollectPosition() {
+    return waitUntilAbove(Radians.of(constants.prepareCollectPositionRadians() * 0.9));
+  }
+
+  public Command waitForCorralClearance() {
+    // TODO: use a different constant for corral clearance
+    return waitUntilAbove(Radians.of(constants.prepareCollectPositionRadians() * 0.9));
+  }
+
+  public Command waitForCollect() {
+    // TODO: use the sensor instead/as well
+    return waitUntilBelow(Radians.of(constants.collectPositionRadians()));
+  }
+
+  private Command waitUntilAbove(Angle angle) {
+    Debouncer debouncer = new Debouncer(debounceTime.get());
+    Logger.recordOutput("Elevator/waitForAngleAngle", angle.baseUnitMagnitude());
+    return Commands.waitUntil(
+        () -> {
+          boolean done =
+              debouncer.calculate(getAngle().baseUnitMagnitude() > angle.baseUnitMagnitude());
+          Logger.recordOutput("Elevator/waitForAngleGet", getAngle().baseUnitMagnitude());
+          return done;
+        });
+  }
+
+  private Command waitUntilBelow(Angle angle) {
+    Debouncer debouncer = new Debouncer(debounceTime.get());
+    Logger.recordOutput("Elevator/waitForAngleAngle", angle.baseUnitMagnitude());
+    return Commands.waitUntil(
+        () -> {
+          boolean done =
+              debouncer.calculate(getAngle().baseUnitMagnitude() < angle.baseUnitMagnitude());
+          Logger.recordOutput("ArElevatorm/waitForAngleGet", getAngle().baseUnitMagnitude());
+          return done;
+        });
   }
 
   public Command stow() {
