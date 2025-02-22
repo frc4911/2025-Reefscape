@@ -10,6 +10,7 @@ package com.ck4911.commands;
 import com.ck4911.arm.Arm;
 import com.ck4911.elevator.Elevator;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -27,20 +28,21 @@ public final class CyberCommands {
   public Command prepareForCollect() {
     return elevator
         .prepareCollect()
-        .alongWith(elevator.waitForCorralClearance().andThen(arm.collect()));
+        // .alongWith(elevator.waitForCorralClearance().andThen(arm.collect()));
+        .alongWith(Commands.waitSeconds(2).andThen(arm.collect()));
   }
 
   public Command collect() {
     // TODO: safety measures (check arm position)
     return elevator
         .collect() // move elevator down to collect position
-        .raceWith(elevator.waitForCollect()) // wait until elevator goes down enough
+        // .raceWith(elevator.waitForCollect()) // wait until elevator goes down enough
+        .raceWith(Commands.waitSeconds(0.1))
         // .raceWith(arm.waitForCoralPresent()) // use this when the sensor works
-        .andThen(
-            elevator
-                .prepareCollect()
-                .raceWith(
-                    elevator.waitForCorralClearance())) // go up and wait until clear of corral
+        .andThen(elevator.prepareCollect())
+        // .raceWith(
+        //     elevator.waitForCorralClearance())) // go up and wait until clear of corral
+        .raceWith(Commands.waitSeconds(0.1))
         .andThen(stow()); // finally stow
   }
 
