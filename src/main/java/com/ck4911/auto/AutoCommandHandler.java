@@ -11,6 +11,7 @@ import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -61,7 +62,11 @@ public final class AutoCommandHandler implements VirtualSubsystem {
 
   private void addAutos() {
     autoChooser.addCmd("test", () -> Commands.print("hi"));
-    autoChooser.addCmd("1m", () -> autoFactory.trajectoryCmd("1m"));
+    autoChooser.addCmd(
+        "1m",
+        () ->
+            Commands.runOnce(() -> drive.resetPose(new Pose2d()))
+                .andThen(autoFactory.trajectoryCmd("1m")));
 
     SmartDashboard.putData("Autos", autoChooser);
   }
