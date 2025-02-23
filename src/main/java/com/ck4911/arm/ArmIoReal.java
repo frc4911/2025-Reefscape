@@ -180,7 +180,12 @@ public final class ArmIoReal implements ArmIo {
     inputs.tempCelcius = tempCelsius.getValue().in(Celsius);
 
     Measurement measurement = distanceSensor.getMeasurement();
-    // TODO: populate the sensor values in inputs
+    inputs.sensorConnected = measurement != null;
+    if (inputs.sensorConnected && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+      inputs.sensorStatus = measurement.status;
+      inputs.sensorAmbient = measurement.ambient;
+      inputs.sensorDistanceMillimeters = measurement.distance_mm;
+    }
   }
 
   @Override
