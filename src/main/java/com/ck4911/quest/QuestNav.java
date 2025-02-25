@@ -42,7 +42,7 @@ public final class QuestNav {
       nt4Table.getDoubleTopic("batteryPercent").subscribe(0.0f);
 
   // Local heading helper variables
-  private float yaw_offset = 0.0f;
+  private float yaw_offset = -29.216252f;
   private Pose2d resetPosition = new Pose2d();
 
   @Inject
