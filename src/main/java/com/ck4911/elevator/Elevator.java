@@ -102,7 +102,7 @@ public final class Elevator extends SubsystemBase implements Characterizable {
         tunableNumbers.create("Elevator/StowPosition", constants.stowPositionRadians());
     prepareCollectPositionRadians =
         tunableNumbers.create(
-            "Elevator/PrepareCollectPosition", constants.collectPositionRadians());
+            "Elevator/PrepareCollectPosition", constants.prepareCollectPositionRadians());
     collectPositionRadians =
         tunableNumbers.create("Elevator/CollectPosition", constants.collectPositionRadians());
     troughPositionRadians =

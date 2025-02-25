@@ -29,7 +29,7 @@ public final class CyberCommands {
     return elevator
         .prepareCollect()
         // .alongWith(elevator.waitForCorralClearance().andThen(arm.collect()));
-        .alongWith(Commands.waitSeconds(2).andThen(arm.collect()));
+        .alongWith(Commands.waitSeconds(0.5).andThen(arm.collect()));
   }
 
   public Command collect() {
@@ -37,7 +37,7 @@ public final class CyberCommands {
     return elevator
         .collect() // move elevator down to collect position
         // .raceWith(elevator.waitForCollect()) // wait until elevator goes down enough
-        .raceWith(Commands.waitSeconds(0.1))
+        .raceWith(Commands.waitSeconds(0.2))
         // .raceWith(arm.waitForCoralPresent()) // use this when the sensor works
         .andThen(elevator.prepareCollect())
         // .raceWith(

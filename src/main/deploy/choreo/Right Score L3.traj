@@ -1,5 +1,5 @@
 {
- "name":"Right Score",
+ "name":"Right Score L3",
  "version":1,
  "snapshot":{
   "waypoints":[
@@ -97,6 +97,6 @@
   "splits":[0]
  },
  "events":[
-   {"name":"Trough", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"trough"}}},
+   {"name":"L3", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"levelThree"}}},
    {"name":"Score", "from":{"target":1, "targetTimestamp":0.97809, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"score"}}}]
 }
