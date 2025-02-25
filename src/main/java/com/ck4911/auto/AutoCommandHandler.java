@@ -9,7 +9,6 @@ package com.ck4911.auto;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
-
 import com.ck4911.commands.CyberCommands;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
@@ -33,7 +32,8 @@ public final class AutoCommandHandler implements VirtualSubsystem {
   private Command currentAutoCommand;
 
   @Inject
-  public AutoCommandHandler(AutoFactory autoFactory, Drive drive, CyberCommands cyberCommands, AutoChooser autoChooser) {
+  public AutoCommandHandler(
+      AutoFactory autoFactory, Drive drive, CyberCommands cyberCommands, AutoChooser autoChooser) {
     this.autoChooser = autoChooser;
     this.drive = drive;
     this.cyberCommands = cyberCommands;
@@ -61,8 +61,7 @@ public final class AutoCommandHandler implements VirtualSubsystem {
   }
 
   private void bindNamedCommands() {
-    autoFactory
-    .bind("Home", cyberCommands.home());
+    autoFactory.bind("Home", cyberCommands.home());
     // TODO: bind name commands so that waypoints trigger them
   }
 

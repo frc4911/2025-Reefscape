@@ -181,7 +181,8 @@ public final class ArmIoReal implements ArmIo {
 
     Measurement measurement = distanceSensor.getMeasurement();
     inputs.sensorConnected = measurement != null;
-    if (inputs.sensorConnected && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
+    if (inputs.sensorConnected
+        && measurement.status == LaserCan.LASERCAN_STATUS_VALID_MEASUREMENT) {
       inputs.sensorStatus = measurement.status;
       inputs.sensorAmbient = measurement.ambient;
       inputs.sensorDistanceMillimeters = measurement.distance_mm;
