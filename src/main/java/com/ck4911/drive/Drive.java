@@ -18,6 +18,7 @@ import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
+import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -31,6 +32,8 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 import javax.inject.Inject;
 import org.littletonrobotics.junction.Logger;
@@ -110,6 +113,7 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
               this));
 
   private final QuestNav questNav;
+  private final List<DriveLogger> driveLoggers = new ArrayList<>();
 
   @Inject
   Drive(QuestNav questNav) {
@@ -127,6 +131,11 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
       startSimThread();
     }
     questNav.zeroHeading();
+    SwerveModule<TalonFX, TalonFX, CANcoder>[] modules = getModules();
+    driveLoggers.add(new DriveLogger("FrontLeft", modules[0]));
+    driveLoggers.add(new DriveLogger("FrontRight", modules[1]));
+    driveLoggers.add(new DriveLogger("BackLeft", modules[2]));
+    driveLoggers.add(new DriveLogger("BackRight", modules[3]));
   }
 
   /**
@@ -163,6 +172,9 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
     Logger.recordOutput("Drive/OdometryPose", getState().Pose);
     Logger.recordOutput("Drive/QuestPose", questNav.getPose());
     Logger.recordOutput("Drive/OculusQuaternion", questNav.getQuaternion());
+    for (DriveLogger logger : driveLoggers) {
+      logger.updateInputs();
+    }
   }
 
   @Override
