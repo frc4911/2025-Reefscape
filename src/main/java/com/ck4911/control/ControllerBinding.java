@@ -46,15 +46,14 @@ public final class ControllerBinding implements VirtualSubsystem {
   // 3/4 of a rotation per second max angular velocity
   private AngularVelocity maxAngularSpeed = RotationsPerSecond.of(0.75);
 
-  /* Setting up bindings for necessary control of the swerve drive platform */
+  // TODO: experiment with DriveRequestType.Velocity
   private final SwerveRequest.FieldCentric driveRequest =
-      // Add a 10% deadband
-      // Use open-loop control for drive motors
       new SwerveRequest.FieldCentric()
           .withDeadband(maxSpeed.times(0.1))
           .withRotationalDeadband(maxAngularSpeed.times(0.1))
           .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
+  // TODO: experiment with this
   // .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
   @Inject
@@ -71,7 +70,7 @@ public final class ControllerBinding implements VirtualSubsystem {
     this.cyberCommands = cyberCommands;
     deadband = tunableNumbers.create("Controller/deadband", constants.deadband());
     sniperScale = tunableNumbers.create("Controller/sniperScale", constants.sniperScale());
-
+    updateDeadband(deadband.get());
     setupControls();
   }
 
@@ -84,8 +83,13 @@ public final class ControllerBinding implements VirtualSubsystem {
         !DriverStation.isJoystickConnected(operator.getHID().getPort())
             || !DriverStation.getJoystickIsXbox(operator.getHID().getPort()));
 
-    LoggedTunableNumber.ifChanged(
-        hashCode(), () -> driveRequest.withDeadband(deadband.get()), deadband);
+    LoggedTunableNumber.ifChanged(hashCode(), () -> updateDeadband(deadband.get()), deadband);
+  }
+
+  private void updateDeadband(double deadband) {
+    driveRequest
+        .withDeadband(maxSpeed.times(deadband))
+        .withRotationalDeadband(maxAngularSpeed.times(deadband));
   }
 
   private void setupControls() {
@@ -106,14 +110,6 @@ public final class ControllerBinding implements VirtualSubsystem {
                   .withRotationalRate(maxAngularSpeed.times(theta));
             }));
 
-    // driver.a().onTrue(characterization.fullDriveCharacterization(driver.x()));
-    // driver.y().onTrue(characterization.fullArmCharaterization(driver.x()));
-    // driver.leftBumper().onTrue(null);
-    // driver.b().onTrue(Commands.runOnce(() -> arm.setAngle(Degrees.of(0)), arm));
-    // driver.a().onTrue(cyberCommands.levelTwo()); // actually arm L2/l3
-    // driver.b().onTrue(cyberCommands.trough()); // actually arm trough
-    // driver.y().onTrue(cyberCommands.levelFour()); // actually elevator trough
-    // driver.x().onTrue(cyberCommands.levelThree()); // actually elevator l3
     operator.leftBumper().onTrue(cyberCommands.home());
     operator.povUp().onTrue(cyberCommands.prepareForCollect());
     operator.povDown().onTrue(cyberCommands.collect());
@@ -126,6 +122,7 @@ public final class ControllerBinding implements VirtualSubsystem {
     operator.y().onTrue(cyberCommands.levelFour());
 
     driver.leftTrigger().onTrue(cyberCommands.collect());
+    driver.y().onTrue(cyberCommands.zeroGyro());
   }
 
   public void setDriverRumble(boolean enabled) {
