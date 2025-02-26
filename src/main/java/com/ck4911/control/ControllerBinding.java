@@ -80,11 +80,16 @@ public final class ControllerBinding implements VirtualSubsystem {
   private void setupControls() {
     drive.setDefaultCommand(
         drive.applyRequest(
-            () ->
-                driveRequest
-                    .withVelocityX(maxSpeed.times(-driver.getLeftY()))
-                    .withVelocityY(maxSpeed.times(-driver.getLeftX()))
-                    .withRotationalRate(maxAngularSpeed.times(driver.getRightX()))));
+            () -> {
+              double x = -driver.getLeftY();
+              if (driver.rightTrigger().getAsBoolean()) {
+                x = x * .1;
+              }
+              return driveRequest
+                  .withVelocityX(maxSpeed.times(-driver.getLeftY()))
+                  .withVelocityY(maxSpeed.times(-driver.getLeftX()))
+                  .withRotationalRate(maxAngularSpeed.times(driver.getRightX()));
+            }));
 
     // driver.a().onTrue(characterization.fullDriveCharacterization(driver.x()));
     // driver.y().onTrue(characterization.fullArmCharaterization(driver.x()));
@@ -94,6 +99,7 @@ public final class ControllerBinding implements VirtualSubsystem {
     // driver.b().onTrue(cyberCommands.trough()); // actually arm trough
     // driver.y().onTrue(cyberCommands.levelFour()); // actually elevator trough
     // driver.x().onTrue(cyberCommands.levelThree()); // actually elevator l3
+
     operator.leftBumper().onTrue(cyberCommands.home());
     operator.povUp().onTrue(cyberCommands.prepareForCollect());
     operator.povDown().onTrue(cyberCommands.collect());
