@@ -52,8 +52,8 @@ public interface ElevatorModule {
         .prepareCollectPositionRadians(13)
         .troughPositionRadians(7)
         .levelTwoPositionRadians(10)
-        .levelThreePositionRadians(18.57)
-        .levelFourPositionRadians(32)
+        .levelThreePositionRadians(20)
+        .levelFourPositionRadians(35)
         .feedBackValues(new PidValues(64, 0, 5))
         .feedForwardValues(new FeedForwardValues(0, 0, 0, 0))
         .build();

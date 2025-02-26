@@ -84,7 +84,7 @@ public final class ControllerBinding implements VirtualSubsystem {
                 driveRequest
                     .withVelocityX(maxSpeed.times(-driver.getLeftY()))
                     .withVelocityY(maxSpeed.times(-driver.getLeftX()))
-                    .withRotationalRate(maxAngularSpeed.times(driver.getRightX()))));
+                    .withRotationalRate(maxAngularSpeed.times(-driver.getRightX()))));
 
     // driver.a().onTrue(characterization.fullDriveCharacterization(driver.x()));
     // driver.y().onTrue(characterization.fullArmCharaterization(driver.x()));
