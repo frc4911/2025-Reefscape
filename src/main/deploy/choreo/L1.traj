@@ -82,6 +82,6 @@
   "splits":[0]
  },
  "events":[
-   {"name":"Trough", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"trough"}}},
+   {"name":"L4", "from":{"target":0, "targetTimestamp":0.0, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"levelFour"}}},
    {"name":"Score", "from":{"target":1, "targetTimestamp":0.75452, "offset":{"exp":"0 s", "val":0.0}}, "event":{"type":"named", "data":{"name":"score"}}}]
 }

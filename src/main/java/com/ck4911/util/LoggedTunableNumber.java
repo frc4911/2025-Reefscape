@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 import javax.inject.Named;
+import javax.inject.Singleton;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 /**
@@ -23,7 +24,7 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
  * value not in dashboard.
  */
 public final class LoggedTunableNumber implements DoubleSupplier {
-  private static final String tableKey = "TunableNumbers";
+  private static final String tableKey = "Tuning";
 
   private final String key;
   private boolean hasDefault = false;
@@ -33,6 +34,7 @@ public final class LoggedTunableNumber implements DoubleSupplier {
   private final boolean tuningMode;
 
   @AssistedFactory
+  @Singleton
   public interface TunableNumbers {
     LoggedTunableNumber create(String dashboardKey, double defaultValue);
   }
