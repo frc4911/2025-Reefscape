@@ -12,9 +12,13 @@ import static edu.wpi.first.units.Units.Volts;
 
 import com.ck4911.characterization.Characterizable;
 import com.ck4911.quest.QuestNav;
+import com.ck4911.util.LoggedTunableNumber;
+import com.ck4911.util.LoggedTunableNumber.TunableNumbers;
+import com.ck4911.util.PhoenixUtils;
 import com.ck4911.vision.VisionConsumer;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain;
@@ -113,10 +117,22 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
               this));
 
   private final QuestNav questNav;
+  private final LoggedTunableNumber driveP;
+  private final LoggedTunableNumber driveI;
+  private final LoggedTunableNumber driveD;
+  private final LoggedTunableNumber driveS;
+  private final LoggedTunableNumber driveV;
+  private final LoggedTunableNumber driveA;
+  private final LoggedTunableNumber turnP;
+  private final LoggedTunableNumber turnI;
+  private final LoggedTunableNumber turnD;
+  private final LoggedTunableNumber turnS;
+  private final LoggedTunableNumber turnV;
+  private final LoggedTunableNumber turnA;
   private final List<DriveLogger> driveLoggers = new ArrayList<>();
 
   @Inject
-  Drive(QuestNav questNav) {
+  Drive(QuestNav questNav, TunableNumbers tunableNumbers) {
     super(
         TalonFX::new,
         TalonFX::new,
@@ -127,6 +143,18 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
         TunerConstants.BackLeft,
         TunerConstants.BackRight);
     this.questNav = questNav;
+    driveP = tunableNumbers.create("Drive/driveP", TunerConstants.driveGains.kP);
+    driveI = tunableNumbers.create("Drive/driveI", TunerConstants.driveGains.kI);
+    driveD = tunableNumbers.create("Drive/driveD", TunerConstants.driveGains.kD);
+    driveS = tunableNumbers.create("Drive/driveS", TunerConstants.driveGains.kS);
+    driveV = tunableNumbers.create("Drive/driveV", TunerConstants.driveGains.kV);
+    driveA = tunableNumbers.create("Drive/driveA", TunerConstants.driveGains.kA);
+    turnP = tunableNumbers.create("Drive/turnP", TunerConstants.steerGains.kP);
+    turnI = tunableNumbers.create("Drive/turnI", TunerConstants.steerGains.kI);
+    turnD = tunableNumbers.create("Drive/turnD", TunerConstants.steerGains.kD);
+    turnS = tunableNumbers.create("Drive/turnS", TunerConstants.steerGains.kS);
+    turnV = tunableNumbers.create("Drive/turnV", TunerConstants.steerGains.kV);
+    turnA = tunableNumbers.create("Drive/turnA", TunerConstants.steerGains.kA);
     if (Utils.isSimulation()) {
       startSimThread();
     }
@@ -174,6 +202,43 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
     Logger.recordOutput("Drive/OculusQuaternion", questNav.getQuaternion());
     for (DriveLogger logger : driveLoggers) {
       logger.updateInputs();
+    }
+
+    LoggedTunableNumber.ifChanged(
+        hashCode(), this::updateDriveGains, driveP, driveI, driveD, driveS, driveV, driveA);
+    LoggedTunableNumber.ifChanged(
+        hashCode(), this::updateSteerGains, turnP, turnI, turnD, turnS, turnV, turnA);
+  }
+
+  private void updateDriveGains() {
+    Slot0Configs newDriveGains =
+        TunerConstants.driveGains
+            .withKP(driveP.get())
+            .withKI(driveI.get())
+            .withKD(driveD.get())
+            .withKS(driveS.get())
+            .withKV(driveV.get())
+            .withKA(driveA.get());
+    SwerveModule<TalonFX, TalonFX, CANcoder>[] modules = getModules();
+    for (SwerveModule<TalonFX, TalonFX, CANcoder> module : modules) {
+      PhoenixUtils.tryUntilOk(
+          5, () -> module.getDriveMotor().getConfigurator().apply(newDriveGains));
+    }
+  }
+
+  private void updateSteerGains() {
+    Slot0Configs newSteerGains =
+        TunerConstants.steerGains
+            .withKP(turnP.get())
+            .withKI(turnI.get())
+            .withKD(turnD.get())
+            .withKS(turnS.get())
+            .withKV(turnV.get())
+            .withKA(turnA.get());
+    SwerveModule<TalonFX, TalonFX, CANcoder>[] modules = getModules();
+    for (SwerveModule<TalonFX, TalonFX, CANcoder> module : modules) {
+      PhoenixUtils.tryUntilOk(
+          5, () -> module.getSteerMotor().getConfigurator().apply(newSteerGains));
     }
   }
 
