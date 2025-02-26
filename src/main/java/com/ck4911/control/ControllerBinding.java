@@ -82,10 +82,10 @@ public final class ControllerBinding implements VirtualSubsystem {
         drive.applyRequest(
             () -> {
               // TODO: swap these after pigeon fix
-              double x = -driver.getLeftY();
+              double x = driver.getLeftX();
               double y = -driver.getLeftX();
               double theta = -driver.getRightX();
-              if (driver.rightTrigger().getAsBoolean()) {
+              if (driver.leftTrigger().getAsBoolean()) {
                 x = x * .1;
                 y = y * .1;
                 theta = theta * .1;
