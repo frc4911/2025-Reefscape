@@ -10,4 +10,5 @@ package com.ck4911.control;
 import io.soabase.recordbuilder.core.RecordBuilder;
 
 @RecordBuilder
-public record ControlConstants(int driverPort, int operatorPort, double stickDeadband) {}
+public record ControlConstants(
+    int driverPort, int operatorPort, double deadband, double sniperScale) {}

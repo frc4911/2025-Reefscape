@@ -16,6 +16,8 @@ import com.ck4911.drive.Drive;
 import com.ck4911.drive.TunerConstants;
 import com.ck4911.util.Alert;
 import com.ck4911.util.Alert.AlertType;
+import com.ck4911.util.LoggedTunableNumber;
+import com.ck4911.util.LoggedTunableNumber.TunableNumbers;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -32,6 +34,8 @@ public final class ControllerBinding implements VirtualSubsystem {
   private final Alert operatorDisconnected =
       new Alert("Operator controller disconnected (port 1).", AlertType.WARNING);
 
+  private final LoggedTunableNumber deadband;
+  private final LoggedTunableNumber sniperScale;
   private final CyberKnightsController driver;
   private final CyberKnightsController operator;
   private final Drive drive;
@@ -55,14 +59,18 @@ public final class ControllerBinding implements VirtualSubsystem {
 
   @Inject
   public ControllerBinding(
+      ControlConstants constants,
       Drive drive,
       @Controller(Role.DRIVER) CyberKnightsController driver,
       @Controller(Role.OPERATOR) CyberKnightsController operator,
-      CyberCommands cyberCommands) {
+      CyberCommands cyberCommands,
+      TunableNumbers tunableNumbers) {
     this.drive = drive;
     this.driver = driver;
     this.operator = operator;
     this.cyberCommands = cyberCommands;
+    deadband = tunableNumbers.create("Controller/deadband", constants.deadband());
+    sniperScale = tunableNumbers.create("Controller/sniperScale", constants.sniperScale());
 
     setupControls();
   }
@@ -75,20 +83,22 @@ public final class ControllerBinding implements VirtualSubsystem {
     operatorDisconnected.set(
         !DriverStation.isJoystickConnected(operator.getHID().getPort())
             || !DriverStation.getJoystickIsXbox(operator.getHID().getPort()));
+
+    LoggedTunableNumber.ifChanged(
+        hashCode(), () -> driveRequest.withDeadband(deadband.get()), deadband);
   }
 
   private void setupControls() {
     drive.setDefaultCommand(
         drive.applyRequest(
             () -> {
-              // TODO: swap these after pigeon fix
-              double x = driver.getLeftX();
-              double y = -driver.getLeftX();
+              double x = -driver.getLeftX();
+              double y = -driver.getLeftY();
               double theta = -driver.getRightX();
               if (driver.leftTrigger().getAsBoolean()) {
-                x = x * .1;
-                y = y * .1;
-                theta = theta * .1;
+                x = x * sniperScale.get();
+                y = y * sniperScale.get();
+                theta = theta * sniperScale.get();
               }
               return driveRequest
                   .withVelocityX(maxSpeed.times(x))
