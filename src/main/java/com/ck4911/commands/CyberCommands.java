@@ -39,7 +39,9 @@ public final class CyberCommands {
         // .raceWith(elevator.waitForCollect()) // wait until elevator goes down enough
         .raceWith(Commands.waitSeconds(0.5))
         // .raceWith(arm.waitForCoralPresent()) // use this when the sensor works
-        .andThen(elevator.passCorral());
+        .andThen(elevator.passCorral())
+        .raceWith(Commands.waitSeconds(.25))
+        .andThen(arm.stow());
     // .raceWith(
     //     elevator.waitForCorralClearance())) // go up and wait until clear of corral
     // .raceWith(Commands.waitSeconds(0.1))
