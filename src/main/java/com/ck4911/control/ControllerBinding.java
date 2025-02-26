@@ -72,9 +72,9 @@ public final class ControllerBinding implements VirtualSubsystem {
     driverDisconnected.set(
         !DriverStation.isJoystickConnected(driver.getHID().getPort())
             || !DriverStation.getJoystickIsXbox(driver.getHID().getPort()));
-    // operatorDisconnected.set(
-    //     !DriverStation.isJoystickConnected(operator.getHID().getPort())
-    //         || !DriverStation.getJoystickIsXbox(operator.getHID().getPort()));
+    operatorDisconnected.set(
+        !DriverStation.isJoystickConnected(operator.getHID().getPort())
+            || !DriverStation.getJoystickIsXbox(operator.getHID().getPort()));
   }
 
   private void setupControls() {
