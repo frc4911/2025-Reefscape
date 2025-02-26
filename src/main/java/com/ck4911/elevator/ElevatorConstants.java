@@ -15,6 +15,7 @@ import io.soabase.recordbuilder.core.RecordBuilder;
 public record ElevatorConstants(
     int motorLeftId,
     int motorRightId,
+    double corralHeight,
     double sprocketRadius,
     double gearRatio,
     double homingVolts,

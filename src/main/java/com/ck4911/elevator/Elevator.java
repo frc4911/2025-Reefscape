@@ -43,6 +43,7 @@ public final class Elevator extends SubsystemBase implements Characterizable {
   private final LoggedTunableNumber s;
   private final LoggedTunableNumber g;
   private final LoggedTunableNumber v;
+  private final LoggedTunableNumber corralHeight;
   private final LoggedTunableNumber a;
   private final LoggedTunableNumber velocity;
   private final LoggedTunableNumber acceleration;
@@ -96,13 +97,14 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     homingVolts = tunableNumbers.create("Elevator/HomingVolts", constants.homingVolts());
     homingVelocityThresh =
         tunableNumbers.create("Elevator/HomingVelocityThresh", constants.homingVelocityThresh());
+    corralHeight = tunableNumbers.create("Elevator/CorralHeight", constants.corralHeight());
     homingTimeSeconds =
         tunableNumbers.create("Elevator/HomingTimeSecs", constants.homingTimeSeconds());
     stowPositionRadians =
         tunableNumbers.create("Elevator/StowPosition", constants.stowPositionRadians());
     prepareCollectPositionRadians =
         tunableNumbers.create(
-            "Elevator/PrepareCollectPosition", constants.collectPositionRadians());
+            "Elevator/PrepareCollectPosition", constants.prepareCollectPositionRadians());
     collectPositionRadians =
         tunableNumbers.create("Elevator/CollectPosition", constants.collectPositionRadians());
     troughPositionRadians =
@@ -189,8 +191,8 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     return position;
   }
 
-  private Command goTo(Angle angle) {
-    return Commands.run(() -> setAngle(angle), this);
+  private Command goTo(LoggedTunableNumber number) {
+    return Commands.run(() -> setAngle(Radians.of(number.get())), this);
   }
 
   public Command waitForPrepareCollectPosition() {
@@ -232,31 +234,35 @@ public final class Elevator extends SubsystemBase implements Characterizable {
   }
 
   public Command stow() {
-    return goTo(Radians.of(stowPositionRadians.get()));
+    return goTo(stowPositionRadians);
   }
 
   public Command prepareCollect() {
-    return goTo(Radians.of(prepareCollectPositionRadians.get()));
+    return goTo(prepareCollectPositionRadians);
   }
 
   public Command collect() {
-    return goTo(Radians.of(collectPositionRadians.get()));
+    return goTo(collectPositionRadians);
+  }
+
+  public Command passCorral() {
+    return goTo(corralHeight);
   }
 
   public Command trough() {
-    return goTo(Radians.of(troughPositionRadians.get()));
+    return goTo(troughPositionRadians);
   }
 
   public Command levelTwo() {
-    return goTo(Radians.of(levelTwoPositionRadians.get()));
+    return goTo(levelTwoPositionRadians);
   }
 
   public Command levelThree() {
-    return goTo(Radians.of(levelThreePositionRadians.get()));
+    return goTo(levelThreePositionRadians);
   }
 
   public Command levelFour() {
-    return goTo(Radians.of(levelFourPositionRadians.get()));
+    return goTo(levelFourPositionRadians);
   }
 
   // A command to gently move the elevator to the home position and mark it.

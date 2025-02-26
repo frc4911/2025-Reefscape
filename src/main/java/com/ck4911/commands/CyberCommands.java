@@ -29,7 +29,7 @@ public final class CyberCommands {
     return elevator
         .prepareCollect()
         // .alongWith(elevator.waitForCorralClearance().andThen(arm.collect()));
-        .alongWith(Commands.waitSeconds(2).andThen(arm.collect()));
+        .alongWith(Commands.waitSeconds(0.5).andThen(arm.collect()));
   }
 
   public Command collect() {
@@ -37,13 +37,13 @@ public final class CyberCommands {
     return elevator
         .collect() // move elevator down to collect position
         // .raceWith(elevator.waitForCollect()) // wait until elevator goes down enough
-        .raceWith(Commands.waitSeconds(0.1))
+        .raceWith(Commands.waitSeconds(0.5))
         // .raceWith(arm.waitForCoralPresent()) // use this when the sensor works
-        .andThen(elevator.prepareCollect())
-        // .raceWith(
-        //     elevator.waitForCorralClearance())) // go up and wait until clear of corral
-        .raceWith(Commands.waitSeconds(0.1))
-        .andThen(stow()); // finally stow
+        .andThen(elevator.passCorral());
+    // .raceWith(
+    //     elevator.waitForCorralClearance())) // go up and wait until clear of corral
+    // .raceWith(Commands.waitSeconds(0.1))
+    // .andThen(stow()); // finally stow
   }
 
   public Command score() {
@@ -59,7 +59,7 @@ public final class CyberCommands {
   }
 
   public Command levelTwo() {
-    return elevator.levelTwo().alongWith(arm.levelTwoAndThree());
+    return arm.levelTwoAndThree().raceWith(Commands.waitSeconds(0.5)).andThen(elevator.levelTwo());
   }
 
   public Command levelThree() {
