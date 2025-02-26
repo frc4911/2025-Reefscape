@@ -24,6 +24,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj2.command.Commands;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -122,7 +123,17 @@ public final class ControllerBinding implements VirtualSubsystem {
     operator.y().onTrue(cyberCommands.levelFour());
 
     driver.leftTrigger().onTrue(cyberCommands.collect());
-    driver.y().onTrue(cyberCommands.zeroGyro());
+    // This is a "long press"; it will only zero if the button is held down for a few seconds
+    driver
+        .y()
+        .debounce(3.0)
+        .onTrue(
+            cyberCommands
+                .zeroGyro()
+                .andThen(
+                    Commands.runOnce(() -> setDriverRumble(true))
+                        .withTimeout(1.5)
+                        .andThen(() -> setDriverRumble(false))));
   }
 
   public void setDriverRumble(boolean enabled) {
