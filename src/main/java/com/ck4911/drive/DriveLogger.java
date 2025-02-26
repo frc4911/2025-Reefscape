@@ -19,6 +19,8 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveModule;
+
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -28,6 +30,7 @@ import org.littletonrobotics.junction.Logger;
 
 /** A shim to read signals from devices in the generated swerve code and pass them to our logs */
 final class DriveLogger {
+  private static final double debounceTime = 0.5;
   private final SwerveModuleIoInputsAutoLogged inputs = new SwerveModuleIoInputsAutoLogged();
 
   private final StatusSignal<Angle> encoderPositionRotations;
@@ -47,6 +50,9 @@ final class DriveLogger {
   private final StatusSignal<Temperature> steerTempCelsius;
 
   private final String name;
+  private final Debouncer driveConnectedDebouncer;
+  private final Debouncer steerConnectedDebouncer;
+  private final Debouncer encoderConnectedDebouncer;
 
   DriveLogger(String name, SwerveModule<TalonFX, TalonFX, CANcoder> module) {
     this.name = name;
@@ -83,6 +89,10 @@ final class DriveLogger {
     BaseStatusSignal.setUpdateFrequencyForAll(500, encoderPositionRotations);
     ParentDevice.optimizeBusUtilizationForAll(
         module.getDriveMotor(), module.getSteerMotor(), module.getEncoder());
+
+    driveConnectedDebouncer = new Debouncer(debounceTime);
+    steerConnectedDebouncer = new Debouncer(debounceTime);
+    encoderConnectedDebouncer = new Debouncer(debounceTime);
   }
 
   public void updateInputs() {
@@ -107,7 +117,7 @@ final class DriveLogger {
             .isOK();
     boolean encoderConnected = BaseStatusSignal.refreshAll(encoderPositionRotations).isOK();
 
-    inputs.driveMotorConnected = driveMotorConnected;
+    inputs.driveMotorConnected = driveConnectedDebouncer.calculate(driveMotorConnected);
     inputs.drivePositionRad = drivePositionRadians.getValue().in(Radians);
     inputs.driveVelocityRadPerSec = driveVelocityRps.getValue().in(RadiansPerSecond);
     inputs.driveAppliedVolts = driveAppliedVoltage.getValue().in(Volts);
@@ -115,7 +125,7 @@ final class DriveLogger {
     inputs.driveTorqueCurrentAmps = driveTorqueCurrent.getValue().in(Amps);
     inputs.driveTempCelcius = driveTempCelsius.getValue().in(Celsius);
 
-    inputs.turnMotorConnected = turnMotorConnected;
+    inputs.turnMotorConnected = steerConnectedDebouncer.calculate(turnMotorConnected);
     inputs.turnPositionRad = steerPositionRadians.getValue().in(Radians);
     inputs.turnVelocityRadPerSec = steerVelocityRps.getValue().in(RadiansPerSecond);
     inputs.turnAppliedVolts = steerAppliedVoltage.getValue().in(Volts);
@@ -123,7 +133,7 @@ final class DriveLogger {
     inputs.turnTorqueCurrentAmps = steerTorqueCurrent.getValue().in(Amps);
     inputs.turnTempCelcius = steerTempCelsius.getValue().in(Celsius);
 
-    inputs.encoderConnected = encoderConnected;
+    inputs.encoderConnected = encoderConnectedDebouncer.calculate(encoderConnected);
     inputs.encoderPositionRads = encoderPositionRotations.getValue().in(Radians);
 
     Logger.processInputs("Drive/Module" + name, inputs);
