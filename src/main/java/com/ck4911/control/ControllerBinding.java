@@ -80,11 +80,21 @@ public final class ControllerBinding implements VirtualSubsystem {
   private void setupControls() {
     drive.setDefaultCommand(
         drive.applyRequest(
-            () ->
-                driveRequest
-                    .withVelocityX(maxSpeed.times(-driver.getLeftY()))
-                    .withVelocityY(maxSpeed.times(-driver.getLeftX()))
-                    .withRotationalRate(maxAngularSpeed.times(driver.getRightX()))));
+            () -> {
+              // TODO: swap these after pigeon fix
+              double x = -driver.getLeftY();
+              double y = -driver.getLeftX();
+              double theta = -driver.getRightX();
+              if (driver.rightTrigger().getAsBoolean()) {
+                x = x * .1;
+                y = y * .1;
+                theta = theta * .1;
+              }
+              return driveRequest
+                  .withVelocityX(maxSpeed.times(x))
+                  .withVelocityY(maxSpeed.times(y))
+                  .withRotationalRate(maxAngularSpeed.times(theta));
+            }));
 
     // driver.a().onTrue(characterization.fullDriveCharacterization(driver.x()));
     // driver.y().onTrue(characterization.fullArmCharaterization(driver.x()));
@@ -100,9 +110,12 @@ public final class ControllerBinding implements VirtualSubsystem {
     operator.povLeft().onTrue(cyberCommands.stow());
     operator.rightTrigger().onTrue(cyberCommands.score());
     operator.b().onTrue(cyberCommands.levelThree());
+
     operator.x().onTrue(cyberCommands.levelTwo());
     operator.a().onTrue(cyberCommands.trough());
     operator.y().onTrue(cyberCommands.levelFour());
+
+    driver.leftTrigger().onTrue(cyberCommands.collect());
   }
 
   public void setDriverRumble(boolean enabled) {

@@ -44,7 +44,7 @@ public interface ControlModule {
   @Controller(Role.OPERATOR)
   public static CyberKnightsController provideOperatorController(
       @Controller(Role.OPERATOR) Brand brand) {
-    return CyberKnightsController.createForBrand(0, brand);
+    return CyberKnightsController.createForBrand(1, brand);
   }
 
   @Binds
