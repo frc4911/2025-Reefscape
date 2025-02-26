@@ -80,16 +80,11 @@ public final class ControllerBinding implements VirtualSubsystem {
   private void setupControls() {
     drive.setDefaultCommand(
         drive.applyRequest(
-            () -> {
-              double x = -driver.getLeftY();
-              if (driver.rightTrigger().getAsBoolean()) {
-                x = x * .1;
-              }
-              return driveRequest
-                  .withVelocityX(maxSpeed.times(-driver.getLeftY()))
-                  .withVelocityY(maxSpeed.times(-driver.getLeftX()))
-                  .withRotationalRate(maxAngularSpeed.times(driver.getRightX()));
-            }));
+            () ->
+                driveRequest
+                    .withVelocityX(maxSpeed.times(-driver.getLeftY()))
+                    .withVelocityY(maxSpeed.times(-driver.getLeftX()))
+                    .withRotationalRate(maxAngularSpeed.times(-driver.getRightX()))));
 
     // driver.a().onTrue(characterization.fullDriveCharacterization(driver.x()));
     // driver.y().onTrue(characterization.fullArmCharaterization(driver.x()));
@@ -99,13 +94,13 @@ public final class ControllerBinding implements VirtualSubsystem {
     // driver.b().onTrue(cyberCommands.trough()); // actually arm trough
     // driver.y().onTrue(cyberCommands.levelFour()); // actually elevator trough
     // driver.x().onTrue(cyberCommands.levelThree()); // actually elevator l3
-
     operator.leftBumper().onTrue(cyberCommands.home());
     operator.povUp().onTrue(cyberCommands.prepareForCollect());
     operator.povDown().onTrue(cyberCommands.collect());
     operator.povLeft().onTrue(cyberCommands.stow());
     operator.rightTrigger().onTrue(cyberCommands.score());
     operator.b().onTrue(cyberCommands.levelThree());
+    
     operator.x().onTrue(cyberCommands.levelTwo());
     operator.a().onTrue(cyberCommands.trough());
     operator.y().onTrue(cyberCommands.levelFour());
