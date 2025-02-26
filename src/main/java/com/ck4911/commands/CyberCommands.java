@@ -61,7 +61,8 @@ public final class CyberCommands {
   }
 
   public Command levelTwo() {
-    return arm.levelTwoAndThree().raceWith(Commands.waitSeconds(0.5)).andThen(elevator.levelTwo());
+//    return arm.levelTwoAndThree().raceWith(Commands.waitSeconds(0.5)).andThen(elevator.levelTwo());
+    return elevator.levelTwo().alongWith(arm.levelTwoAndThree());
   }
 
   public Command levelThree() {
