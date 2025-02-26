@@ -94,15 +94,15 @@ public final class ControllerBinding implements VirtualSubsystem {
     // driver.b().onTrue(cyberCommands.trough()); // actually arm trough
     // driver.y().onTrue(cyberCommands.levelFour()); // actually elevator trough
     // driver.x().onTrue(cyberCommands.levelThree()); // actually elevator l3
-    driver.leftBumper().onTrue(cyberCommands.home());
-    driver.povUp().onTrue(cyberCommands.prepareForCollect());
-    driver.povDown().onTrue(cyberCommands.collect());
-    driver.povLeft().onTrue(cyberCommands.stow());
-    driver.rightTrigger().onTrue(cyberCommands.score());
-    driver.b().onTrue(cyberCommands.levelThree());
-    driver.x().onTrue(cyberCommands.levelTwo());
-    driver.a().onTrue(cyberCommands.trough());
-    driver.y().onTrue(cyberCommands.levelFour());
+    operator.leftBumper().onTrue(cyberCommands.home());
+    operator.povUp().onTrue(cyberCommands.prepareForCollect());
+    operator.povDown().onTrue(cyberCommands.collect());
+    operator.povLeft().onTrue(cyberCommands.stow());
+    operator.rightTrigger().onTrue(cyberCommands.score());
+    operator.b().onTrue(cyberCommands.levelThree());
+    operator.x().onTrue(cyberCommands.levelTwo());
+    operator.a().onTrue(cyberCommands.trough());
+    operator.y().onTrue(cyberCommands.levelFour());
   }
 
   public void setDriverRumble(boolean enabled) {
