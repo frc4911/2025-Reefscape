@@ -49,6 +49,7 @@ public interface ArmModule {
         .troughPositionDegrees(0)
         .levelTwoAndThreePositionDegrees(57)
         .levelFourPositionDegrees(55)
+        .coralDetectionDistanceMillimeters(50.0)
         .feedBackValues(new PidValues(1500, 0, 100))
         .feedForwardValues(new FeedForwardValues(0, 0, 0, 0))
         .build();

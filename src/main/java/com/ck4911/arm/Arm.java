@@ -48,6 +48,7 @@ public final class Arm extends SubsystemBase implements Characterizable {
   private final LoggedTunableNumber jerk;
   private final LoggedTunableNumber variance;
   private final LoggedTunableNumber debounceTime;
+  private final LoggedTunableNumber coralDetectionDistance;
   private final Alert motorDisconnected;
   private final Alert encoderDisconnected;
   private final ArmConstants constants;
@@ -80,6 +81,8 @@ public final class Arm extends SubsystemBase implements Characterizable {
         tunableNumbers.create("Arm/ProfileAcceleration", constants.profileAcceleration());
     jerk = tunableNumbers.create("Arm/ProfileJerk", constants.profileJerk());
     debounceTime = tunableNumbers.create("Arm/DebounceTime", constants.debounceTimeSeconds());
+    coralDetectionDistance =
+        tunableNumbers.create("Arm/CoralDetectMm", constants.coralDetectionDistanceMillimeters());
     variance = tunableNumbers.create("Arm/Variance", constants.variance());
     armIo.setPid(p.get(), i.get(), d.get());
     armIo.setFeedForward(s.get(), g.get(), v.get(), a.get());
@@ -170,11 +173,17 @@ public final class Arm extends SubsystemBase implements Characterizable {
 
   public Command waitForCoralPresent() {
     // TODO: use the sensor
+    if (inputs.sensorConnected) {
+      boolean present = inputs.sensorDistanceMillimeters < coralDetectionDistance.get();
+    }
     return Commands.waitUntil(() -> false);
   }
 
   public Command waitForCoralGone() {
     // TODO: use the sensor
+    if (inputs.sensorConnected) {
+      boolean gone = inputs.sensorDistanceMillimeters > coralDetectionDistance.get();
+    }
     return Commands.waitUntil(() -> false);
   }
 
