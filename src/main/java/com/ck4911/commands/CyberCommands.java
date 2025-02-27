@@ -32,17 +32,16 @@ public final class CyberCommands {
   public Command prepareForCollect() {
     return elevator
         .prepareCollect()
-        // .alongWith(elevator.waitForCorralClearance().andThen(arm.collect()));
-        .alongWith(Commands.waitSeconds(0.5).andThen(arm.collect()));
+        .raceWith(elevator.waitUntilAboveCorral())
+        .andThen(arm.collect());
   }
 
   public Command collect() {
     // TODO: safety measures (check arm position)
     return elevator
-        .collect() // move elevator down to collect position
-        .raceWith(Commands.waitSeconds(0.5))
-        // .raceWith(arm.waitForCoralPresent()) // use this when the sensor works
-        .andThen(elevator.passCorral().raceWith(Commands.waitSeconds(.5)).andThen(stow()));
+        .collect()
+        .raceWith(arm.waitForCoralPresent())
+        .andThen(elevator.passCorral().raceWith(elevator.waitUntilAboveCorral()).andThen(stow()));
   }
 
   public Command score() {
