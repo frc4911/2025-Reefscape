@@ -49,6 +49,7 @@ public final class Arm extends SubsystemBase implements Characterizable {
   private final LoggedTunableNumber variance;
   private final LoggedTunableNumber debounceTime;
   private final LoggedTunableNumber coralDetectionDistance;
+  private final LoggedTunableNumber coralScoreDistance;
   private final Alert motorDisconnected;
   private final Alert encoderDisconnected;
   private final ArmConstants constants;
@@ -83,6 +84,8 @@ public final class Arm extends SubsystemBase implements Characterizable {
     debounceTime = tunableNumbers.create("Arm/DebounceTime", constants.debounceTimeSeconds());
     coralDetectionDistance =
         tunableNumbers.create("Arm/CoralDetectMm", constants.coralDetectionDistanceMillimeters());
+    coralScoreDistance =
+        tunableNumbers.create("Arm/CoralScoreMm", constants.coralScoreDistanceMillimeters());
     variance = tunableNumbers.create("Arm/Variance", constants.variance());
     armIo.setPid(p.get(), i.get(), d.get());
     armIo.setFeedForward(s.get(), g.get(), v.get(), a.get());
@@ -192,9 +195,11 @@ public final class Arm extends SubsystemBase implements Characterizable {
       // Wait until the coral is gone for a minimum amount of time
       Debouncer sensorDebouncer = new Debouncer(0.100);
       return Commands.waitUntil(
-          () ->
-              sensorDebouncer.calculate(
-                  inputs.sensorDistanceMillimeters > coralDetectionDistance.get()));
+          () -> {
+            // sensorDebouncer.calculate(
+            System.out.println(inputs.sensorDistanceMillimeters > coralScoreDistance.get());
+            return inputs.sensorDistanceMillimeters > coralScoreDistance.get();
+          });
     } else {
       return Commands.waitUntil(() -> false);
     }

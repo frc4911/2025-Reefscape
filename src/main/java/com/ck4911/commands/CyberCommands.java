@@ -46,7 +46,7 @@ public final class CyberCommands {
   }
 
   public Command score() {
-    return arm.score().raceWith(arm.waitForCoralGone()).andThen(prepareForCollect());
+    return arm.score().raceWith(arm.waitForCoralGone()).andThen(Commands.print("Done"));
   }
 
   public Command home() {

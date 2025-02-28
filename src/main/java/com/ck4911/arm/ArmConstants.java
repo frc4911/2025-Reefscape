@@ -31,6 +31,7 @@ public record ArmConstants(
     double profileJerk,
     double variance,
     double coralDetectionDistanceMillimeters,
+    double coralScoreDistanceMillimeters,
     double debounceTimeSeconds,
     PidValues feedBackValues,
     FeedForwardValues feedForwardValues) {}

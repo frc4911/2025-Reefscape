@@ -50,7 +50,8 @@ public interface ArmModule {
         .levelTwoAndThreePositionDegrees(57)
         .levelFourPositionDegrees(55)
         .coralDetectionDistanceMillimeters(4.0)
-        .feedBackValues(new PidValues(1500, 0, 75))
+        .coralScoreDistanceMillimeters(90.0)
+        .feedBackValues(new PidValues(500, 0, 75))
         .feedForwardValues(new FeedForwardValues(0, 0, 0, 0))
         .build();
   }
