@@ -18,8 +18,12 @@ import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
+import au.grapplerobotics.ConfigurationFailedException;
 import au.grapplerobotics.LaserCan;
 import au.grapplerobotics.interfaces.LaserCanInterface.Measurement;
+import au.grapplerobotics.interfaces.LaserCanInterface.RangingMode;
+import au.grapplerobotics.interfaces.LaserCanInterface.RegionOfInterest;
+import au.grapplerobotics.interfaces.LaserCanInterface.TimingBudget;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
@@ -152,6 +156,14 @@ public final class ArmIoReal implements ArmIo {
     ParentDevice.optimizeBusUtilizationForAll(motor, cancoder);
 
     distanceSensor = new LaserCan(armConstants.sensorId());
+    try {
+      distanceSensor.setRangingMode(RangingMode.SHORT);
+      distanceSensor.setRegionOfInterest(new RegionOfInterest(8, 8, 6, 6));
+      distanceSensor.setTimingBudget(TimingBudget.TIMING_BUDGET_33MS);
+    } catch (ConfigurationFailedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
   }
 
   @Override

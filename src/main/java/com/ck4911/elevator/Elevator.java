@@ -303,7 +303,7 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     // TODO: check position limits (upper and lower)
   }
 
-  public Command waitUntilAboveCorral() {
+  public Command waitUntilPrepareCollect() {
     // TODO: monitor height and wait for actual position
     return Commands.waitSeconds(0.5);
   }

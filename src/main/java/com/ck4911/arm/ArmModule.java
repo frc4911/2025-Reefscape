@@ -36,7 +36,7 @@ public interface ArmModule {
     return ArmConstantsBuilder.builder()
         .motorId(10)
         .encoderId(11)
-        .sensorId(12)
+        .sensorId(1)
         .gearRatio(9)
         .variance(.1)
         .debounceTimeSeconds(.25)
@@ -49,8 +49,8 @@ public interface ArmModule {
         .troughPositionDegrees(0)
         .levelTwoAndThreePositionDegrees(57)
         .levelFourPositionDegrees(55)
-        .coralDetectionDistanceMillimeters(50.0)
-        .feedBackValues(new PidValues(1500, 0, 100))
+        .coralDetectionDistanceMillimeters(4.0)
+        .feedBackValues(new PidValues(1500, 0, 75))
         .feedForwardValues(new FeedForwardValues(0, 0, 0, 0))
         .build();
   }

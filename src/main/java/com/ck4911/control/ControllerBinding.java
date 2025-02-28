@@ -97,7 +97,7 @@ public final class ControllerBinding implements VirtualSubsystem {
     drive.setDefaultCommand(
         drive.applyRequest(
             () -> {
-              double x = -driver.getLeftX();
+              double x = driver.getLeftX();
               double y = -driver.getLeftY();
               double theta = -driver.getRightX();
               if (driver.leftTrigger().getAsBoolean()) {
@@ -122,7 +122,6 @@ public final class ControllerBinding implements VirtualSubsystem {
     operator.a().onTrue(cyberCommands.trough());
     operator.y().onTrue(cyberCommands.levelFour());
 
-    driver.leftTrigger().onTrue(cyberCommands.collect());
     // This is a "long press"; it will only zero if the button is held down for a few seconds
     driver
         .y()

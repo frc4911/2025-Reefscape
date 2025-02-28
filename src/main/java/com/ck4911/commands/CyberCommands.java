@@ -32,8 +32,8 @@ public final class CyberCommands {
   public Command prepareForCollect() {
     return elevator
         .prepareCollect()
-        .raceWith(elevator.waitUntilAboveCorral())
-        .andThen(arm.collect());
+        .raceWith(elevator.waitUntilPrepareCollect())
+        .andThen(elevator.prepareCollect().alongWith(arm.collect()));
   }
 
   public Command collect() {
@@ -41,7 +41,8 @@ public final class CyberCommands {
     return elevator
         .collect()
         .raceWith(arm.waitForCoralPresent())
-        .andThen(elevator.passCorral().raceWith(elevator.waitUntilAboveCorral()).andThen(stow()));
+        .andThen(
+            elevator.passCorral().raceWith(elevator.waitUntilPrepareCollect()).andThen(stow()));
   }
 
   public Command score() {

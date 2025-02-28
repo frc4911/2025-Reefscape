@@ -174,7 +174,7 @@ public final class Arm extends SubsystemBase implements Characterizable {
   public Command waitForCoralPresent() {
     // TODO: configure the sensor range with GrappleHook
     // then, validate the coralDetectionDistance
-    if (false && inputs.sensorConnected) {
+    if (inputs.sensorConnected) {
       // Wait until the coral is present for a minimum amount of time
       Debouncer sensorDebouncer = new Debouncer(0.100);
       return Commands.waitUntil(
@@ -188,7 +188,7 @@ public final class Arm extends SubsystemBase implements Characterizable {
 
   public Command waitForCoralGone() {
     // TODO: validate
-    if (false && inputs.sensorConnected) {
+    if (inputs.sensorConnected) {
       // Wait until the coral is gone for a minimum amount of time
       Debouncer sensorDebouncer = new Debouncer(0.100);
       return Commands.waitUntil(
