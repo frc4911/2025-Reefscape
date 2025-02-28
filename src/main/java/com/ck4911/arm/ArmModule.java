@@ -37,7 +37,7 @@ public interface ArmModule {
         .motorId(10)
         .encoderId(11)
         .sensorId(1)
-        .gearRatio(9)
+        .gearRatio(25)
         .variance(.1)
         .debounceTimeSeconds(.25)
         .armEncoderOffsetRads(-1.83)
