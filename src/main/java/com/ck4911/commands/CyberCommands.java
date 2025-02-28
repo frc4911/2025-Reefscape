@@ -77,7 +77,7 @@ public final class CyberCommands {
 
   // TODO: check with driver for which direction is prefered for zeroing
   // currently, this assumes facing away from driver station.
-  public Command zeroGyro() {
+  public Command resetForward() {
     return Commands.runOnce(() -> drive.resetPose(new Pose2d()));
   }
 }

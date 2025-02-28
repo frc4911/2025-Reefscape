@@ -126,10 +126,10 @@ public final class ControllerBinding implements VirtualSubsystem {
     // This is a "long press"; it will only zero if the button is held down for a few seconds
     driver
         .y()
-        .debounce(3.0)
+        .debounce(1.0)
         .onTrue(
             cyberCommands
-                .zeroGyro()
+                .resetForward()
                 .andThen(
                     Commands.runOnce(() -> setDriverRumble(true))
                         .withTimeout(1.5)
