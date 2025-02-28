@@ -97,8 +97,8 @@ public final class ControllerBinding implements VirtualSubsystem {
     drive.setDefaultCommand(
         drive.applyRequest(
             () -> {
-              double x = driver.getLeftX();
-              double y = -driver.getLeftY();
+              double x = -driver.getLeftY();
+              double y = -driver.getLeftX();
               double theta = -driver.getRightX();
               if (driver.leftTrigger().getAsBoolean()) {
                 x = x * sniperScale.get();
