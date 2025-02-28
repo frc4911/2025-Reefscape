@@ -53,6 +53,7 @@ public final class ControllerBinding implements VirtualSubsystem {
           .withDeadband(maxSpeed.times(0.1))
           .withRotationalDeadband(maxAngularSpeed.times(0.1))
           .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+  private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
 
   // TODO: experiment with this
   // .withSteerRequestType(SteerRequestType.MotionMagicExpo);
@@ -123,6 +124,7 @@ public final class ControllerBinding implements VirtualSubsystem {
     operator.y().onTrue(cyberCommands.levelFour());
 
     driver.leftBumper().onTrue(cyberCommands.prepareForCollect());
+    driver.x().whileTrue(drive.applyRequest(() -> brake));
     // This is a "long press"; it will only zero if the button is held down for a few seconds
     driver
         .y()
