@@ -74,16 +74,14 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     startingRotation = new Rotation2d(180);
     autoChooser.addCmd("test", () -> Commands.print("hi"));
     autoChooser.addCmd(
-        "1m",
+        "Leave",
         () ->
             Commands.runOnce(
                     () ->
                         drive.resetPose(
                             new Pose2d(
-                                Meters.of(7.125288963317871),
-                                Meters.of(0.419444739818573),
-                                startingRotation)))
-                .andThen(autoFactory.trajectoryCmd("1m")));
+                                Meters.of(7.5), Meters.of(1.0), new Rotation2d(Degrees.of(180)))))
+                .andThen(autoFactory.trajectoryCmd("Leave")));
 
     SmartDashboard.putData("Autos", autoChooser);
   }
