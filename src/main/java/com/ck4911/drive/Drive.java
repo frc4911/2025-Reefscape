@@ -40,12 +40,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.littletonrobotics.junction.Logger;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements Subsystem so it can easily
  * be used in command-based projects.
  */
+@Singleton
 public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
     implements Subsystem, VisionConsumer, Characterizable {
   private static final double SIM_LOOP_PERIOD = 0.005; // 5 ms
