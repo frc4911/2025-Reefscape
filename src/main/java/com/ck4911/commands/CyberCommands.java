@@ -11,6 +11,7 @@ import com.ck4911.arm.Arm;
 import com.ck4911.drive.Drive;
 import com.ck4911.elevator.Elevator;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import javax.inject.Inject;
@@ -78,6 +79,8 @@ public final class CyberCommands {
   // TODO: check with driver for which direction is prefered for zeroing
   // currently, this assumes facing away from driver station.
   public Command resetForward() {
-    return Commands.runOnce(() -> drive.resetPose(new Pose2d()));
+    return Commands.runOnce(
+        () ->
+            drive.resetPose(new Pose2d(drive.getState().Pose.getTranslation(), new Rotation2d())));
   }
 }
