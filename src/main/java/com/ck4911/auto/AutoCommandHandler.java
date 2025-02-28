@@ -7,15 +7,13 @@
 
 package com.ck4911.auto;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
-
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
+import choreo.auto.AutoRoutine;
+import choreo.auto.AutoTrajectory;
 import com.ck4911.commands.CyberCommands;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
@@ -73,17 +71,47 @@ public final class AutoCommandHandler implements VirtualSubsystem {
   private void addAutos() {
     startingRotation = new Rotation2d(180);
     autoChooser.addCmd("test", () -> Commands.print("hi"));
+    autoChooser.addRoutine("Middle Score L4", this::middleScoreL4);
     autoChooser.addCmd(
         "Leave",
         () ->
-            Commands.runOnce(
-                    () ->
-                        drive.resetPose(
-                            new Pose2d(
-                                Meters.of(7.5), Meters.of(1.0), new Rotation2d(Degrees.of(180)))))
-                .andThen(autoFactory.trajectoryCmd("Leave")));
+            Commands.sequence(
+                autoFactory.resetOdometry("Leave"), autoFactory.trajectoryCmd("Leave")));
 
     SmartDashboard.putData("Autos", autoChooser);
+  }
+
+  public AutoRoutine middleScoreL4() {
+    AutoRoutine routine = autoFactory.newRoutine("Middle Score L4");
+
+    // Load the trajectorie
+    AutoTrajectory middleScoreL4 = routine.trajectory("Middle Score L4");
+
+    // When the routine begins, reset odometry and start the first trajectory
+    routine.active().onTrue(Commands.sequence(middleScoreL4.resetOdometry(), middleScoreL4.cmd()));
+
+    middleScoreL4.atTime("L4").onTrue(cyberCommands.levelFour());
+
+    middleScoreL4
+        .done()
+        .onTrue(
+            Commands.waitSeconds(3)
+                .andThen(cyberCommands.levelFour().withTimeout(3).andThen(cyberCommands.score())));
+    // middleScoreL4
+    //     .done()
+    //     .onTrue(
+    //         cyberCommands
+    //             .levelFour()
+    //             .raceWith(Commands.waitSeconds(.5))
+    //             .andThen(
+    //                 cyberCommands
+    //                     .score()
+    //                     .raceWith(Commands.waitSeconds(1))
+    //                     .andThen(cyberCommands.stow())));
+    // middleScoreL4.atTime("Score").onTrue(cyberCommands.score());
+    // middleScoreL4.atTime("Stow").onTrue(cyberCommands.stow());
+
+    return routine;
   }
 
   public void startCurrentCommand() {
