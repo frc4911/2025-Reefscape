@@ -122,6 +122,7 @@ public final class ControllerBinding implements VirtualSubsystem {
     operator.a().onTrue(cyberCommands.trough());
     operator.y().onTrue(cyberCommands.levelFour());
 
+    driver.leftBumper().onTrue(cyberCommands.prepareForCollect());
     // This is a "long press"; it will only zero if the button is held down for a few seconds
     driver
         .y()
