@@ -7,12 +7,16 @@
 
 package com.ck4911.auto;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Meters;
+
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import com.ck4911.commands.CyberCommands;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,6 +34,7 @@ public final class AutoCommandHandler implements VirtualSubsystem {
   private double autoStart;
   private boolean autoMessagePrinted;
   private Command currentAutoCommand;
+  private Rotation2d startingRotation;
 
   @Inject
   public AutoCommandHandler(
@@ -66,11 +71,18 @@ public final class AutoCommandHandler implements VirtualSubsystem {
   }
 
   private void addAutos() {
+    startingRotation = new Rotation2d(180);
     autoChooser.addCmd("test", () -> Commands.print("hi"));
     autoChooser.addCmd(
         "1m",
         () ->
-            Commands.runOnce(() -> drive.resetPose(new Pose2d()))
+            Commands.runOnce(
+                    () ->
+                        drive.resetPose(
+                            new Pose2d(
+                                Meters.of(7.125288963317871),
+                                Meters.of(0.419444739818573),
+                                startingRotation)))
                 .andThen(autoFactory.trajectoryCmd("1m")));
 
     SmartDashboard.putData("Autos", autoChooser);
