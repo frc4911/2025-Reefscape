@@ -72,6 +72,7 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     startingRotation = new Rotation2d(180);
     autoChooser.addCmd("test", () -> Commands.print("hi"));
     autoChooser.addRoutine("Middle Score L4", this::middleScoreL4);
+    autoChooser.addRoutine("GP Tape Routine", this::gpTapeAuto);
     autoChooser.addCmd(
         "Leave",
         () ->
@@ -79,6 +80,19 @@ public final class AutoCommandHandler implements VirtualSubsystem {
                 autoFactory.resetOdometry("Leave"), autoFactory.trajectoryCmd("Leave")));
 
     SmartDashboard.putData("Autos", autoChooser);
+  }
+
+  public AutoRoutine gpTapeAuto() {
+    AutoRoutine routine = autoFactory.newRoutine("GP Tape");
+
+    // Load the trajectory
+    AutoTrajectory gpTapeAuto = routine.trajectory("GP Tape trajectoey");
+
+    routine.active().onTrue(Commands.sequence(gpTapeAuto.resetOdometry(), gpTapeAuto.cmd()));
+
+    gpTapeAuto.atTime("L1").onTrue(cyberCommands.trough());
+
+    return routine;
   }
 
   public AutoRoutine middleScoreL4() {
