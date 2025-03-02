@@ -299,6 +299,39 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     };
   }
 
+  public Command homeWithCoral() {
+    return new Command() {
+      private Debouncer homingDebouncer;
+      private boolean homed;
+
+      @Override
+      public void initialize() {
+        homingDebouncer = new Debouncer(homingTimeSeconds.get());
+        homed = false;
+      }
+
+      @Override
+      public void execute() {
+        elevatorIo.runVolts(Volts.of(homingVolts.get()));
+        homed =
+            homingDebouncer.calculate(
+                Math.abs(inputs.velocityRadPerSec) <= homingVelocityThresh.get());
+      }
+
+      @Override
+      public boolean isFinished() {
+        return homed;
+      }
+
+      @Override
+      public void end(boolean interrupted) {
+        if (homed && !interrupted) {
+          homedPositionRads = inputs.positionRads - 7.05;
+        }
+      }
+    };
+  }
+
   private void checkLimits() {
     // TODO: check position limits (upper and lower)
   }

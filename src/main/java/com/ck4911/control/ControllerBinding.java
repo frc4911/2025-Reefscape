@@ -7,6 +7,7 @@
 
 package com.ck4911.control;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ck4911.commands.CyberCommands;
@@ -112,7 +113,9 @@ public final class ControllerBinding implements VirtualSubsystem {
                   .withRotationalRate(maxAngularSpeed.times(theta));
             }));
 
-    operator.leftBumper().onTrue(cyberCommands.home());
+    operator.leftBumper().debounce(1.0).onTrue(cyberCommands.home());
+    operator.rightBumper().debounce(1.0).onTrue(cyberCommands.homeWithCoral());
+
     operator.povUp().onTrue(cyberCommands.prepareForCollect());
     operator.povDown().onTrue(cyberCommands.collect());
     operator.povLeft().onTrue(cyberCommands.stow());
@@ -131,7 +134,7 @@ public final class ControllerBinding implements VirtualSubsystem {
         .debounce(1.0)
         .onTrue(
             cyberCommands
-                .resetForward()
+                .resetForward(Degrees.of(0))
                 .andThen(
                     Commands.runOnce(() -> setDriverRumble(true))
                         .withTimeout(1.5)

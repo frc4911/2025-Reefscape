@@ -7,6 +7,8 @@
 
 package com.ck4911.auto;
 
+import static edu.wpi.first.units.Units.Degrees;
+
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
@@ -15,10 +17,13 @@ import com.ck4911.commands.CyberCommands;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -72,25 +77,60 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     startingRotation = new Rotation2d(180);
     autoChooser.addCmd("test", () -> Commands.print("hi"));
     autoChooser.addRoutine("Middle Score L4", this::middleScoreL4);
-    autoChooser.addRoutine("GP Tape Routine", this::gpTapeAuto);
+    autoChooser.addRoutine("gpTapeAuto", this::gpTapeAuto);
+    autoChooser.addRoutine("pleaseWork", this::pleaseWork);
     autoChooser.addCmd(
         "Leave",
         () ->
             Commands.sequence(
-                autoFactory.resetOdometry("Leave"), autoFactory.trajectoryCmd("Leave")));
+                autoFactory.resetOdometry("Leave"),
+                autoFactory.trajectoryCmd("Leave"),
+                Commands.runOnce(
+                    () -> {
+                      boolean red =
+                          DriverStation.getAlliance().isPresent()
+                              && DriverStation.getAlliance().get() == Alliance.Red;
+                      Angle forwardAngle = Degrees.of(red ? 180 : 0);
+                      CommandScheduler.getInstance()
+                          .schedule(cyberCommands.resetForward(forwardAngle));
+                    })));
 
     SmartDashboard.putData("Autos", autoChooser);
   }
 
+  public AutoRoutine pleaseWork() {
+    AutoRoutine routine = autoFactory.newRoutine("pleaseWork");
+
+    AutoTrajectory pleaseWork = routine.trajectory("pleaseWork");
+
+    routine
+        .active()
+        .onTrue(
+            Commands.sequence(pleaseWork.resetOdometry(), pleaseWork.cmd())
+                .alongWith(cyberCommands.levelFour())); // up to
+
+    // pleaseWork.atTime("L4").onTrue(cyberCommands.levelFour());
+
+    pleaseWork
+        .done()
+        .onTrue(
+            Commands.sequence(cyberCommands.score())
+                .andThen(Commands.waitSeconds(3).andThen(cyberCommands.prepareForCollect())));
+
+    return routine;
+  }
+
   public AutoRoutine gpTapeAuto() {
-    AutoRoutine routine = autoFactory.newRoutine("GP Tape");
+    AutoRoutine routine = autoFactory.newRoutine("gpTapeAuto");
 
     // Load the trajectory
-    AutoTrajectory gpTapeAuto = routine.trajectory("GP Tape trajectoey");
+    AutoTrajectory gpTapeAuto = routine.trajectory("gpTapeAuto");
 
     routine.active().onTrue(Commands.sequence(gpTapeAuto.resetOdometry(), gpTapeAuto.cmd()));
 
-    gpTapeAuto.atTime("L1").onTrue(cyberCommands.trough());
+    gpTapeAuto.atTime("Trough").onTrue(cyberCommands.trough());
+    gpTapeAuto.atTime("Stow").onTrue(cyberCommands.stow());
+    gpTapeAuto.atTime("Score").onTrue(cyberCommands.score());
 
     return routine;
   }
@@ -112,16 +152,16 @@ public final class AutoCommandHandler implements VirtualSubsystem {
             Commands.waitSeconds(3)
                 .andThen(cyberCommands.levelFour().withTimeout(3).andThen(cyberCommands.score())));
     // middleScoreL4
-    //     .done()
-    //     .onTrue(
-    //         cyberCommands
-    //             .levelFour()
-    //             .raceWith(Commands.waitSeconds(.5))
-    //             .andThen(
-    //                 cyberCommands
-    //                     .score()
-    //                     .raceWith(Commands.waitSeconds(1))
-    //                     .andThen(cyberCommands.stow())));
+    // .done()
+    // .onTrue(
+    // cyberCommands
+    // .levelFour()
+    // .raceWith(Commands.waitSeconds(.5))
+    // .andThen(
+    // cyberCommands
+    // .score()
+    // .raceWith(Commands.waitSeconds(1))
+    // .andThen(cyberCommands.stow())));
     // middleScoreL4.atTime("Score").onTrue(cyberCommands.score());
     // middleScoreL4.atTime("Stow").onTrue(cyberCommands.stow());
 
