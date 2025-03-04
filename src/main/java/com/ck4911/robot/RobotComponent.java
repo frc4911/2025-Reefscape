@@ -14,6 +14,7 @@ import com.ck4911.control.ControlModule;
 import com.ck4911.drive.DriveModule;
 import com.ck4911.elevator.ElevatorModule;
 import com.ck4911.leds.LedModule;
+import com.ck4911.quest.QuestModule;
 import com.ck4911.vision.VisionModule;
 import dagger.Component;
 import javax.inject.Singleton;
@@ -27,6 +28,7 @@ import javax.inject.Singleton;
       DriveModule.class,
       ElevatorModule.class,
       LedModule.class,
+      QuestModule.class,
       RobotModule.class,
       VisionModule.class,
     })
