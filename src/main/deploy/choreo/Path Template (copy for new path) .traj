@@ -1,5 +1,5 @@
 {
- "name":"Path Template (copy for new path)",
+ "name":"Path Template (copy for new path) ",
  "version":1,
  "snapshot":{
   "waypoints":[
@@ -14,8 +14,8 @@
  },
  "params":{
   "waypoints":[
-    {"x":{"exp":"7.187115669250488 m", "val":7.187115669250488}, "y":{"exp":"4.067217826843262 m", "val":4.067217826843262}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":2, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
-    {"x":{"exp":"7.187115669250488 m", "val":7.187115669250488}, "y":{"exp":"4.046608924865723 m", "val":4.046608924865723}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
+    {"x":{"exp":"7.187115669250488 m", "val":7.187115669250488}, "y":{"exp":"4.067217826843262 m", "val":4.067217826843262}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":0, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false},
+    {"x":{"exp":"7.187115669250488 m", "val":7.187115669250488}, "y":{"exp":"4.067217826843262 m", "val":4.067217826843262}, "heading":{"exp":"0 deg", "val":0.0}, "intervals":40, "split":false, "fixTranslation":true, "fixHeading":true, "overrideIntervals":false}],
   "constraints":[
     {"from":"first", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},
     {"from":"last", "to":null, "data":{"type":"StopPoint", "props":{}}, "enabled":true},

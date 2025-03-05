@@ -8,6 +8,8 @@
 package com.ck4911.arm;
 
 import com.ck4911.Constants.Mode;
+import com.ck4911.util.FeedForwardValues;
+import com.ck4911.util.PidValues;
 import dagger.Module;
 import dagger.Provides;
 import javax.inject.Provider;
@@ -19,8 +21,8 @@ public interface ArmModule {
   static ArmIo providesArmIo(
       Mode mode, Provider<ArmIoReal> realProvider, Provider<ArmIoSim> simProvider) {
     switch (mode) {
-        //   case REAL:
-        //     return realProvider.get();
+      case REAL:
+        return realProvider.get();
       case SIM:
         return simProvider.get();
       default:
@@ -31,6 +33,26 @@ public interface ArmModule {
   @Provides
   static ArmConstants provideArmConstants() {
     // TODO: Fill in the constants
-    return ArmConstantsBuilder.builder().build();
+    return ArmConstantsBuilder.builder()
+        .motorId(10)
+        .encoderId(11)
+        .sensorId(1)
+        .gearRatio(25)
+        .variance(.1)
+        .debounceTimeSeconds(.25)
+        .armEncoderOffsetRads(-1.83)
+        .minPositionRads(-Math.PI / 2.0)
+        .maxPositionRads(Math.PI / 2.0)
+        .stowPositionDegrees(60)
+        .collectPositionDegrees(-90)
+        .scorePositionDegrees(0)
+        .troughPositionDegrees(0)
+        .levelTwoAndThreePositionDegrees(57)
+        .levelFourPositionDegrees(55)
+        .coralDetectionDistanceMillimeters(1.0)
+        .coralScoreDistanceMillimeters(90.0)
+        .feedBackValues(new PidValues(500, 0, 75))
+        .feedForwardValues(new FeedForwardValues(0, 0, 0, 0))
+        .build();
   }
 }

@@ -26,7 +26,7 @@ public interface RobotModule {
   @Provides
   public static @Named("TuningMode") boolean providesTuningMode() {
     // TODO: toggle this for competition
-    return true;
+    return false;
   }
 
   @Provides

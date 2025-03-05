@@ -33,10 +33,10 @@ public final class TrajectoryFollower implements VirtualSubsystem {
   public TrajectoryFollower(
       AutoConstants autoConstants, Drive drive, TunableNumbers tunableNumbers) {
     this.drive = drive;
-    p = tunableNumbers.create("Drive/p", autoConstants.feedback().p());
-    d = tunableNumbers.create("Drive/d", autoConstants.feedback().d());
-    thetaP = tunableNumbers.create("Drive/thetap", autoConstants.thetaFeedback().p());
-    thetaD = tunableNumbers.create("Drive/thetad", autoConstants.thetaFeedback().d());
+    p = tunableNumbers.create("Auto/p", autoConstants.feedback().p());
+    d = tunableNumbers.create("Auto/d", autoConstants.feedback().d());
+    thetaP = tunableNumbers.create("Auto/thetaP", autoConstants.thetaFeedback().p());
+    thetaD = tunableNumbers.create("Auto/thetaD", autoConstants.thetaFeedback().d());
     xController = new PIDController(p.get(), 0, d.get());
     yController = new PIDController(p.get(), 0, d.get());
     thetaController = new PIDController(thetaP.get(), 0, thetaD.get());

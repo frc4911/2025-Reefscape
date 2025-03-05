@@ -8,8 +8,13 @@
 package com.ck4911.commands;
 
 import com.ck4911.arm.Arm;
+import com.ck4911.drive.Drive;
 import com.ck4911.elevator.Elevator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -17,42 +22,71 @@ import javax.inject.Singleton;
 public final class CyberCommands {
   private final Arm arm;
   private final Elevator elevator;
+  private final Drive drive;
 
   @Inject
-  public CyberCommands(Arm arm, Elevator elevator) {
+  public CyberCommands(Arm arm, Elevator elevator, Drive drive) {
     this.arm = arm;
     this.elevator = elevator;
+    this.drive = drive;
   }
 
-  public Command prepareForCollectionCommand() {
-    // TODO: run these at the same time SAFELY (optional)
-    return arm.collectPosition().andThen(elevator.prepareCollectPosition());
-    // TODO: detect coral in corral
+  public Command prepareForCollect() {
+    return elevator
+        .prepareCollect()
+        .raceWith(elevator.waitUntilPrepareCollect())
+        .andThen(elevator.prepareCollect().alongWith(arm.collect()));
   }
 
-  // ONLY CALL AFTER PREPARE
-  public Command collectCommand() {
-    return elevator.collectPosition();
-    // TODO: detect coral in arm
+  public Command collect() {
+    // TODO: safety measures (check arm position)
+    return elevator
+        .collect()
+        .raceWith(arm.waitForCoralPresent())
+        .andThen(
+            elevator.passCorral().raceWith(elevator.waitUntilPrepareCollect()).andThen(stow()));
   }
 
-  public Command prepareScoreL1Command() {
-    return elevator.prepareScoreL1Position().andThen(arm.prepareScoreL1Position());
+  public Command score() {
+    return arm.score().raceWith(arm.waitForCoralGone()).andThen(Commands.print("Done"));
   }
 
-  public Command prepareScoreL2Command() {
-    return elevator.prepareScoreL2Position().andThen(arm.prepareScoreMidPosition());
+  public Command home() {
+    return elevator.home().alongWith(arm.stow());
   }
 
-  public Command prepareScoreL3Command() {
-    return elevator.prepareScoreL3Position().andThen(arm.prepareScoreMidPosition());
+  public Command homeWithCoral() {
+    return elevator.homeWithCoral().alongWith(arm.stow());
   }
 
-  public Command prepareScoreL4Command() {
-    return elevator.prepareScoreL4Position().andThen(arm.prepareScoreL4Position());
+  public Command trough() {
+    return elevator.trough().alongWith(arm.trough());
   }
 
-  public Command stowCommand() {
-    return arm.stowPosition().andThen(elevator.stowPosition());
+  public Command levelTwo() {
+    return elevator.levelTwo().alongWith(arm.levelTwoAndThree());
+  }
+
+  public Command levelThree() {
+    return elevator.levelThree().alongWith(arm.levelTwoAndThree());
+  }
+
+  public Command levelFour() {
+    return elevator.levelFour().alongWith(arm.levelFour());
+  }
+
+  public Command stow() {
+    // TODO: Check if clear of corral first
+    // If the elevator is too low, this could be bad
+    return arm.stow().raceWith(arm.waitForStowPosition().andThen(elevator.stow()));
+  }
+
+  // TODO: check with driver for which direction is prefered for zeroing
+  // currently, this assumes facing away from driver station.
+  public Command resetForward(Angle forwardAngle) {
+    return Commands.runOnce(
+        () ->
+            drive.resetPose(
+                new Pose2d(drive.getState().Pose.getTranslation(), new Rotation2d(forwardAngle))));
   }
 }

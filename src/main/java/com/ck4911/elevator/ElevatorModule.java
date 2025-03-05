@@ -8,6 +8,8 @@
 package com.ck4911.elevator;
 
 import com.ck4911.Constants.Mode;
+import com.ck4911.util.FeedForwardValues;
+import com.ck4911.util.PidValues;
 import dagger.Module;
 import dagger.Provides;
 import javax.inject.Provider;
@@ -19,8 +21,8 @@ public interface ElevatorModule {
   static ElevatorIo providesArmIo(
       Mode mode, Provider<ElevatorIoReal> realProvider, Provider<ElevatorIoSim> simProvider) {
     switch (mode) {
-        //   case REAL:
-        //     return realProvider.get();
+      case REAL:
+        return realProvider.get();
       case SIM:
         return simProvider.get();
       default:
@@ -31,6 +33,29 @@ public interface ElevatorModule {
   @Provides
   static ElevatorConstants provideElevatorConstants() {
     // TODO: Fill in the constants
-    return new ElevatorConstants(20, 21, 1.0, null, null);
+    return ElevatorConstantsBuilder.builder()
+        .motorLeftId(21)
+        .motorRightId(22)
+        .corralHeight(13.5)
+        .sprocketRadius(1.7567 / 2.0)
+        .gearRatio(4.0 * 3.0)
+        .variance(.01)
+        .debounceTimeSeconds(0.25)
+        .homingTimeSeconds(0.25)
+        .homingVolts(-1.5)
+        .homingVelocityThresh(5.0)
+        .tolerance(0.01) // 1%
+        .minPositionRads(0)
+        .maxPositionRads(0)
+        .stowPositionRadians(5)
+        .collectPositionRadians(9.24)
+        .prepareCollectPositionRadians(14.5)
+        .troughPositionRadians(7)
+        .levelTwoPositionRadians(10)
+        .levelThreePositionRadians(20)
+        .levelFourPositionRadians(35)
+        .feedBackValues(new PidValues(64, 0, 5))
+        .feedForwardValues(new FeedForwardValues(0, 0, 0, 0))
+        .build();
   }
 }

@@ -18,6 +18,15 @@ import javax.inject.Singleton;
 
 @Module
 public interface ControlModule {
+  @Provides
+  public static ControlConstants provideControlConstants() {
+    return ControlConstantsBuilder.builder()
+        .deadband(0.1)
+        .sniperScale(0.1)
+        .driverPort(0)
+        .operatorPort(1)
+        .build();
+  }
 
   @Provides
   @Controller(Role.DRIVER)
@@ -35,16 +44,16 @@ public interface ControlModule {
   @Provides
   @Controller(Role.DRIVER)
   public static CyberKnightsController provideDriverController(
-      @Controller(Role.DRIVER) Brand brand) {
-    return CyberKnightsController.createForBrand(0, brand);
+      @Controller(Role.DRIVER) Brand brand, ControlConstants constants) {
+    return CyberKnightsController.createForBrand(constants.driverPort(), brand);
   }
 
   @Singleton
   @Provides
   @Controller(Role.OPERATOR)
   public static CyberKnightsController provideOperatorController(
-      @Controller(Role.OPERATOR) Brand brand) {
-    return CyberKnightsController.createForBrand(0, brand);
+      @Controller(Role.OPERATOR) Brand brand, ControlConstants constants) {
+    return CyberKnightsController.createForBrand(constants.operatorPort(), brand);
   }
 
   @Binds

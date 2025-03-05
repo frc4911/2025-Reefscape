@@ -7,23 +7,24 @@
 
 package com.ck4911.control;
 
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import com.ck4911.characterization.Characterization;
+import com.ck4911.commands.CyberCommands;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.control.Controller.Role;
 import com.ck4911.drive.Drive;
 import com.ck4911.drive.TunerConstants;
 import com.ck4911.util.Alert;
 import com.ck4911.util.Alert.AlertType;
+import com.ck4911.util.LoggedTunableNumber;
+import com.ck4911.util.LoggedTunableNumber.TunableNumbers;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
-import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -35,37 +36,44 @@ public final class ControllerBinding implements VirtualSubsystem {
   private final Alert operatorDisconnected =
       new Alert("Operator controller disconnected (port 1).", AlertType.WARNING);
 
+  private final LoggedTunableNumber deadband;
+  private final LoggedTunableNumber sniperScale;
   private final CyberKnightsController driver;
   private final CyberKnightsController operator;
   private final Drive drive;
-  private final Characterization characterization;
+  private final CyberCommands cyberCommands;
 
   // kSpeedAt12Volts desired top speed
-  private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+  private LinearVelocity maxSpeed = TunerConstants.kSpeedAt12Volts;
   // 3/4 of a rotation per second max angular velocity
-  private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
+  private AngularVelocity maxAngularSpeed = RotationsPerSecond.of(0.75);
 
-  /* Setting up bindings for necessary control of the swerve drive platform */
+  // TODO: experiment with DriveRequestType.Velocity
   private final SwerveRequest.FieldCentric driveRequest =
-      // Add a 10% deadband
-      // Use open-loop control for drive motors
       new SwerveRequest.FieldCentric()
-          .withDeadband(MaxSpeed * 0.1)
-          .withRotationalDeadband(MaxAngularRate * 0.1)
-          .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-          .withSteerRequestType(SteerRequestType.MotionMagicExpo);
+          .withDeadband(maxSpeed.times(0.1))
+          .withRotationalDeadband(maxAngularSpeed.times(0.1))
+          .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+  private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+
+  // TODO: experiment with this
+  // .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
   @Inject
   public ControllerBinding(
+      ControlConstants constants,
       Drive drive,
       @Controller(Role.DRIVER) CyberKnightsController driver,
       @Controller(Role.OPERATOR) CyberKnightsController operator,
-      Characterization characterization) {
+      CyberCommands cyberCommands,
+      TunableNumbers tunableNumbers) {
     this.drive = drive;
     this.driver = driver;
     this.operator = operator;
-    this.characterization = characterization;
-
+    this.cyberCommands = cyberCommands;
+    deadband = tunableNumbers.create("Controller/deadband", constants.deadband());
+    sniperScale = tunableNumbers.create("Controller/sniperScale", constants.sniperScale());
+    updateDeadband(deadband.get());
     setupControls();
   }
 
@@ -77,21 +85,60 @@ public final class ControllerBinding implements VirtualSubsystem {
     operatorDisconnected.set(
         !DriverStation.isJoystickConnected(operator.getHID().getPort())
             || !DriverStation.getJoystickIsXbox(operator.getHID().getPort()));
+
+    LoggedTunableNumber.ifChanged(hashCode(), () -> updateDeadband(deadband.get()), deadband);
+  }
+
+  private void updateDeadband(double deadband) {
+    driveRequest
+        .withDeadband(maxSpeed.times(deadband))
+        .withRotationalDeadband(maxAngularSpeed.times(deadband));
   }
 
   private void setupControls() {
     drive.setDefaultCommand(
         drive.applyRequest(
-            () ->
-                // Drive forward with negative Y (forward)
-                // Drive left with negative X (left)
-                // Drive counterclockwise with negative X (left)
-                driveRequest
-                    .withVelocityX(-driver.getLeftY())
-                    .withVelocityY(-driver.getLeftX())
-                    .withRotationalRate(-driver.getRightX())));
+            () -> {
+              double x = -driver.getLeftY();
+              double y = -driver.getLeftX();
+              double theta = -driver.getRightX();
+              if (driver.leftTrigger().getAsBoolean()) {
+                x = x * sniperScale.get();
+                y = y * sniperScale.get();
+                theta = theta * sniperScale.get();
+              }
+              return driveRequest
+                  .withVelocityX(maxSpeed.times(x))
+                  .withVelocityY(maxSpeed.times(y))
+                  .withRotationalRate(maxAngularSpeed.times(theta));
+            }));
 
-    driver.a().onTrue(characterization.fullDriveCharacterization(driver.x()));
+    operator.leftBumper().debounce(1.0).onTrue(cyberCommands.home());
+    operator.rightBumper().debounce(1.0).onTrue(cyberCommands.homeWithCoral());
+
+    operator.povUp().onTrue(cyberCommands.prepareForCollect());
+    operator.povDown().onTrue(cyberCommands.collect());
+    operator.povLeft().onTrue(cyberCommands.stow());
+    operator.rightTrigger().onTrue(cyberCommands.score());
+    operator.b().onTrue(cyberCommands.levelThree());
+
+    operator.x().onTrue(cyberCommands.levelTwo());
+    operator.a().onTrue(cyberCommands.trough());
+    operator.y().onTrue(cyberCommands.levelFour());
+
+    driver.leftBumper().onTrue(cyberCommands.prepareForCollect());
+    driver.x().whileTrue(drive.applyRequest(() -> brake));
+    // This is a "long press"; it will only zero if the button is held down for a few seconds
+    driver
+        .y()
+        .debounce(1.0)
+        .onTrue(
+            cyberCommands
+                .resetForward(Degrees.of(0))
+                .andThen(
+                    Commands.runOnce(() -> setDriverRumble(true))
+                        .withTimeout(1.5)
+                        .andThen(() -> setDriverRumble(false))));
   }
 
   public void setDriverRumble(boolean enabled) {
@@ -100,61 +147,5 @@ public final class ControllerBinding implements VirtualSubsystem {
 
   public void setOperatorRumble(boolean enabled) {
     operator.getHID().setRumble(RumbleType.kBothRumble, enabled ? 1 : 0);
-  }
-
-  private Command level1Score() {
-    /* Elevator to trough position
-    Arm to trough Position */
-    return Commands.none();
-  }
-
-  private Command level2Prep() {
-    /* Elevator to L2 position
-    Arm to L2&3 Position */
-    return Commands.none();
-  }
-
-  private Command level2Score() {
-    // Arm stow
-    return Commands.none();
-  }
-
-  private Command level3Prep() {
-    /* Elevator to L3 position
-    Arm to L2&3 Position */
-    return Commands.none();
-  }
-
-  private Command level3Score() {
-    // Arm stow
-    return Commands.none();
-  }
-
-  private Command level4Prep() {
-    /* Elevator to L4 position
-    Arm to L4 Position */
-    return Commands.none();
-  }
-
-  private Command level4Score() {
-    // Arm stow
-    return Commands.none();
-  }
-
-  private Command collect() {
-    // wait until coral detected
-    return Commands.none();
-  }
-
-  private Command climbShallow() {
-    // elevator down
-    return Commands.none();
-  }
-
-  private Command climbDeep() {
-    /* climb mechanism on
-    if pigeon ever reads pitch or roll >= |(tbd) deg|:
-    climb mechanism down/set robot on floor */
-    return Commands.none();
   }
 }

@@ -10,12 +10,20 @@ package com.ck4911.elevator;
 import static com.ck4911.util.PhoenixUtils.tryUntilOk;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TorqueCurrentConfigs;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -25,11 +33,13 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.filter.Debouncer;
-import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.AngularAccelerationUnit;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.units.measure.Voltage;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -55,7 +65,8 @@ public final class ElevatorIoReal implements ElevatorIo {
   private final StatusSignal<Current> followerSupplyCurrent;
   private final StatusSignal<Temperature> followerTemp;
 
-  private final Debouncer connectedDebouncer;
+  private final Debouncer leaderConnectedDebouncer;
+  private final Debouncer followerConnectedDebouncer;
 
   private final TorqueCurrentFOC torqueCurrentRequest;
   private final PositionTorqueCurrentFOC positionTorqueCurrentRequest;
@@ -66,21 +77,32 @@ public final class ElevatorIoReal implements ElevatorIo {
     motorLeader = new TalonFX(elevatorConstants.motorLeftId(), canbus);
     motorFollower = new TalonFX(elevatorConstants.motorRightId(), canbus);
 
+    motorFollower.setControl(new Follower(motorLeader.getDeviceID(), true));
+
     torqueCurrentRequest = new TorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
     positionTorqueCurrentRequest = new PositionTorqueCurrentFOC(0.0).withUpdateFreqHz(0.0);
     voltageRequest = new VoltageOut(0.0).withUpdateFreqHz(0.0);
 
-    connectedDebouncer = new Debouncer(0.5);
+    leaderConnectedDebouncer = new Debouncer(0.5);
+    followerConnectedDebouncer = new Debouncer(0.5);
 
-    config = new TalonFXConfiguration();
-    config.Slot0.withGravityType(GravityTypeValue.Elevator_Static);
-    config.MotorOutput.NeutralMode = NeutralModeValue.Brake;
-    config.Feedback.SensorToMechanismRatio = elevatorConstants.gearRatio();
-    config.TorqueCurrent.PeakForwardTorqueCurrent = 80.0;
-    config.TorqueCurrent.PeakReverseTorqueCurrent = -80.0;
-    config.CurrentLimits.StatorCurrentLimit = 80.0;
-    config.CurrentLimits.StatorCurrentLimitEnable = true;
-    config.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+    config =
+        new TalonFXConfiguration()
+            .withSlot0(new Slot0Configs().withGravityType(GravityTypeValue.Elevator_Static))
+            .withMotorOutput(
+                new MotorOutputConfigs()
+                    .withNeutralMode(NeutralModeValue.Brake)
+                    .withInverted(InvertedValue.Clockwise_Positive))
+            .withFeedback(
+                new FeedbackConfigs().withSensorToMechanismRatio(elevatorConstants.gearRatio()))
+            .withTorqueCurrent(
+                new TorqueCurrentConfigs()
+                    .withPeakForwardTorqueCurrent(Amps.of(80.0))
+                    .withPeakReverseTorqueCurrent(Amps.of(-80)))
+            .withCurrentLimits(
+                new CurrentLimitsConfigs()
+                    .withStatorCurrentLimit(Amps.of(80))
+                    .withStatorCurrentLimitEnable(true));
     tryUntilOk(5, () -> motorLeader.getConfigurator().apply(config, 0.25));
 
     position = motorLeader.getPosition();
@@ -110,10 +132,10 @@ public final class ElevatorIoReal implements ElevatorIo {
                 followerAppliedVolts, followerTorqueCurrent, followerSupplyCurrent, followerTemp)
             .isOK();
 
-    inputs.leaderConnected = connectedDebouncer.calculate(connected);
-    inputs.followerConnected = connectedDebouncer.calculate(followerConnected);
-    inputs.positionRads = Units.rotationsToRadians(position.getValueAsDouble());
-    inputs.velocityRadPerSec = Units.rotationsToRadians(velocity.getValueAsDouble());
+    inputs.leaderConnected = leaderConnectedDebouncer.calculate(connected);
+    inputs.followerConnected = followerConnectedDebouncer.calculate(followerConnected);
+    inputs.positionRads = position.getValue().in(Radians);
+    inputs.velocityRadPerSec = velocity.getValue().in(RadiansPerSecond);
     inputs.leaderAppliedVolts = appliedVolts.getValue().in(Volts);
     inputs.leaderSupplyCurrentAmps = supplyCurrent.getValue().in(Amps);
     inputs.leaderTorqueCurrentAmps = torqueCurrent.getValue().in(Amps);
@@ -153,7 +175,18 @@ public final class ElevatorIoReal implements ElevatorIo {
 
   @Override
   public void setFeedForward(double s, double g, double v, double a) {
-    config.Slot0.withKS(s).withKS(s).withKV(v).withKA(a);
+    config.Slot0.withKS(s).withKG(g).withKV(v).withKA(a);
+    tryUntilOk(5, () -> motorLeader.getConfigurator().apply(config));
+  }
+
+  @Override
+  public void setProfile(
+      AngularVelocity velocity,
+      AngularAcceleration acceleration,
+      Velocity<AngularAccelerationUnit> jerk) {
+    config.MotionMagic.withMotionMagicCruiseVelocity(velocity)
+        .withMotionMagicAcceleration(acceleration)
+        .withMotionMagicJerk(jerk);
     tryUntilOk(5, () -> motorLeader.getConfigurator().apply(config));
   }
 

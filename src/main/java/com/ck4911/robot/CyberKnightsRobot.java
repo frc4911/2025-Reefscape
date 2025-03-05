@@ -8,6 +8,8 @@
 package com.ck4911.robot;
 
 import au.grapplerobotics.CanBridge;
+import au.grapplerobotics.ConfigurationFailedException;
+import au.grapplerobotics.LaserCan;
 import com.ck4911.BuildConstants;
 import com.ck4911.Constants.Mode;
 import com.ck4911.commands.VirtualSubsystem;
@@ -78,6 +80,7 @@ public class CyberKnightsRobot extends LoggedRobot {
   private final CommandScheduler scheduler;
   private final Set<VirtualSubsystem> virtualSubsystems;
   private final Mode robotMode;
+  private LaserCan armLaserCan;
   private final String robotName;
   private final boolean tuningMode;
   private final CANBus canivore;
@@ -93,7 +96,6 @@ public class CyberKnightsRobot extends LoggedRobot {
       Mode robotMode,
       Provider<RobotContainer> containerProvider) {
     super();
-    CanBridge.runTCP();
     this.scheduler = scheduler;
     this.virtualSubsystems = virtualSubsystems;
     this.robotName = robotName;
@@ -101,6 +103,19 @@ public class CyberKnightsRobot extends LoggedRobot {
     this.robotMode = robotMode;
     this.canivore = canivore;
     this.containerProvider = containerProvider;
+
+    if (tuningMode) {
+      CanBridge.runTCP();
+    }
+
+    armLaserCan = new LaserCan(0);
+    try {
+      armLaserCan.setRangingMode(LaserCan.RangingMode.SHORT);
+      armLaserCan.setRegionOfInterest(new LaserCan.RegionOfInterest(8, 8, 16, 16));
+      armLaserCan.setTimingBudget(LaserCan.TimingBudget.TIMING_BUDGET_33MS);
+    } catch (ConfigurationFailedException e) {
+      System.out.println("Configuration failed! " + e);
+    }
   }
 
   /**
