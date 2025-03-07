@@ -160,7 +160,6 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
     if (Utils.isSimulation()) {
       startSimThread();
     }
-    questNav.zeroHeading();
     SwerveModule<TalonFX, TalonFX, CANcoder>[] modules = getModules();
     driveLoggers.add(new DriveLogger("FrontLeft", modules[0]));
     driveLoggers.add(new DriveLogger("FrontRight", modules[1]));
@@ -200,8 +199,6 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
     }
     Logger.recordOutput("SwerveStates/Measured", getState().ModuleStates);
     Logger.recordOutput("Drive/OdometryPose", getState().Pose);
-    Logger.recordOutput("Drive/QuestPose", questNav.getPose());
-    Logger.recordOutput("Drive/OculusQuaternion", questNav.getQuaternion());
     for (DriveLogger logger : driveLoggers) {
       logger.updateInputs();
     }

@@ -7,10 +7,21 @@
 
 package com.ck4911.quest;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+
+import com.ck4911.commands.VirtualSubsystem;
+import com.ck4911.util.Alert;
+import com.ck4911.util.Alert.AlertType;
+import com.ck4911.util.LoggedTunableNumber;
+import com.ck4911.util.LoggedTunableNumber.TunableNumbers;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Quaternion;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.networktables.DoubleArrayPublisher;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.FloatArraySubscriber;
 import edu.wpi.first.networktables.IntegerPublisher;
@@ -20,14 +31,25 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.RobotController;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.littletonrobotics.junction.Logger;
 
 @Singleton
-public final class QuestNav {
+public final class QuestNav implements VirtualSubsystem {
+  private final Alert disconnectAlert = new Alert("Quest is disconnected", AlertType.WARNING);
+  private final Alert batteryAlert = new Alert("Quest battery is low", AlertType.WARNING);
+
+  private final LoggedTunableNumber questOffsetAngleDegrees;
+  private final LoggedTunableNumber questOffsetXInches;
+  private final LoggedTunableNumber questOffsetYInches;
+
   // Configure Network Tables topics (questnav/...) to communicate with the Quest HMD
   private final NetworkTableInstance nt4Instance = NetworkTableInstance.getDefault();
   private final NetworkTable nt4Table = nt4Instance.getTable("questnav");
   private final IntegerSubscriber questMiso = nt4Table.getIntegerTopic("miso").subscribe(0);
   private final IntegerPublisher questMosi = nt4Table.getIntegerTopic("mosi").publish();
+  // Format: [X, Y, Rotation] in FRC field coordinates
+  private final DoubleArrayPublisher questResetPose =
+      nt4Table.getDoubleArrayTopic("resetpose").publish();
 
   // Subscribe to the Network Tables questnav data topics
   private final DoubleSubscriber questTimestamp =
@@ -41,53 +63,64 @@ public final class QuestNav {
   private final DoubleSubscriber questBatteryPercent =
       nt4Table.getDoubleTopic("batteryPercent").subscribe(0.0f);
 
-  // Local heading helper variables
-  private float yaw_offset = -29.216252f;
-  private Pose2d resetPosition = new Pose2d();
+  private Debouncer disconnectDebouncer = new Debouncer(5);
+
+  // Position of the quest on the robot
+  private Transform2d robotToQuest;
 
   @Inject
-  QuestNav() {}
+  QuestNav(QuestConstants questConstants, TunableNumbers tunableNumbers) {
+    questOffsetAngleDegrees =
+        tunableNumbers.create("Quest/offsetAngleDegrees", questConstants.offsetAngleDegrees());
+    questOffsetXInches =
+        tunableNumbers.create("Quest/offsetXInches", questConstants.offsetXInches());
+    questOffsetYInches =
+        tunableNumbers.create("Quest/offsetYInches", questConstants.offsetYInches());
 
-  // Gets the Quest's measured position.
-  public Pose2d getPose() {
-    return new Pose2d(
-        getQuestNavPose().minus(resetPosition).getTranslation(),
-        Rotation2d.fromDegrees(getOculusYaw()));
+    updateRobotToQuest();
+    cleanUpQuestNavMessages();
   }
 
-  // Gets the battery percent of the Quest.
-  public double getBatteryPercent() {
+  private void updateRobotToQuest() {
+    robotToQuest =
+        new Transform2d(
+            Inches.of(questOffsetXInches.get()),
+            Inches.of(questOffsetYInches.get()),
+            new Rotation2d(Degrees.of(questOffsetAngleDegrees.get())));
+  }
+
+  public Pose2d getRobotPose() {
+    return getQuestPose().transformBy(robotToQuest.inverse());
+  }
+
+  public Pose2d getQuestPose() {
+    var eulerAngles = questEulerAngles.get();
+    var rotation = Rotation2d.fromDegrees(-Math.IEEEremainder(eulerAngles[1], 360d));
+
+    var questnavPosition = questPosition.get();
+    var translation = new Translation2d(questnavPosition[2], -questnavPosition[0]);
+    return new Pose2d(translation, rotation);
+  }
+
+  public void resetPose(Pose2d pose) {
+    questResetPose.accept(new double[] {pose.getX(), pose.getY(), pose.getRotation().getDegrees()});
+  }
+
+  private double getBatteryPercent() {
     return questBatteryPercent.get();
   }
 
-  // Returns if the Quest is connected.
-  public boolean connected() {
+  private boolean connected() {
     return ((RobotController.getFPGATime() - questBatteryPercent.getLastChange()) / 1000) < 250;
   }
 
-  // Gets the Quaternion of the Quest.
-  public Quaternion getQuaternion() {
+  private Quaternion getQuaternion() {
     float[] qqFloats = questQuaternion.get();
     return new Quaternion(qqFloats[0], qqFloats[1], qqFloats[2], qqFloats[3]);
   }
 
-  // Gets the Quests's timestamp.
-  public double timestamp() {
+  private double timestamp() {
     return questTimestamp.get();
-  }
-
-  // Zero the relativerobot heading
-  public void zeroHeading() {
-    float[] eulerAngles = questEulerAngles.get();
-    yaw_offset = eulerAngles[1];
-  }
-
-  // Zero the absolute 3D position of the robot (similar to long-pressing the quest logo)
-  public void zeroPosition() {
-    resetPosition = getPose();
-    if (questMiso.get() != 99) {
-      questMosi.set(1);
-    }
   }
 
   // Clean up questnav subroutine messages after processing on the headset
@@ -97,25 +130,20 @@ public final class QuestNav {
     }
   }
 
-  // Get the yaw Euler angle of the headset
-  private float getOculusYaw() {
-    float[] eulerAngles = questEulerAngles.get();
-    var ret = eulerAngles[1] - yaw_offset;
-    ret %= 360;
-    if (ret < 0) {
-      ret += 360;
-    }
-    return ret;
-  }
+  @Override
+  public void periodic() {
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        this::updateRobotToQuest,
+        questOffsetAngleDegrees,
+        questOffsetXInches,
+        questOffsetYInches);
 
-  private Translation2d getQuestNavTranslation() {
-    float[] questnavPosition = questPosition.get();
-    return new Translation2d(questnavPosition[2], -questnavPosition[0]);
-  }
+    disconnectAlert.set(disconnectDebouncer.calculate(!connected()));
+    batteryAlert.set(getBatteryPercent() < 25);
 
-  private Pose2d getQuestNavPose() {
-    var oculousPositionCompensated =
-        getQuestNavTranslation().minus(new Translation2d(0, 0.1651)); // 6.5
-    return new Pose2d(oculousPositionCompensated, Rotation2d.fromDegrees(getOculusYaw()));
+    Logger.recordOutput("Drive/QuestPose", getQuestPose());
+    Logger.recordOutput("Drive/RobotPose", getRobotPose());
+    Logger.recordOutput("Drive/OculusQuaternion", getQuaternion());
   }
 }

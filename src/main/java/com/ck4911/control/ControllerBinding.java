@@ -135,7 +135,7 @@ public final class ControllerBinding implements VirtualSubsystem {
         .onTrue(
             cyberCommands
                 .resetForward(Degrees.of(0))
-                .andThen(
+                .alongWith(
                     Commands.runOnce(() -> setDriverRumble(true))
                         .withTimeout(1.5)
                         .andThen(() -> setDriverRumble(false))));
