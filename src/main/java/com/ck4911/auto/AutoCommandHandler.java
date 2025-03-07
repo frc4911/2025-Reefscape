@@ -79,6 +79,7 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     autoChooser.addRoutine("Middle Score L4", this::middleScoreL4);
     autoChooser.addRoutine("gpTapeAuto", this::gpTapeAuto);
     autoChooser.addRoutine("pleaseWork", this::pleaseWork);
+    autoChooser.addRoutine("meterTest", this::meterTest);
     autoChooser.addCmd(
         "Leave",
         () ->
@@ -116,6 +117,14 @@ public final class AutoCommandHandler implements VirtualSubsystem {
         .onTrue(
             Commands.sequence(cyberCommands.score())
                 .andThen(Commands.waitSeconds(3).andThen(cyberCommands.prepareForCollect())));
+
+    return routine;
+  }
+
+  public AutoRoutine meterTest() {
+    AutoRoutine routine = autoFactory.newRoutine("meterTest");
+    AutoTrajectory meterTest = routine.trajectory("meterTest");
+    routine.active().onTrue(Commands.sequence(meterTest.resetOdometry(), meterTest.cmd()));
 
     return routine;
   }
