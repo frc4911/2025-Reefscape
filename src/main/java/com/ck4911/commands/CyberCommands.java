@@ -81,6 +81,13 @@ public final class CyberCommands {
     return arm.stow().raceWith(arm.waitForStowPosition().andThen(elevator.stow()));
   }
 
+  public Command correctPose(Pose2d pose) {
+    return Commands.runOnce(
+        () -> {
+          drive.correctQuestPose(pose);
+        });
+  }
+
   // TODO: check with driver for which direction is prefered for zeroing
   // currently, this assumes facing away from driver station.
   public Command resetForward(Angle forwardAngle) {

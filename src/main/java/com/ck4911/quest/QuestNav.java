@@ -67,6 +67,7 @@ public final class QuestNav implements VirtualSubsystem {
 
   // Position of the quest on the robot
   private Transform2d robotToQuest;
+  private Transform2d fieldOffset = new Transform2d();
 
   @Inject
   QuestNav(QuestConstants questConstants, TunableNumbers tunableNumbers) {
@@ -87,6 +88,14 @@ public final class QuestNav implements VirtualSubsystem {
             Inches.of(questOffsetXInches.get()),
             Inches.of(questOffsetYInches.get()),
             new Rotation2d(Degrees.of(questOffsetAngleDegrees.get())));
+  }
+
+  public void poseCorrection(Pose2d initialPose) {
+    fieldOffset = initialPose.minus(getRobotPose());
+  }
+
+  public Pose2d getFieldPose() {
+    return getRobotPose().plus(fieldOffset);
   }
 
   public Pose2d getRobotPose() {
@@ -145,5 +154,6 @@ public final class QuestNav implements VirtualSubsystem {
     Logger.recordOutput("Drive/QuestPose", getQuestPose());
     Logger.recordOutput("Drive/RobotPose", getRobotPose());
     Logger.recordOutput("Drive/OculusQuaternion", getQuaternion());
+    Logger.recordOutput("Drive/FieldPose", getFieldPose());
   }
 }

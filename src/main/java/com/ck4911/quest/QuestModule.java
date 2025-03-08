@@ -19,9 +19,9 @@ public interface QuestModule {
   @Provides
   public static QuestConstants providesQuestConstants() {
     return QuestConstantsBuilder.builder()
-        .offsetAngleDegrees(-29.216252f)
-        .offsetXInches(0)
-        .offsetYInches(0)
+        .offsetAngleDegrees(-120.0)
+        .offsetXInches(-9)
+        .offsetYInches(-8.1)
         .build();
   }
 

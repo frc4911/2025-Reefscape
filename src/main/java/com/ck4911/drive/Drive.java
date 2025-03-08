@@ -268,4 +268,8 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
   public void accept(double timestamp, Pose2d pose, Matrix<N3, N1> stdDevs) {
     super.addVisionMeasurement(pose, timestamp, stdDevs);
   }
+
+  public void correctQuestPose(Pose2d pose2d) {
+    questNav.poseCorrection(pose2d);
+  }
 }

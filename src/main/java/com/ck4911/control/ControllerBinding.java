@@ -21,6 +21,8 @@ import com.ck4911.util.LoggedTunableNumber;
 import com.ck4911.util.LoggedTunableNumber.TunableNumbers;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -126,6 +128,9 @@ public final class ControllerBinding implements VirtualSubsystem {
     operator.a().onTrue(cyberCommands.trough());
     operator.y().onTrue(cyberCommands.levelFour());
 
+    driver
+        .povRight()
+        .onTrue(cyberCommands.correctPose(new Pose2d(0, 0, Rotation2d.fromDegrees(0))));
     driver.leftBumper().onTrue(cyberCommands.prepareForCollect());
     driver.x().whileTrue(drive.applyRequest(() -> brake));
     // This is a "long press"; it will only zero if the button is held down for a few seconds
