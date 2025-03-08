@@ -101,7 +101,7 @@ public final class Leds implements VirtualSubsystem {
     loadingNotifier.stop();
 
     // Select LED mode
-    solid(Color.kBlack); // Default to off
+    breath(Color.kRed, Color.kWhite); // Default to CyberKnights colors
     if (estopped) {
       solid(Color.kRed);
     } else if (DriverStation.isDisabled()) {
@@ -113,7 +113,7 @@ public final class Leds implements VirtualSubsystem {
             Color.kGreen);
       } else if (lowBatteryAlert) {
         // Low battery
-        solid(Color.kOrangeRed);
+        breath(Color.kOrangeRed, Color.kYellow);
       } else {
         // Default pattern
         wave(
@@ -136,9 +136,10 @@ public final class Leds implements VirtualSubsystem {
         solid((Timer.getFPGATimestamp() - autoFinishedTime) / fullTime, Color.kGreen);
       }
     } else { // Enabled
-
       if (endgameAlert) {
         strobe(Color.kRed, Color.kGold, constants.strobeDuration());
+      } else {
+        rainbow(constants.waveFastCycleLength(), constants.waveFastDuration());
       }
     }
 
