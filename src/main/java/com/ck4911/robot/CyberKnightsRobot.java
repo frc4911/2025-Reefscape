@@ -15,7 +15,9 @@ import com.ck4911.Constants.Mode;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.util.Alert;
 import com.ck4911.util.Alert.AlertType;
+import com.ck4911.vision.VisionIO;
 import com.ctre.phoenix6.CANBus;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Threads;
@@ -259,6 +261,8 @@ public class CyberKnightsRobot extends LoggedRobot {
     gcAlert.set(Timer.getFPGATimestamp() < 45.0);
 
     Threads.setCurrentThreadPriority(true, 10);
+
+    System.out.println(VisionIO.getEstimatedGlobalPose(new Pose2d()).toString());
   }
 
   /** This function is called once when the robot is disabled. */
