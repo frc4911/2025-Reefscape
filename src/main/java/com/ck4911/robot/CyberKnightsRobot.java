@@ -261,8 +261,6 @@ public class CyberKnightsRobot extends LoggedRobot {
     gcAlert.set(Timer.getFPGATimestamp() < 45.0);
 
     Threads.setCurrentThreadPriority(true, 10);
-
-    System.out.println(VisionIO.getEstimatedGlobalPose(new Pose2d()).toString());
   }
 
   /** This function is called once when the robot is disabled. */
