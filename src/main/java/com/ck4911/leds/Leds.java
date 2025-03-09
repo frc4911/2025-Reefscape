@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import java.util.List;
@@ -33,10 +34,11 @@ public final class Leds implements VirtualSubsystem {
   public boolean demoMode = false;
 
   private Optional<Alliance> alliance = Optional.empty();
-  private Color allianceColor = Color.kGold;
-  private Color secondaryDisabledColor = Color.kDarkBlue;
+  private Color allianceColor = Color.kRed;
+  private Color secondaryDisabledColor = Color.kWhite;
   private boolean lastEnabledAuto = false;
   private double lastEnabledTime = 0.0;
+  private boolean scoring = false;
   private boolean estopped = false;
 
   // LED IO
@@ -69,14 +71,15 @@ public final class Leds implements VirtualSubsystem {
   @Override
   public synchronized void periodic() {
     // Update alliance color
-    if (DriverStation.isFMSAttached()) {
-      alliance = DriverStation.getAlliance();
+    alliance = DriverStation.getAlliance();
+    if (alliance.isPresent()) {
       allianceColor =
           alliance
-              .map(alliance -> alliance == Alliance.Blue ? Color.kBlue : Color.kRed)
-              .orElse(Color.kGold);
-      secondaryDisabledColor = alliance.isPresent() ? Color.kBlack : Color.kDarkBlue;
+              .map(alliance -> alliance == Alliance.Blue ? Color.kDarkBlue : Color.kRed)
+              .orElse(Color.kRed);
     }
+
+    secondaryDisabledColor = alliance.isPresent() ? Color.kWhite : Color.kGold;
 
     // Update auto state
     if (DriverStation.isDisabled()) {
@@ -91,6 +94,12 @@ public final class Leds implements VirtualSubsystem {
       estopped = true;
     }
 
+    if (RobotController.getBatteryVoltage() < 8.5) {
+      lowBatteryAlert = true;
+    } else {
+      lowBatteryAlert = false;
+    }
+
     // Exit during initial cycles
     loopCycleCount += 1;
     if (loopCycleCount < constants.minLoopCycleCount()) {
@@ -101,7 +110,7 @@ public final class Leds implements VirtualSubsystem {
     loadingNotifier.stop();
 
     // Select LED mode
-    breath(Color.kRed, Color.kWhite); // Default to CyberKnights colors
+    solid(Color.kBlack); // Default to CyberKnights colors
     if (estopped) {
       solid(Color.kRed);
     } else if (DriverStation.isDisabled()) {
@@ -117,8 +126,8 @@ public final class Leds implements VirtualSubsystem {
       } else {
         // Default pattern
         wave(
-            allianceColor,
-            secondaryDisabledColor,
+            Color.kDarkBlue,
+            Color.kLightBlue,
             constants.waveAllianceCycleLength(),
             constants.waveAllianceDuration());
       }
@@ -139,7 +148,19 @@ public final class Leds implements VirtualSubsystem {
       if (endgameAlert) {
         strobe(Color.kRed, Color.kGold, constants.strobeDuration());
       } else {
-        rainbow(constants.waveFastCycleLength(), constants.waveFastDuration());
+        if (scoring) {
+          wave(
+              allianceColor,
+              secondaryDisabledColor,
+              constants.waveFastCycleLength(),
+              constants.waveFastDuration());
+        } else {
+          wave(
+              allianceColor,
+              secondaryDisabledColor,
+              constants.waveAllianceCycleLength(),
+              constants.waveAllianceDuration());
+        }
       }
     }
 
@@ -153,6 +174,14 @@ public final class Leds implements VirtualSubsystem {
         buffer.setLED(i, color);
       }
     }
+  }
+
+  public void setEndgameAlert(boolean endgameAlert) {
+    this.endgameAlert = endgameAlert;
+  }
+
+  public void setScoring(boolean isscoring) {
+    this.scoring = isscoring;
   }
 
   private void solid(double percent, Color color) {

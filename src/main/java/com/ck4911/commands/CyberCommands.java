@@ -10,6 +10,7 @@ package com.ck4911.commands;
 import com.ck4911.arm.Arm;
 import com.ck4911.drive.Drive;
 import com.ck4911.elevator.Elevator;
+import com.ck4911.leds.Leds;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
@@ -21,11 +22,13 @@ import javax.inject.Singleton;
 @Singleton
 public final class CyberCommands {
   private final Arm arm;
+  private final Leds leds;
   private final Elevator elevator;
   private final Drive drive;
 
   @Inject
-  public CyberCommands(Arm arm, Elevator elevator, Drive drive) {
+  public CyberCommands(Arm arm, Elevator elevator, Drive drive, Leds leds) {
+    this.leds = leds;
     this.arm = arm;
     this.elevator = elevator;
     this.drive = drive;
@@ -40,6 +43,7 @@ public final class CyberCommands {
 
   public Command collect() {
     // TODO: safety measures (check arm position)
+    leds.setScoring(true);
     return elevator
         .collect()
         .raceWith(arm.waitForCoralPresent())
@@ -48,6 +52,7 @@ public final class CyberCommands {
   }
 
   public Command score() {
+    leds.setScoring(false);
     return arm.score().raceWith(arm.waitForCoralGone()).andThen(Commands.print("Done"));
   }
 
