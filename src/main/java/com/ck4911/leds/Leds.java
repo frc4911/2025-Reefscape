@@ -126,15 +126,15 @@ public final class Leds implements VirtualSubsystem {
       } else {
         // Default pattern
         wave(
-            Color.kDarkBlue,
-            Color.kLightBlue,
+            Color.kDarkGreen,
+            Color.kLightGreen,
             constants.waveAllianceCycleLength(),
             constants.waveAllianceDuration());
       }
     } else if (DriverStation.isAutonomous()) {
       wave(
           Color.kGold,
-          Color.kDarkBlue,
+          allianceColor,
           constants.waveFastCycleLength(),
           constants.waveFastDuration());
       if (autoFinished) {
