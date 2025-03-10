@@ -16,6 +16,7 @@ import choreo.auto.AutoTrajectory;
 import com.ck4911.commands.CyberCommands;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
+import com.ck4911.quest.QuestNav;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -33,6 +34,7 @@ public final class AutoCommandHandler implements VirtualSubsystem {
   private final AutoChooser autoChooser;
   private final AutoFactory autoFactory;
   private final Drive drive;
+  private final QuestNav questNav;
   private final CyberCommands cyberCommands;
   private double autoStart;
   private boolean autoMessagePrinted;
@@ -41,9 +43,14 @@ public final class AutoCommandHandler implements VirtualSubsystem {
 
   @Inject
   public AutoCommandHandler(
-      AutoFactory autoFactory, Drive drive, CyberCommands cyberCommands, AutoChooser autoChooser) {
+      AutoFactory autoFactory,
+      Drive drive,
+      QuestNav questNav,
+      CyberCommands cyberCommands,
+      AutoChooser autoChooser) {
     this.autoChooser = autoChooser;
     this.drive = drive;
+    this.questNav = questNav;
     this.cyberCommands = cyberCommands;
     this.autoFactory = autoFactory;
 
@@ -95,6 +102,8 @@ public final class AutoCommandHandler implements VirtualSubsystem {
                       CommandScheduler.getInstance()
                           .schedule(cyberCommands.resetForward(forwardAngle));
                     })));
+
+    autoChooser.addCmd("Quest Offset Calibration", () -> questNav.calibrateCommand(drive));
 
     SmartDashboard.putData("Autos", autoChooser);
   }
