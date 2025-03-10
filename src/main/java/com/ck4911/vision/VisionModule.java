@@ -26,7 +26,7 @@ public interface VisionModule {
 
   @Provides
   public static AprilTagFieldLayout providesFieldLayout() {
-    return AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+    return AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
   }
 
   @Provides

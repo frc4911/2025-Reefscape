@@ -68,6 +68,7 @@ public final class QuestNav implements VirtualSubsystem {
   // Position of the quest on the robot
   private Transform2d robotToQuest;
   private Transform2d fieldOffset = new Transform2d();
+  private Pose2d lastQuestResetPose = new Pose2d();
 
   @Inject
   QuestNav(QuestConstants questConstants, TunableNumbers tunableNumbers) {
@@ -112,6 +113,7 @@ public final class QuestNav implements VirtualSubsystem {
   }
 
   public void resetPose(Pose2d pose) {
+    lastQuestResetPose = pose;
     questResetPose.accept(new double[] {pose.getX(), pose.getY(), pose.getRotation().getDegrees()});
   }
 
@@ -151,9 +153,10 @@ public final class QuestNav implements VirtualSubsystem {
     disconnectAlert.set(disconnectDebouncer.calculate(!connected()));
     batteryAlert.set(getBatteryPercent() < 25);
 
-    Logger.recordOutput("Drive/QuestPose", getQuestPose());
-    Logger.recordOutput("Drive/RobotPose", getRobotPose());
-    Logger.recordOutput("Drive/OculusQuaternion", getQuaternion());
-    Logger.recordOutput("Drive/FieldPose", getFieldPose());
+    Logger.recordOutput("Quest/QuestRestPose", lastQuestResetPose);
+    Logger.recordOutput("Quest/QuestPose", getQuestPose());
+    Logger.recordOutput("Quest/RobotPose", getRobotPose());
+    Logger.recordOutput("Quest/OculusQuaternion", getQuaternion());
+    Logger.recordOutput("Quest/FieldPose", getFieldPose());
   }
 }
