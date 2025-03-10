@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.littletonrobotics.junction.Logger;
@@ -267,5 +268,11 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
   @Override
   public void accept(double timestamp, Pose2d pose, Matrix<N3, N1> stdDevs) {
     super.addVisionMeasurement(pose, timestamp, stdDevs);
+  }
+
+  public List<Double> getDrivePositionRadians() {
+    return driveLoggers.stream()
+        .map(logger -> logger.getDrivePositionRadians())
+        .collect(Collectors.toList());
   }
 }

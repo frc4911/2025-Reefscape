@@ -137,4 +137,8 @@ final class DriveLogger {
 
     Logger.processInputs("Drive/Module" + name, inputs);
   }
+
+  public double getDrivePositionRadians() {
+    return inputs.drivePositionRad;
+  }
 }
