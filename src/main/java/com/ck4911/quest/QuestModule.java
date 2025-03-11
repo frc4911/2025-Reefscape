@@ -13,6 +13,7 @@ import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoSet;
+import edu.wpi.first.math.geometry.Transform2d;
 import javax.inject.Provider;
 
 @Module
@@ -30,7 +31,7 @@ public interface QuestModule {
 
   @Provides
   public static QuestConstants providesQuestConstants() {
-    return QuestConstantsBuilder.builder().build();
+    return QuestConstantsBuilder.builder().robotToQuest(new Transform2d()).build();
   }
 
   @Binds

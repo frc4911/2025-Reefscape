@@ -7,11 +7,18 @@
 
 package com.ck4911.quest;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
 import com.ck4911.util.Alert;
 import com.ck4911.util.Alert.AlertType;
+import com.ck4911.util.LoggedTunableNumber;
+import com.ck4911.util.LoggedTunableNumber.TunableNumbers;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -19,6 +26,9 @@ import org.littletonrobotics.junction.Logger;
 
 @Singleton
 public final class QuestNav implements VirtualSubsystem {
+  private final LoggedTunableNumber questOffsetAngleDegrees;
+  private final LoggedTunableNumber questOffsetXInches;
+  private final LoggedTunableNumber questOffsetYInches;
   private final QuestIo io;
   private final QuestIoInputsAutoLogged inputs = new QuestIoInputsAutoLogged();
 
@@ -29,9 +39,20 @@ public final class QuestNav implements VirtualSubsystem {
   private final QuestCalibration calibration;
 
   @Inject
-  public QuestNav(QuestIo io, QuestCalibration calibration) {
+  public QuestNav(
+      QuestConstants questConstants,
+      QuestIo io,
+      QuestCalibration calibration,
+      TunableNumbers tunableNumbers) {
     this.io = io;
     this.calibration = calibration;
+    questOffsetAngleDegrees =
+        tunableNumbers.create(
+            "Quest/offsetAngleDegrees", questConstants.robotToQuest().getRotation().getDegrees());
+    questOffsetXInches =
+        tunableNumbers.create("Quest/offsetXInches", questConstants.robotToQuest().getX());
+    questOffsetYInches =
+        tunableNumbers.create("Quest/offsetYInches", questConstants.robotToQuest().getY());
     resetPose(new Pose2d());
   }
 
@@ -46,6 +67,17 @@ public final class QuestNav implements VirtualSubsystem {
     // if (DriverStation.isEnabled() && Constants.currentMode == Constants.Mode.REAL) {
     //   BobotState.offerQuestMeasurement(new TimestampedPose(inputs.robotPose, inputs.timestamp));
     // }
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () ->
+            io.updateRobotToQuest(
+                new Transform2d(
+                    Inches.of(questOffsetXInches.get()),
+                    Inches.of(questOffsetYInches.get()),
+                    new Rotation2d(Degrees.of(questOffsetAngleDegrees.get())))),
+        questOffsetAngleDegrees,
+        questOffsetXInches,
+        questOffsetYInches);
   }
 
   public void resetPose(Pose2d pose) {

@@ -10,8 +10,8 @@ package com.ck4911.commands;
 import com.ck4911.arm.Arm;
 import com.ck4911.drive.Drive;
 import com.ck4911.elevator.Elevator;
+import com.ck4911.quest.QuestNav;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -23,12 +23,14 @@ public final class CyberCommands {
   private final Arm arm;
   private final Elevator elevator;
   private final Drive drive;
+  private final QuestNav questNav;
 
   @Inject
-  public CyberCommands(Arm arm, Elevator elevator, Drive drive) {
+  public CyberCommands(Arm arm, Elevator elevator, Drive drive, QuestNav questNav) {
     this.arm = arm;
     this.elevator = elevator;
     this.drive = drive;
+    this.questNav = questNav;
   }
 
   public Command prepareForCollect() {
@@ -85,8 +87,10 @@ public final class CyberCommands {
   // currently, this assumes facing away from driver station.
   public Command resetForward(Angle forwardAngle) {
     return Commands.runOnce(
-        () ->
-            drive.resetPose(
-                new Pose2d(drive.getState().Pose.getTranslation(), new Rotation2d(forwardAngle))));
+        () -> {
+          Pose2d pose = new Pose2d(); // new Pose2d(1, 4, new Rotation2d(45));
+          drive.resetPose(pose);
+          questNav.resetPose(pose);
+        });
   }
 }

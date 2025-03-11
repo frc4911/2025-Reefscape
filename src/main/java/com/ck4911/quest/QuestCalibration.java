@@ -7,6 +7,9 @@
 
 package com.ck4911.quest;
 
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import com.ck4911.drive.Drive;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -54,7 +57,9 @@ public class QuestCalibration {
             Commands.run(
                     () -> {
                       drive.setControl(
-                          applyFieldSpeeds.withSpeeds(new ChassisSpeeds(0, 0, 0.3141)));
+                          applyFieldSpeeds.withSpeeds(
+                              new ChassisSpeeds(
+                                  0, 0, RadiansPerSecond.convertFrom(.5, RotationsPerSecond))));
                     },
                     drive)
                 .withTimeout(0.5),

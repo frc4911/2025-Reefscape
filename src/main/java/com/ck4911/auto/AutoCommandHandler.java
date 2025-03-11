@@ -84,6 +84,7 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     startingRotation = new Rotation2d(180);
     autoChooser.addCmd("test", () -> Commands.print("hi"));
     autoChooser.addRoutine("Middle Score L4", this::middleScoreL4);
+    autoChooser.addRoutine("Middle Score L4 and Collect", this::middleScoreL4AndCollect);
     autoChooser.addRoutine("gpTapeAuto", this::gpTapeAuto);
     autoChooser.addRoutine("pleaseWork", this::pleaseWork);
     autoChooser.addRoutine("meterTest", this::meterTest);
@@ -156,32 +157,47 @@ public final class AutoCommandHandler implements VirtualSubsystem {
   public AutoRoutine middleScoreL4() {
     AutoRoutine routine = autoFactory.newRoutine("Middle Score L4");
 
-    // Load the trajectorie
     AutoTrajectory middleScoreL4 = routine.trajectory("Middle Score L4");
 
-    // When the routine begins, reset odometry and start the first trajectory
     routine.active().onTrue(Commands.sequence(middleScoreL4.resetOdometry(), middleScoreL4.cmd()));
 
-    middleScoreL4.atTime("L4").onTrue(cyberCommands.levelFour());
-
+    middleScoreL4.atTime("L4").onTrue(Commands.print("L4").alongWith(cyberCommands.levelFour()));
     middleScoreL4
-        .done()
+        .atTime("ScoreDown")
         .onTrue(
-            Commands.waitSeconds(3)
-                .andThen(cyberCommands.levelFour().withTimeout(3).andThen(cyberCommands.score())));
-    // middleScoreL4
-    // .done()
-    // .onTrue(
-    // cyberCommands
-    // .levelFour()
-    // .raceWith(Commands.waitSeconds(.5))
-    // .andThen(
-    // cyberCommands
-    // .score()
-    // .raceWith(Commands.waitSeconds(1))
-    // .andThen(cyberCommands.stow())));
-    // middleScoreL4.atTime("Score").onTrue(cyberCommands.score());
-    // middleScoreL4.atTime("Stow").onTrue(cyberCommands.stow());
+            Commands.print("ScoreDown")
+                .alongWith(
+                    cyberCommands
+                        .score()
+                        .raceWith(Commands.waitSeconds(.5))
+                        .andThen(cyberCommands.prepareForCollect())));
+
+    return routine;
+  }
+
+  public AutoRoutine middleScoreL4AndCollect() {
+    AutoRoutine routine = autoFactory.newRoutine("Middle Score L4 And Collect");
+
+    AutoTrajectory middleScoreL4 = routine.trajectory("Middle Score L4");
+    AutoTrajectory collectRight = routine.trajectory("Collect Right");
+
+    routine.active().onTrue(Commands.sequence(middleScoreL4.resetOdometry(), middleScoreL4.cmd()));
+
+    middleScoreL4.atTime("L4").onTrue(Commands.print("L4").alongWith(cyberCommands.levelFour()));
+    middleScoreL4
+        .atTime("ScoreDown")
+        .onTrue(
+            Commands.print("ScoreDown")
+                .alongWith(
+                    cyberCommands
+                        .score()
+                        .raceWith(Commands.waitSeconds(.5))
+                        .andThen(
+                            cyberCommands.prepareForCollect().raceWith(Commands.waitSeconds(1)))));
+
+    middleScoreL4.done().onTrue(collectRight.cmd());
+
+    collectRight.active().whileTrue(cyberCommands.prepareForCollect());
 
     return routine;
   }

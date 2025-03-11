@@ -8,6 +8,7 @@
 package com.ck4911.quest;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface QuestIo {
@@ -15,11 +16,9 @@ public interface QuestIo {
   public static class QuestIoInputs {
     public boolean connected = false;
 
-    // These are with relative with offsets applied (probably what you want)
+    // These are with relative with offsets applied
     public Pose2d questPose = new Pose2d();
     public Pose2d robotPose = new Pose2d();
-
-    public Pose2d rawPose = new Pose2d();
 
     public double timestamp = 0;
     public double timestampDelta = 0;
@@ -30,4 +29,6 @@ public interface QuestIo {
 
   /** Sets supplied pose as origin of all calculations */
   public default void resetPose(Pose2d pose) {}
+
+  public default void updateRobotToQuest(Transform2d robotToQuest) {}
 }
