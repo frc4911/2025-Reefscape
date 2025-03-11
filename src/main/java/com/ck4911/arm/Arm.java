@@ -179,7 +179,6 @@ public final class Arm extends SubsystemBase implements Characterizable {
     // then, validate the coralDetectionDistance
     if (inputs.sensorConnected) {
       // Wait until the coral is present for a minimum amount of time
-      System.out.println("LaserCAN reading:" + inputs.sensorDistanceMillimeters);
       Debouncer sensorDebouncer = new Debouncer(0.100);
       return Commands.waitUntil(
           () ->

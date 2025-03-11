@@ -119,30 +119,27 @@ public final class Leds implements VirtualSubsystem {
         // Auto fade
         solid(
             1.0 - ((Timer.getFPGATimestamp() - lastEnabledTime) / constants.autoFadeTime()),
-            Color.kGreen);
+            allianceColor);
       } else if (lowBatteryAlert) {
         // Low battery
         breath(Color.kOrangeRed, Color.kYellow);
       } else {
         // Default pattern
         wave(
-            Color.kDarkGreen,
-            Color.kLightGreen,
+            Color.kRed,
+            Color.kWhite,
             constants.waveAllianceCycleLength(),
             constants.waveAllianceDuration());
+        ;
       }
     } else if (DriverStation.isAutonomous()) {
-      wave(
-          Color.kGold,
-          allianceColor,
-          constants.waveFastCycleLength(),
-          constants.waveFastDuration());
+      rainbow(constants.waveFastCycleLength(), constants.waveFastDuration());
       if (autoFinished) {
         double fullTime =
             (double) constants.length()
                 / constants.waveFastCycleLength()
                 * constants.waveFastDuration();
-        solid((Timer.getFPGATimestamp() - autoFinishedTime) / fullTime, Color.kGreen);
+        solid((Timer.getFPGATimestamp() - autoFinishedTime) / fullTime, allianceColor);
       }
     } else { // Enabled
       if (endgameAlert) {
