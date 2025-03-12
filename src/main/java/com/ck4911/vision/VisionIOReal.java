@@ -9,6 +9,8 @@ import org.photonvision.PhotonCamera;
 
 import com.ck4911.vision.VisionIO;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -16,8 +18,9 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 
 public class VisionIOReal implements VisionIO {
-    private final PhotonCamera camera = new PhotonCamera("grant's_spy_camera");;
-    private final Transform3d robotToCamera = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0,0,0));
+    private static PhotonCamera camera = new PhotonCamera("grant's_spy_camera");;
+    private static Transform3d robotToCamera = new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0,0,0));
+    private static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
   /**
    * Creates a new VisionIOPhotonVision.
@@ -26,7 +29,7 @@ public class VisionIOReal implements VisionIO {
    * @param rotationSupplier The 3D position of the camera relative to the robot.
    */
   public VisionIOReal(String name, Transform3d robotToCamera) {
-    camera = new PhotonCamera(name);
+    this.camera = new PhotonCamera(name);
     this.robotToCamera = robotToCamera;
   }
 

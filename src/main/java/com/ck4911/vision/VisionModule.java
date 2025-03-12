@@ -25,11 +25,6 @@ import java.util.Map;
 public interface VisionModule {
 
   @Provides
-  public static AprilTagFieldLayout providesFieldLayout() {
-    return AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
-  }
-
-  @Provides
   public static InterpolatingMatrixTreeMap<Double, N3, N1> providesMeasurementStdDevDistanceMap() {
     InterpolatingMatrixTreeMap<Double, N3, N1> map = new InterpolatingMatrixTreeMap<>();
     map.put(1.0, VecBuilder.fill(1.0, 1.0, 1.0));
