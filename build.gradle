@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.gradlerio)
     alias(libs.plugins.gversion)
     alias(libs.plugins.spotless)
+    alias(libs.plugins.errorprone)
 }
 
 java {
@@ -59,6 +60,7 @@ task(replayWatch, type: JavaExec) {
 }
 
 dependencies {
+    errorprone(libs.errorprone)
     annotationProcessor(libs.record.builder.processor)
     compileOnly(libs.record.builder.core)
 
@@ -119,6 +121,7 @@ wpi.java.configureTestTasks(test)
 // Configure string concat to always inline compile
 tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
+    options.errorprone.disableWarningsInGeneratedCode = true
 }
 // Create version file
 project.compileJava.dependsOn(createVersionFile)

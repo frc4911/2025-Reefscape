@@ -7,6 +7,8 @@ mockito = "5.14.2"
 jupiter = "5.11.3"
 jama = "1.0.3"
 record-builder = "41"
+errorprone = "2.36.0"
+errorprone-plugin = "4.1.0"
 
 [libraries]
 record-builder-core = { group = "io.soabase.record-builder", name = "record-builder-core", version.ref = "record-builder" }
@@ -17,8 +19,10 @@ mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mo
 mockito-jupiter = { group = "org.mockito", name = "mockito-junit-jupiter", version.ref = "mockito" }
 jupiter = { group = "org.junit.jupiter", name = "junit-jupiter", version.ref = "jupiter" }
 jama = { group = "gov.nist.math", name = "jama", version.ref = "jama" }
+errorprone = { group = "com.google.errorprone", name = "error_prone_core", version.ref = "errorprone" }
 
 [plugins]
 gradlerio = { id = "edu.wpi.first.GradleRIO", version.ref = "gradle-rio" }
 gversion = { id = "com.peterabeles.gversion", version.ref = "gversion" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+errorprone = { id = "net.ltgt.errorprone", version.ref = "errorprone-plugin" }
