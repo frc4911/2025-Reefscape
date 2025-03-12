@@ -30,7 +30,7 @@ public interface VisionModule {
   @IntoMap
   @StringKey("FrontRight")
   public static VisionIO providesVisionIos(AprilTagFieldLayout aprilTagFieldLayout) {
-    return new VisionIOPhotonVision("FrontRight", new Transform3d(), aprilTagFieldLayout);
+    return new VisionIOPhotonVision("front_right", new Transform3d(), aprilTagFieldLayout);
   }
 
   @Binds

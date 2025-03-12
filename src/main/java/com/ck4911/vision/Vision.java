@@ -48,7 +48,8 @@ public final class Vision implements VirtualSubsystem {
     for (Entry<String, VisionIO> entry : ios.entrySet()) {
       this.io.add(entry.getValue());
       inputs.add(new VisionIOInputsAutoLogged());
-      new Alert("Vision camera " + entry.getKey() + " is disconnected.", AlertType.kWarning);
+      disconnectedAlerts.add(
+          new Alert("Vision camera " + entry.getKey() + " is disconnected.", AlertType.kWarning));
     }
   }
 
