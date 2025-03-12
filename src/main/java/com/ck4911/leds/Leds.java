@@ -126,8 +126,8 @@ public final class Leds implements VirtualSubsystem {
       } else {
         // Default pattern
         wave(
-            Color.kRed,
-            Color.kWhite,
+            Color.kLightGreen,
+            Color.kDarkGreen,
             constants.waveAllianceCycleLength(),
             constants.waveAllianceDuration());
         ;
