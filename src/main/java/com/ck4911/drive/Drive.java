@@ -272,7 +272,7 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
 
   public List<Double> getDrivePositionRadians() {
     return driveLoggers.stream()
-        .map(logger -> logger.getDrivePositionRadians())
+        .map(DriveLogger::getDrivePositionRadians)
         .collect(Collectors.toList());
   }
 }
