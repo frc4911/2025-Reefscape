@@ -1,7 +1,13 @@
+// Copyright (c) 2025 FRC 4911
+// https://github.com/frc4911
+//
+// Use of this source code is governed by an MIT-style
+// license that can be found in the LICENSE file at
+// the root directory of this project.
+
 package com.ck4911.vision;
 
-import static frc.robot.subsystems.vision.VisionConstants.*;
-
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
@@ -12,9 +18,10 @@ import java.util.Set;
 import org.photonvision.PhotonCamera;
 
 /** IO implementation for real PhotonVision hardware. */
-public class VisionIOPhotonVision implements VisionIO {
-  protected final PhotonCamera camera;
-  protected final Transform3d robotToCamera;
+public final class VisionIOPhotonVision implements VisionIO {
+  private final PhotonCamera camera;
+  private final Transform3d robotToCamera;
+  private final AprilTagFieldLayout aprilTagLayout;
 
   /**
    * Creates a new VisionIOPhotonVision.
@@ -22,9 +29,11 @@ public class VisionIOPhotonVision implements VisionIO {
    * @param name The configured name of the camera.
    * @param rotationSupplier The 3D position of the camera relative to the robot.
    */
-  public VisionIOPhotonVision(String name, Transform3d robotToCamera) {
-    camera = new PhotonCamera(name);
+  public VisionIOPhotonVision(
+      String name, Transform3d robotToCamera, AprilTagFieldLayout aprilTagLayout) {
     this.robotToCamera = robotToCamera;
+    this.aprilTagLayout = aprilTagLayout;
+    camera = new PhotonCamera(name);
   }
 
   @Override
@@ -102,17 +111,17 @@ public class VisionIOPhotonVision implements VisionIO {
       }
     }
 
-        // Save pose observations to inputs object
-        inputs.poseObservations = new PoseObservation[poseObservations.size()];
-        for (int i = 0; i < poseObservations.size(); i++) {
-        inputs.poseObservations[i] = poseObservations.get(i);
-        }
-
-        // Save tag IDs to inputs objects
-        inputs.tagIds = new int[tagIds.size()];
-        int i = 0;
-        for (int id : tagIds) {
-        inputs.tagIds[i++] = id;
-        }
+    // Save pose observations to inputs object
+    inputs.poseObservations = new PoseObservation[poseObservations.size()];
+    for (int i = 0; i < poseObservations.size(); i++) {
+      inputs.poseObservations[i] = poseObservations.get(i);
     }
+
+    // Save tag IDs to inputs objects
+    inputs.tagIds = new int[tagIds.size()];
+    int i = 0;
+    for (int id : tagIds) {
+      inputs.tagIds[i++] = id;
+    }
+  }
 }

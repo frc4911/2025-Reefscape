@@ -11,15 +11,12 @@ import com.ck4911.commands.VirtualSubsystem;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
+import dagger.multibindings.IntoMap;
 import dagger.multibindings.IntoSet;
-import dagger.multibindings.Multibinds;
+import dagger.multibindings.StringKey;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.InterpolatingMatrixTreeMap;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
-import java.util.Map;
+import edu.wpi.first.math.geometry.Transform3d;
 
 @Module
 public interface VisionModule {
@@ -30,17 +27,36 @@ public interface VisionModule {
   }
 
   @Provides
-  public static InterpolatingMatrixTreeMap<Double, N3, N1> providesMeasurementStdDevDistanceMap() {
-    InterpolatingMatrixTreeMap<Double, N3, N1> map = new InterpolatingMatrixTreeMap<>();
-    map.put(1.0, VecBuilder.fill(1.0, 1.0, 1.0));
-    map.put(8.0, VecBuilder.fill(10.0, 10.0, 10.0));
-    return map;
+  @IntoMap
+  @StringKey("FrontRight")
+  public static VisionIO providesVisionIos(AprilTagFieldLayout aprilTagFieldLayout) {
+    return new VisionIOPhotonVision("FrontRight", new Transform3d(), aprilTagFieldLayout);
   }
-
-  @Multibinds
-  public abstract Map<String, VisionIO> providesEmptyMap();
 
   @Binds
   @IntoSet
   public VirtualSubsystem bindsVision(Vision vision);
+
+  @Provides
+  public static VisionConstants providesVisionConstants() {
+    return VisionConstantsBuilder.builder()
+        .maxAmbiguity(0.3)
+        .maxZError(0.75)
+        .linearStdDevBaseline(0.02)
+        .angularStdDevBaseline(0.06)
+        .cameraStdDevFactors(
+            new double[] {
+              1.0, // Camera 0
+              1.0 // Camera 1
+            })
+        .linearStdDevMegatag2Factor(0.5)
+        .angularStdDevMegatag2Factor(Double.POSITIVE_INFINITY)
+        .build();
+  }
+
+  public static double[] cameraStdDevFactors =
+      new double[] {
+        1.0, // Camera 0
+        1.0 // Camera 1
+      };
 }

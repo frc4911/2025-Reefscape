@@ -247,7 +247,7 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
   }
 
   @Override
-  public void accept(double timestamp, Pose2d pose, Matrix<N3, N1> stdDevs) {
+  public void accept(Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs) {
     super.addVisionMeasurement(pose, timestamp, stdDevs);
   }
 
