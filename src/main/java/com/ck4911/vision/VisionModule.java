@@ -7,6 +7,9 @@
 
 package com.ck4911.vision;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+
 import com.ck4911.commands.VirtualSubsystem;
 import dagger.Binds;
 import dagger.Module;
@@ -14,7 +17,11 @@ import dagger.Provides;
 import dagger.multibindings.IntoSet;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import java.util.List;
 import java.util.Set;
@@ -22,6 +29,14 @@ import java.util.stream.Collectors;
 
 @Module
 public interface VisionModule {
+  // Note: These are absolute locations. For directions, refer to:
+  // https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
+  // Note: 11.36 is the X and Y distance of each swerve azimuth axis from robot center
+  Distance SWERVE_MOUNTED_CAMERA_OFFSET_X = Inches.of(11.36 - .82);
+  Distance SWERVE_MOUNTED_CAMERA_OFFSET_Y = Inches.of(11.36 - 1.06);
+  Distance SWERVE_MOUNTED_CAMERA_OFFSET_Z = Inches.of(6.0 + 2.24);
+  Angle SWERVE_MOUNTED_CAMERA_PITCH = Degrees.of(28.125);
+  Angle SWERVE_MOUNTED_CAMERA_YAW = Degrees.of(30);
 
   @Provides
   public static AprilTagFieldLayout providesFieldLayout() {
@@ -51,7 +66,16 @@ public interface VisionModule {
   public static CameraConstants providesCameraFrontRight() {
     return CameraConstantsBuilder.builder()
         .name("front_right")
-        .robotToCamera(new Transform3d())
+        .robotToCamera(
+            new Transform3d(
+                new Translation3d(
+                    SWERVE_MOUNTED_CAMERA_OFFSET_X,
+                    SWERVE_MOUNTED_CAMERA_OFFSET_Y.unaryMinus(),
+                    SWERVE_MOUNTED_CAMERA_OFFSET_Z),
+                new Rotation3d(
+                    Degrees.zero(),
+                    SWERVE_MOUNTED_CAMERA_PITCH.unaryMinus(),
+                    SWERVE_MOUNTED_CAMERA_YAW.unaryMinus())))
         .cameraStdDevFactor(1.0)
         .build();
   }
