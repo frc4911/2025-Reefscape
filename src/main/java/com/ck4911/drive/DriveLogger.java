@@ -117,16 +117,20 @@ final class DriveLogger {
     boolean encoderConnected = BaseStatusSignal.refreshAll(encoderPositionRotations).isOK();
 
     inputs.driveMotorConnected = driveConnectedDebouncer.calculate(driveMotorConnected);
-    inputs.drivePositionRad = drivePositionRadians.getValue().in(Radians) / TunerConstants.kDriveGearRatio;
-    inputs.driveVelocityRadPerSec = driveVelocityRps.getValue().in(RadiansPerSecond) / TunerConstants.kDriveGearRatio;
+    inputs.drivePositionRad =
+        drivePositionRadians.getValue().in(Radians) / TunerConstants.kDriveGearRatio;
+    inputs.driveVelocityRadPerSec =
+        driveVelocityRps.getValue().in(RadiansPerSecond) / TunerConstants.kDriveGearRatio;
     inputs.driveAppliedVolts = driveAppliedVoltage.getValue().in(Volts);
     inputs.driveSupplyCurrentAmps = driveSupplyCurrent.getValue().in(Amps);
     inputs.driveTorqueCurrentAmps = driveTorqueCurrent.getValue().in(Amps);
     inputs.driveTempCelcius = driveTempCelsius.getValue().in(Celsius);
 
     inputs.turnMotorConnected = steerConnectedDebouncer.calculate(turnMotorConnected);
-    inputs.turnPositionRad = steerPositionRadians.getValue().in(Radians) / TunerConstants.kSteerGearRatio;
-    inputs.turnVelocityRadPerSec = steerVelocityRps.getValue().in(RadiansPerSecond) / TunerConstants.kDriveGearRatio;
+    inputs.turnPositionRad =
+        steerPositionRadians.getValue().in(Radians) / TunerConstants.kSteerGearRatio;
+    inputs.turnVelocityRadPerSec =
+        steerVelocityRps.getValue().in(RadiansPerSecond) / TunerConstants.kDriveGearRatio;
     inputs.turnAppliedVolts = steerAppliedVoltage.getValue().in(Volts);
     inputs.turnSupplyCurrentAmps = steerSupplyCurrent.getValue().in(Amps);
     inputs.turnTorqueCurrentAmps = steerTorqueCurrent.getValue().in(Amps);
