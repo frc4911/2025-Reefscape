@@ -7,13 +7,8 @@
 
 package com.ck4911.vision;
 
+import edu.wpi.first.math.geometry.Transform3d;
 import io.soabase.recordbuilder.core.RecordBuilder;
 
 @RecordBuilder
-public record VisionConstants(
-    double maxAmbiguity,
-    double maxZError,
-    double linearStdDevBaseline,
-    double angularStdDevBaseline,
-    double linearStdDevMegatag2Factor,
-    double angularStdDevMegatag2Factor) {}
+public record CameraConstants(String name, Transform3d robotToCamera, double cameraStdDevFactor) {}

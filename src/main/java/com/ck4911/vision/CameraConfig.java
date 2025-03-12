@@ -7,8 +7,10 @@
 
 package com.ck4911.vision;
 
-import edu.wpi.first.math.geometry.Transform3d;
-import io.soabase.recordbuilder.core.RecordBuilder;
+import edu.wpi.first.wpilibj.Alert;
 
-@RecordBuilder
-public record Camera(String name, Transform3d robotToCamera) {}
+public record CameraConfig(
+    CameraConstants cameraConstants,
+    VisionIOInputsAutoLogged inputs,
+    VisionIO visionIO,
+    Alert disconnectedAlert) {}

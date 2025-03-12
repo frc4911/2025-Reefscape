@@ -13,13 +13,8 @@ import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.Alert.AlertType;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.littletonrobotics.junction.Logger;
@@ -27,9 +22,7 @@ import org.littletonrobotics.junction.Logger;
 @Singleton
 public final class Vision implements VirtualSubsystem {
   private final VisionConsumer consumer;
-  private final List<VisionIO> io;
-  private final List<VisionIOInputsAutoLogged> inputs;
-  private final List<Alert> disconnectedAlerts;
+  private final List<CameraConfig> configs;
   private final AprilTagFieldLayout aprilTagLayout;
   private final VisionConstants constants;
 
@@ -38,19 +31,11 @@ public final class Vision implements VirtualSubsystem {
       VisionConsumer consumer,
       VisionConstants constants,
       AprilTagFieldLayout aprilTagLayout,
-      Map<String, VisionIO> ios) {
+      List<CameraConfig> configs) {
     this.consumer = consumer;
     this.constants = constants;
     this.aprilTagLayout = aprilTagLayout;
-    this.io = new ArrayList<>();
-    this.inputs = new ArrayList<>();
-    this.disconnectedAlerts = new ArrayList<>();
-    for (Entry<String, VisionIO> entry : ios.entrySet()) {
-      this.io.add(entry.getValue());
-      inputs.add(new VisionIOInputsAutoLogged());
-      disconnectedAlerts.add(
-          new Alert("Vision camera " + entry.getKey() + " is disconnected.", AlertType.kWarning));
-    }
+    this.configs = configs;
   }
 
   /**
@@ -59,14 +44,14 @@ public final class Vision implements VirtualSubsystem {
    * @param cameraIndex The index of the camera to use.
    */
   public Rotation2d getTargetX(int cameraIndex) {
-    return inputs.get(cameraIndex).latestTargetObservation.tx();
+    return configs.get(cameraIndex).inputs().latestTargetObservation.tx();
   }
 
   @Override
   public void periodic() {
-    for (int i = 0; i < io.size(); i++) {
-      io.get(i).updateInputs(inputs.get(i));
-      Logger.processInputs("Vision/Camera" + Integer.toString(i), inputs.get(i));
+    for (CameraConfig config : configs) {
+      config.visionIO().updateInputs(config.inputs());
+      Logger.processInputs("Vision/Camera" + config.cameraConstants().name(), config.inputs());
     }
 
     // Initialize logging values
@@ -76,9 +61,9 @@ public final class Vision implements VirtualSubsystem {
     List<Pose3d> allRobotPosesRejected = new LinkedList<>();
 
     // Loop over cameras
-    for (int cameraIndex = 0; cameraIndex < io.size(); cameraIndex++) {
+    for (CameraConfig config : configs) {
       // Update disconnected alert
-      disconnectedAlerts.get(cameraIndex).set(!inputs.get(cameraIndex).connected);
+      config.disconnectedAlert().set(!config.inputs().connected);
 
       // Initialize logging values
       List<Pose3d> tagPoses = new LinkedList<>();
@@ -87,15 +72,13 @@ public final class Vision implements VirtualSubsystem {
       List<Pose3d> robotPosesRejected = new LinkedList<>();
 
       // Add tag poses
-      for (int tagId : inputs.get(cameraIndex).tagIds) {
+      for (int tagId : config.inputs().tagIds) {
         var tagPose = aprilTagLayout.getTagPose(tagId);
-        if (tagPose.isPresent()) {
-          tagPoses.add(tagPose.get());
-        }
+        tagPose.ifPresent(tagPoses::add);
       }
 
       // Loop over pose observations
-      for (var observation : inputs.get(cameraIndex).poseObservations) {
+      for (var observation : config.inputs().poseObservations) {
         // Check whether to reject pose
         boolean rejectPose =
             observation.tagCount() == 0 // Must have at least one tag
@@ -119,6 +102,7 @@ public final class Vision implements VirtualSubsystem {
           robotPosesAccepted.add(observation.pose());
         }
 
+        // TODO: make this toggle-able for testing
         // Skip if rejected
         if (rejectPose) {
           continue;
@@ -133,10 +117,9 @@ public final class Vision implements VirtualSubsystem {
           linearStdDev *= constants.linearStdDevMegatag2Factor();
           angularStdDev *= constants.angularStdDevMegatag2Factor();
         }
-        if (cameraIndex < constants.cameraStdDevFactors().length) {
-          linearStdDev *= constants.cameraStdDevFactors()[cameraIndex];
-          angularStdDev *= constants.cameraStdDevFactors()[cameraIndex];
-        }
+        double cameraStdDevFactors = config.cameraConstants().cameraStdDevFactor();
+        linearStdDev *= cameraStdDevFactors;
+        angularStdDev *= cameraStdDevFactors;
 
         // Send vision observation
         consumer.accept(
@@ -147,16 +130,16 @@ public final class Vision implements VirtualSubsystem {
 
       // Log camera datadata
       Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/TagPoses",
+          "Vision/Camera" + config.cameraConstants().name() + "/TagPoses",
           tagPoses.toArray(new Pose3d[tagPoses.size()]));
       Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPoses",
+          "Vision/Camera" + config.cameraConstants().name() + "/RobotPoses",
           robotPoses.toArray(new Pose3d[robotPoses.size()]));
       Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesAccepted",
+          "Vision/Camera" + config.cameraConstants().name() + "/RobotPosesAccepted",
           robotPosesAccepted.toArray(new Pose3d[robotPosesAccepted.size()]));
       Logger.recordOutput(
-          "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesRejected",
+          "Vision/Camera" + config.cameraConstants().name() + "/RobotPosesRejected",
           robotPosesRejected.toArray(new Pose3d[robotPosesRejected.size()]));
       allTagPoses.addAll(tagPoses);
       allRobotPoses.addAll(robotPoses);

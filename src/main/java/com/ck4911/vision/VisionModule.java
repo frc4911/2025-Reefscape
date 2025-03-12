@@ -11,12 +11,14 @@ import com.ck4911.commands.VirtualSubsystem;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
-import dagger.multibindings.IntoMap;
 import dagger.multibindings.IntoSet;
-import dagger.multibindings.StringKey;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.wpilibj.Alert;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Module
 public interface VisionModule {
@@ -27,10 +29,31 @@ public interface VisionModule {
   }
 
   @Provides
-  @IntoMap
-  @StringKey("FrontRight")
-  public static VisionIO providesVisionIos(AprilTagFieldLayout aprilTagFieldLayout) {
-    return new VisionIOPhotonVision("front_right", new Transform3d(), aprilTagFieldLayout);
+  public static List<CameraConfig> providesVisionIos(
+      AprilTagFieldLayout aprilTagFieldLayout, Set<CameraConstants> cameraConstants) {
+    return cameraConstants.stream()
+        .map(
+            (constants) ->
+                new CameraConfig(
+                    constants,
+                    new VisionIOInputsAutoLogged(),
+                    new VisionIOPhotonVision(
+                        constants.name(), constants.robotToCamera(), aprilTagFieldLayout),
+                    new Alert(
+                        "Vision camera " + constants.name() + " is disconnected.",
+                        Alert.AlertType.kWarning)))
+        .collect(Collectors.toList());
+  }
+
+  // TODO: add more cameras
+  @Provides
+  @IntoSet
+  public static CameraConstants providesCameraFrontRight() {
+    return CameraConstantsBuilder.builder()
+        .name("front_right")
+        .robotToCamera(new Transform3d())
+        .cameraStdDevFactor(1.0)
+        .build();
   }
 
   @Binds
@@ -44,19 +67,8 @@ public interface VisionModule {
         .maxZError(0.75)
         .linearStdDevBaseline(0.02)
         .angularStdDevBaseline(0.06)
-        .cameraStdDevFactors(
-            new double[] {
-              1.0, // Camera 0
-              1.0 // Camera 1
-            })
         .linearStdDevMegatag2Factor(0.5)
         .angularStdDevMegatag2Factor(Double.POSITIVE_INFINITY)
         .build();
   }
-
-  public static double[] cameraStdDevFactors =
-      new double[] {
-        1.0, // Camera 0
-        1.0 // Camera 1
-      };
 }
