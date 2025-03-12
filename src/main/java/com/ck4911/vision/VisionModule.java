@@ -25,12 +25,12 @@ import java.util.Map;
 public interface VisionModule {
 
   @Provides
-  public static AprilTagFieldLayout providesFieldLayout() {
+  static AprilTagFieldLayout providesFieldLayout() {
     return AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
   }
 
   @Provides
-  public static InterpolatingMatrixTreeMap<Double, N3, N1> providesMeasurementStdDevDistanceMap() {
+  static InterpolatingMatrixTreeMap<Double, N3, N1> providesMeasurementStdDevDistanceMap() {
     InterpolatingMatrixTreeMap<Double, N3, N1> map = new InterpolatingMatrixTreeMap<>();
     map.put(1.0, VecBuilder.fill(1.0, 1.0, 1.0));
     map.put(8.0, VecBuilder.fill(10.0, 10.0, 10.0));
@@ -38,9 +38,9 @@ public interface VisionModule {
   }
 
   @Multibinds
-  public abstract Map<String, VisionIO> providesEmptyMap();
+  Map<String, VisionIO> providesEmptyMap();
 
   @Binds
   @IntoSet
-  public VirtualSubsystem bindsVision(Vision vision);
+  VirtualSubsystem bindsVision(Vision vision);
 }

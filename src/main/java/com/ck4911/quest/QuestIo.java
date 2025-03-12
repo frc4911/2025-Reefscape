@@ -13,7 +13,7 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface QuestIo {
   @AutoLog
-  public static class QuestIoInputs {
+  class QuestIoInputs {
     public boolean connected = false;
 
     // These are with relative with offsets applied
@@ -25,10 +25,10 @@ public interface QuestIo {
     public double batteryLevel = 0;
   }
 
-  public default void updateInputs(QuestIoInputs inputs) {}
+  default void updateInputs(QuestIoInputs inputs) {}
 
   /** Sets supplied pose as origin of all calculations */
-  public default void resetPose(Pose2d pose) {}
+  default void resetPose(Pose2d pose) {}
 
-  public default void updateRobotToQuest(Transform2d robotToQuest) {}
+  default void updateRobotToQuest(Transform2d robotToQuest) {}
 }

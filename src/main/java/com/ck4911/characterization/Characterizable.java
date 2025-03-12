@@ -10,5 +10,5 @@ package com.ck4911.characterization;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
 public interface Characterizable {
-  public SysIdRoutine getSysIdRoutine();
+  SysIdRoutine getSysIdRoutine();
 }

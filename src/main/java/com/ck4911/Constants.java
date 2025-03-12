@@ -17,13 +17,13 @@ package com.ck4911;
  */
 public final class Constants {
 
-  public static enum RobotType {
+  public enum RobotType {
     SIMBOT,
     DEVBOT,
     COMPBOT
   }
 
-  public static enum Mode {
+  public enum Mode {
     /** Running on a real robot. */
     REAL,
 

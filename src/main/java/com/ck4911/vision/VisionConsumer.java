@@ -13,5 +13,5 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 
 public interface VisionConsumer {
-  public void accept(double timestamp, Pose2d pose, Matrix<N3, N1> stdDevs);
+  void accept(double timestamp, Pose2d pose, Matrix<N3, N1> stdDevs);
 }

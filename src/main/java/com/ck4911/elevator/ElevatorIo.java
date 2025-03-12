@@ -38,7 +38,7 @@ public interface ElevatorIo {
 
   default void runOpenLoop(double output) {}
 
-  public default void runVolts(Voltage voltage) {}
+  default void runVolts(Voltage voltage) {}
 
   default void stop() {}
 
@@ -49,10 +49,10 @@ public interface ElevatorIo {
 
   default void setFeedForward(double s, double g, double v, double a) {}
 
-  public default void setProfile(
-      AngularVelocity velocity,
-      AngularAcceleration acceleration,
-      Velocity<AngularAccelerationUnit> jerk) {}
+  default void setProfile(
+          AngularVelocity velocity,
+          AngularAcceleration acceleration,
+          Velocity<AngularAccelerationUnit> jerk) {}
 
   default void setBrakeMode(boolean enabled) {}
 }

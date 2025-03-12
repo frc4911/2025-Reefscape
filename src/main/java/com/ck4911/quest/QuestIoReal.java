@@ -25,21 +25,21 @@ import javax.inject.Inject;
 public class QuestIoReal implements QuestIo {
 
   // Configure Network Tables topics (questnav/...) to communicate with the Quest
-  private NetworkTableInstance nt4Instance = NetworkTableInstance.getDefault();
-  private NetworkTable nt4Table = nt4Instance.getTable("questnav");
+  private final NetworkTableInstance nt4Instance = NetworkTableInstance.getDefault();
+  private final NetworkTable nt4Table = nt4Instance.getTable("questnav");
 
   // Quest "output"
-  private IntegerPublisher questMosi = nt4Table.getIntegerTopic("mosi").publish();
-  private DoubleArrayPublisher questResetPose = nt4Table.getDoubleArrayTopic("resetpose").publish();
+  private final IntegerPublisher questMosi = nt4Table.getIntegerTopic("mosi").publish();
+  private final DoubleArrayPublisher questResetPose = nt4Table.getDoubleArrayTopic("resetpose").publish();
 
   // Quest "input"
-  private IntegerSubscriber questMiso = nt4Table.getIntegerTopic("miso").subscribe(0);
-  private DoubleSubscriber questTimestamp = nt4Table.getDoubleTopic("timestamp").subscribe(0.0);
-  private FloatArraySubscriber questPosition =
+  private final IntegerSubscriber questMiso = nt4Table.getIntegerTopic("miso").subscribe(0);
+  private final DoubleSubscriber questTimestamp = nt4Table.getDoubleTopic("timestamp").subscribe(0.0);
+  private final FloatArraySubscriber questPosition =
       nt4Table.getFloatArrayTopic("position").subscribe(new float[] {0.0f, 0.0f, 0.0f});
-  private FloatArraySubscriber questEulerAngles =
+  private final FloatArraySubscriber questEulerAngles =
       nt4Table.getFloatArrayTopic("eulerAngles").subscribe(new float[] {0.0f, 0.0f, 0.0f});
-  private DoubleSubscriber questBattery = nt4Table.getDoubleTopic("batteryPercent").subscribe(0.0);
+  private final DoubleSubscriber questBattery = nt4Table.getDoubleTopic("batteryPercent").subscribe(0.0);
 
   private final Debouncer connectedDebouncer;
   private final QuestConstants constants;

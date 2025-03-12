@@ -9,5 +9,5 @@ package com.ck4911.commands;
 
 public interface VirtualSubsystem {
   /** This method is called periodically once per loop cycle. */
-  public void periodic();
+  void periodic();
 }

@@ -18,7 +18,7 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface ArmIo {
   @AutoLog
-  public static class ArmIoInputs {
+  class ArmIoInputs {
     public boolean motorConnected = true;
     public boolean absoluteEncoderConnected = true;
 
@@ -38,27 +38,27 @@ public interface ArmIo {
   }
 
   /** Updates the set of loggable inputs. */
-  public default void updateInputs(ArmIoInputs inputs) {}
+  default void updateInputs(ArmIoInputs inputs) {}
 
   /** Run the arm at the specified voltage. */
-  public default void runVolts(Voltage voltage) {}
+  default void runVolts(Voltage voltage) {}
 
-  public default void runPosition(Angle position, Current feedforward) {}
+  default void runPosition(Angle position, Current feedforward) {}
 
-  public default void runCurrent(Current amps) {}
+  default void runCurrent(Current amps) {}
 
   default void setBrakeMode(boolean enabled) {}
 
   /** Stop aimer in open loop. */
-  public default void stop() {}
+  default void stop() {}
 
   /** Set feed back constants. */
-  public default void setPid(double p, double i, double d) {}
+  default void setPid(double p, double i, double d) {}
 
-  public default void setFeedForward(double s, double g, double v, double a) {}
+  default void setFeedForward(double s, double g, double v, double a) {}
 
-  public default void setProfile(
-      AngularVelocity velocity,
-      AngularAcceleration acceleration,
-      Velocity<AngularAccelerationUnit> jerk) {}
+  default void setProfile(
+          AngularVelocity velocity,
+          AngularAcceleration acceleration,
+          Velocity<AngularAccelerationUnit> jerk) {}
 }

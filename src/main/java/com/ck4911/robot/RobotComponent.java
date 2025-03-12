@@ -34,5 +34,5 @@ import javax.inject.Singleton;
     })
 @Singleton
 public interface RobotComponent {
-  public CyberKnightsRobot robot();
+  CyberKnightsRobot robot();
 }

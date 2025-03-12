@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public interface CyberKnightsController {
 
-  public static CyberKnightsController createForBrand(int port, Brand brand) {
+  static CyberKnightsController createForBrand(int port, Brand brand) {
     switch (brand) {
       case STADIA:
         return new CyberKnightsStadiaController(port);
@@ -29,46 +29,46 @@ public interface CyberKnightsController {
     }
   }
 
-  public enum Brand {
+  enum Brand {
     XBOX,
-    STADIA;
+    STADIA
   }
 
-  public GenericHID getHID();
+  GenericHID getHID();
 
-  public Trigger leftBumper();
+  Trigger leftBumper();
 
-  public Trigger rightBumper();
+  Trigger rightBumper();
 
-  public Trigger leftStick();
+  Trigger leftStick();
 
-  public Trigger rightStick();
+  Trigger rightStick();
 
-  public Trigger leftTrigger();
+  Trigger leftTrigger();
 
-  public Trigger rightTrigger();
+  Trigger rightTrigger();
 
-  public double getLeftX();
+  double getLeftX();
 
-  public double getRightX();
+  double getRightX();
 
-  public double getLeftY();
+  double getLeftY();
 
-  public double getRightY();
+  double getRightY();
 
-  public Trigger a();
+  Trigger a();
 
-  public Trigger b();
+  Trigger b();
 
-  public Trigger x();
+  Trigger x();
 
-  public Trigger y();
+  Trigger y();
 
-  public Trigger povUp();
+  Trigger povUp();
 
-  public Trigger povRight();
+  Trigger povRight();
 
-  public Trigger povDown();
+  Trigger povDown();
 
-  public Trigger povLeft();
+  Trigger povLeft();
 }

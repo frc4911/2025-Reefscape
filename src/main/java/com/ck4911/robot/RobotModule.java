@@ -19,40 +19,40 @@ import javax.inject.Singleton;
 public interface RobotModule {
 
   @Provides
-  public static @Named("RobotName") String providesRobotName() {
+  static @Named("RobotName") String providesRobotName() {
     return "ReefScapeRobotName";
   }
 
   @Provides
-  public static @Named("TuningMode") boolean providesTuningMode() {
+  static @Named("TuningMode") boolean providesTuningMode() {
     // TODO: toggle this off for competition
     return true;
   }
 
   @Provides
-  public static @Named("LoopPeriod") double providesLoopPeriod() {
+  static @Named("LoopPeriod") double providesLoopPeriod() {
     return 0.02;
   }
 
   @Provides
   @Singleton
-  public static @Named("rio") CANBus providesRioBus() {
+  static @Named("rio") CANBus providesRioBus() {
     return new CANBus("rio");
   }
 
   @Provides
   @Singleton
-  public static @Named("Bob") CANBus providesCanivoreBus() {
+  static @Named("Bob") CANBus providesCanivoreBus() {
     return new CANBus("Bob");
   }
 
   @Provides
-  public static Mode providesMode() {
+  static Mode providesMode() {
     return Mode.REAL;
   }
 
   @Provides
-  public static CommandScheduler providesCommandScheduler() {
+  static CommandScheduler providesCommandScheduler() {
     return CommandScheduler.getInstance();
   }
 }

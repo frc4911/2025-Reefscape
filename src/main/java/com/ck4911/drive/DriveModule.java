@@ -19,15 +19,15 @@ import java.util.function.Supplier;
 public interface DriveModule {
 
   @Binds
-  public VisionConsumer bindsVisionConsumer(Drive drive);
+  VisionConsumer bindsVisionConsumer(Drive drive);
 
   @Provides
-  public static Supplier<Pose2d> providesPoseSupplier(Drive drive) {
+  static Supplier<Pose2d> providesPoseSupplier(Drive drive) {
     return () -> drive.getState().Pose;
   }
 
   @Provides
-  public static Consumer<Pose2d> providesPoseConsumer(Drive drive) {
+  static Consumer<Pose2d> providesPoseConsumer(Drive drive) {
     return drive::resetPose;
   }
 }

@@ -19,7 +19,7 @@ import javax.inject.Singleton;
 @Module
 public interface ControlModule {
   @Provides
-  public static ControlConstants provideControlConstants() {
+  static ControlConstants provideControlConstants() {
     return ControlConstantsBuilder.builder()
         .deadband(0.1)
         .sniperScale(0.1)
@@ -30,33 +30,33 @@ public interface ControlModule {
 
   @Provides
   @Controller(Role.DRIVER)
-  public static Brand provideDriverControllerBrand() {
+  static Brand provideDriverControllerBrand() {
     return Brand.STADIA;
   }
 
   @Provides
   @Controller(Role.OPERATOR)
-  public static Brand provideOperatorControllerBrand() {
+  static Brand provideOperatorControllerBrand() {
     return Brand.STADIA;
   }
 
   @Singleton
   @Provides
   @Controller(Role.DRIVER)
-  public static CyberKnightsController provideDriverController(
-      @Controller(Role.DRIVER) Brand brand, ControlConstants constants) {
+  static CyberKnightsController provideDriverController(
+          @Controller(Role.DRIVER) Brand brand, ControlConstants constants) {
     return CyberKnightsController.createForBrand(constants.driverPort(), brand);
   }
 
   @Singleton
   @Provides
   @Controller(Role.OPERATOR)
-  public static CyberKnightsController provideOperatorController(
-      @Controller(Role.OPERATOR) Brand brand, ControlConstants constants) {
+  static CyberKnightsController provideOperatorController(
+          @Controller(Role.OPERATOR) Brand brand, ControlConstants constants) {
     return CyberKnightsController.createForBrand(constants.operatorPort(), brand);
   }
 
   @Binds
   @IntoSet
-  public VirtualSubsystem bindsControllerBinding(ControllerBinding controllerBinding);
+  VirtualSubsystem bindsControllerBinding(ControllerBinding controllerBinding);
 }

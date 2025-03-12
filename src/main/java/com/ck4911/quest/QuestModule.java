@@ -30,11 +30,11 @@ public interface QuestModule {
   }
 
   @Provides
-  public static QuestConstants providesQuestConstants() {
+  static QuestConstants providesQuestConstants() {
     return QuestConstantsBuilder.builder().robotToQuest(new Transform2d()).build();
   }
 
   @Binds
   @IntoSet
-  public VirtualSubsystem bindsQuestNav(QuestNav questNav);
+  VirtualSubsystem bindsQuestNav(QuestNav questNav);
 }

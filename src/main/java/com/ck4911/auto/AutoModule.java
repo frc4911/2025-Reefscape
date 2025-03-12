@@ -28,7 +28,7 @@ import javax.inject.Singleton;
 public interface AutoModule {
   @Provides
   @Singleton
-  public static AutoConstants provideAutoConstants(Mode mode) {
+  static AutoConstants provideAutoConstants(Mode mode) {
     return AutoConstantsBuilder.builder()
         .feedback(new PidValues(10.0, 0, 0))
         .thetaFeedback(new PidValues(7.0, 0, 0))
@@ -37,15 +37,15 @@ public interface AutoModule {
 
   @Binds
   @IntoSet
-  public VirtualSubsystem bindsAutoCommandHandler(AutoCommandHandler autoCommandHandler);
+  VirtualSubsystem bindsAutoCommandHandler(AutoCommandHandler autoCommandHandler);
 
   @Provides
   @Singleton
-  public static AutoFactory provideAutoFactory(
-      Supplier<Pose2d> poseSupplier,
-      Consumer<Pose2d> poseConsumer,
-      TrajectoryFollower trajectoryFollower,
-      Drive drive) {
+  static AutoFactory provideAutoFactory(
+          Supplier<Pose2d> poseSupplier,
+          Consumer<Pose2d> poseConsumer,
+          TrajectoryFollower trajectoryFollower,
+          Drive drive) {
     return new AutoFactory(
         poseSupplier,
         poseConsumer,
@@ -57,11 +57,11 @@ public interface AutoModule {
 
   @Provides
   @Singleton
-  public static AutoChooser provideAutoChooser() {
+  static AutoChooser provideAutoChooser() {
     return new AutoChooser();
   }
 
   @Binds
   @IntoSet
-  public VirtualSubsystem bindsTrajectoryFolloer(TrajectoryFollower trajectoryFollower);
+  VirtualSubsystem bindsTrajectoryFolloer(TrajectoryFollower trajectoryFollower);
 }

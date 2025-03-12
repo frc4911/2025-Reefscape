@@ -17,10 +17,10 @@ import dagger.multibindings.IntoSet;
 public interface LedModule {
   @Binds
   @IntoSet
-  public VirtualSubsystem bindsLeds(Leds leds);
+  VirtualSubsystem bindsLeds(Leds leds);
 
   @Provides
-  public static LedConstants providesLedConstants() {
+  static LedConstants providesLedConstants() {
     return LedConstantsBuilder.builder()
         .pwmPort(0)
         .minLoopCycleCount(10)

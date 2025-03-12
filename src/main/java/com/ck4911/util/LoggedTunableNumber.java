@@ -30,7 +30,7 @@ public final class LoggedTunableNumber implements DoubleSupplier {
   private boolean hasDefault = false;
   private double defaultValue;
   private LoggedNetworkNumber dashboardNumber;
-  private Map<Integer, Double> lastHasChangedValues = new HashMap<>();
+  private final Map<Integer, Double> lastHasChangedValues = new HashMap<>();
   private final boolean tuningMode;
 
   @AssistedFactory

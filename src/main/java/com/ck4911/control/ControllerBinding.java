@@ -44,9 +44,9 @@ public final class ControllerBinding implements VirtualSubsystem {
   private final CyberCommands cyberCommands;
 
   // kSpeedAt12Volts desired top speed
-  private LinearVelocity maxSpeed = TunerConstants.kSpeedAt12Volts;
+  private final LinearVelocity maxSpeed = TunerConstants.kSpeedAt12Volts;
   // 3/4 of a rotation per second max angular velocity
-  private AngularVelocity maxAngularSpeed = RotationsPerSecond.of(0.75);
+  private final AngularVelocity maxAngularSpeed = RotationsPerSecond.of(0.75);
 
   // TODO: experiment with DriveRequestType.Velocity
   private final SwerveRequest.FieldCentric driveRequest =

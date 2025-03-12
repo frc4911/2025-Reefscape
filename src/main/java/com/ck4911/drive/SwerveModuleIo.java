@@ -11,7 +11,7 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface SwerveModuleIo {
   @AutoLog
-  public static class SwerveModuleIoInputs {
+  class SwerveModuleIoInputs {
     public boolean driveMotorConnected;
     public double drivePositionRad = 0.0;
     public double driveVelocityRadPerSec = 0.0;
@@ -33,5 +33,5 @@ public interface SwerveModuleIo {
   }
 
   /** Updates the set of loggable inputs. */
-  public default void updateInputs(SwerveModuleIoInputs inputs) {}
+  default void updateInputs(SwerveModuleIoInputs inputs) {}
 }

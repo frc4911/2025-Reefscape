@@ -16,5 +16,5 @@ public interface CommandsModule {
 
   // Ensure the set is always there
   @Multibinds
-  public abstract Set<VirtualSubsystem> providesEmptySet();
+  Set<VirtualSubsystem> providesEmptySet();
 }

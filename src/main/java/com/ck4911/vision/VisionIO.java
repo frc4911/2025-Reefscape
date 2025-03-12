@@ -22,5 +22,5 @@ public interface VisionIO {
     public boolean poseUpdated;
   }
 
-  public default void updateInputs(VisionIOInputs inputs) {}
+  default void updateInputs(VisionIOInputs inputs) {}
 }

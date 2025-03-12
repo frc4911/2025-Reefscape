@@ -80,7 +80,7 @@ public class CyberKnightsRobot extends LoggedRobot {
   private final CommandScheduler scheduler;
   private final Set<VirtualSubsystem> virtualSubsystems;
   private final Mode robotMode;
-  private LaserCan armLaserCan;
+  private final LaserCan armLaserCan;
   private final String robotName;
   private final boolean tuningMode;
   private final CANBus canivore;

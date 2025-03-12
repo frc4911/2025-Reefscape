@@ -17,7 +17,7 @@ import javax.inject.Qualifier;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Controller {
 
-  public enum Role {
+  enum Role {
     DRIVER,
     OPERATOR
   }

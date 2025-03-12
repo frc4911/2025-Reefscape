@@ -70,7 +70,7 @@ public class QuestCalibration {
 
                   calculatedOffsetToRobot =
                       calculatedOffsetToRobot
-                          .times((double) calculateOffsetCount / (calculateOffsetCount + 1))
+                          .times(calculateOffsetCount / (calculateOffsetCount + 1))
                           .plus(offset.div(calculateOffsetCount + 1));
                   calculateOffsetCount++;
                   Logger.recordOutput("QuestCalibration/CalculatedOffset", calculatedOffsetToRobot);
