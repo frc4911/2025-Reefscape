@@ -36,8 +36,8 @@ public interface VisionModule {
             (constants) ->
                 new CameraConfig(
                     constants,
-                    new VisionIOInputsAutoLogged(),
-                    new VisionIOPhotonVision(
+                    new VisionIoInputsAutoLogged(),
+                    new VisionIoPhotonVision(
                         constants.name(), constants.robotToCamera(), aprilTagFieldLayout),
                     new Alert(
                         "Vision camera " + constants.name() + " is disconnected.",

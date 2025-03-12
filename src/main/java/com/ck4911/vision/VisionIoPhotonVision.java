@@ -18,7 +18,7 @@ import java.util.Set;
 import org.photonvision.PhotonCamera;
 
 /** IO implementation for real PhotonVision hardware. */
-public final class VisionIOPhotonVision implements VisionIO {
+public final class VisionIoPhotonVision implements VisionIo {
   private final PhotonCamera camera;
   private final Transform3d robotToCamera;
   private final AprilTagFieldLayout aprilTagLayout;
@@ -29,7 +29,7 @@ public final class VisionIOPhotonVision implements VisionIO {
    * @param name The configured name of the camera.
    * @param rotationSupplier The 3D position of the camera relative to the robot.
    */
-  public VisionIOPhotonVision(
+  public VisionIoPhotonVision(
       String name, Transform3d robotToCamera, AprilTagFieldLayout aprilTagLayout) {
     this.robotToCamera = robotToCamera;
     this.aprilTagLayout = aprilTagLayout;
@@ -37,7 +37,7 @@ public final class VisionIOPhotonVision implements VisionIO {
   }
 
   @Override
-  public void updateInputs(VisionIOInputs inputs) {
+  public void updateInputs(VisionIoInputs inputs) {
     inputs.connected = camera.isConnected();
 
     // Read new camera observations

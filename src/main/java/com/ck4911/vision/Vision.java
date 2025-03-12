@@ -8,7 +8,7 @@
 package com.ck4911.vision;
 
 import com.ck4911.commands.VirtualSubsystem;
-import com.ck4911.vision.VisionIO.PoseObservationType;
+import com.ck4911.vision.VisionIo.PoseObservationType;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose3d;

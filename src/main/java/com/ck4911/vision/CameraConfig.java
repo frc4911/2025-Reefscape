@@ -11,6 +11,6 @@ import edu.wpi.first.wpilibj.Alert;
 
 public record CameraConfig(
     CameraConstants cameraConstants,
-    VisionIOInputsAutoLogged inputs,
-    VisionIO visionIO,
+    VisionIoInputsAutoLogged inputs,
+    VisionIo visionIO,
     Alert disconnectedAlert) {}
