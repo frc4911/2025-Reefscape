@@ -7,6 +7,9 @@
 
 package com.ck4911.commands;
 
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
 import com.ck4911.arm.Arm;
 import com.ck4911.drive.Drive;
 import com.ck4911.elevator.Elevator;
@@ -31,7 +34,8 @@ import org.littletonrobotics.junction.Logger;
 
 @Singleton
 public final class CyberCommands {
-  private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
+  private static final double WHEEL_RADIUS_MAX_VELOCITY =
+      RadiansPerSecond.convertFrom(.5, RotationsPerSecond);
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
   private static final double DRIVEBASE_RADIUS = Math.sqrt(22.72 * 22.72 + 22.72 * 22.72);
 

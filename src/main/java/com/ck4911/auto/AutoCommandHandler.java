@@ -81,6 +81,7 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     autoChooser.addRoutine("gpTapeAuto", this::gpTapeAuto);
     autoChooser.addRoutine("pleaseWork", this::pleaseWork);
     autoChooser.addRoutine("Distance Test", this::distanceTest);
+    autoChooser.addCmd("Wheel Radius", () -> cyberCommands.wheelRadiusCharacterization(drive));
     autoChooser.addCmd(
         "Leave",
         () ->
