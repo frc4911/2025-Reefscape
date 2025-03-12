@@ -14,6 +14,8 @@ import com.ck4911.util.LoggedTunableNumber;
 import com.ck4911.util.LoggedTunableNumber.TunableNumbers;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import java.util.function.Supplier;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -28,11 +30,16 @@ public final class TrajectoryFollower implements VirtualSubsystem {
   private final PIDController thetaController;
   private final SwerveRequest.ApplyFieldSpeeds pathApplyFieldSpeeds;
   private final Drive drive;
+  private final Supplier<Pose2d> poseSupplier;
 
   @Inject
   public TrajectoryFollower(
-      AutoConstants autoConstants, Drive drive, TunableNumbers tunableNumbers) {
+      AutoConstants autoConstants,
+      Drive drive,
+      Supplier<Pose2d> poseSupplier,
+      TunableNumbers tunableNumbers) {
     this.drive = drive;
+    this.poseSupplier = poseSupplier;
     p = tunableNumbers.create("Auto/p", autoConstants.feedback().p());
     d = tunableNumbers.create("Auto/d", autoConstants.feedback().d());
     thetaP = tunableNumbers.create("Auto/thetaP", autoConstants.thetaFeedback().p());
@@ -46,7 +53,7 @@ public final class TrajectoryFollower implements VirtualSubsystem {
   public void follow(SwerveSample sample) {
     thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-    var pose = drive.getState().Pose;
+    var pose = poseSupplier.get();
 
     var targetSpeeds = sample.getChassisSpeeds();
     targetSpeeds.vxMetersPerSecond += xController.calculate(pose.getX(), sample.x);

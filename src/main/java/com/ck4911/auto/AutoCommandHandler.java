@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -87,7 +88,8 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     autoChooser.addRoutine("Middle Score L4 and Collect", this::middleScoreL4AndCollect);
     autoChooser.addRoutine("gpTapeAuto", this::gpTapeAuto);
     autoChooser.addRoutine("pleaseWork", this::pleaseWork);
-    autoChooser.addRoutine("meterTest", this::meterTest);
+    autoChooser.addRoutine("Distance Test", this::distanceTest);
+    autoChooser.addCmd("Wheel Radius", () -> cyberCommands.wheelRadiusCharacterization(drive));
     autoChooser.addCmd(
         "Leave",
         () ->
@@ -131,11 +133,31 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     return routine;
   }
 
-  public AutoRoutine meterTest() {
-    AutoRoutine routine = autoFactory.newRoutine("meterTest");
-    AutoTrajectory meterTest = routine.trajectory("meterTest");
+  public AutoRoutine distanceTest() {
+    List<Double> startingPositions = drive.getDrivePositionRadians();
+    AutoRoutine routine = autoFactory.newRoutine("Distance Test");
+    AutoTrajectory meterTest = routine.trajectory("Distance Test");
     routine.active().onTrue(Commands.sequence(meterTest.resetOdometry(), meterTest.cmd()));
-
+    meterTest
+        .done()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  List<Double> endingPositions = drive.getDrivePositionRadians();
+                  double averageDistance = 0;
+                  System.out.println("------------------------------------");
+                  for (int i = 0; i < startingPositions.size(); i++) {
+                    double distance = Math.abs(endingPositions.get(i) - startingPositions.get(i));
+                    averageDistance += distance;
+                    System.out.println("Start: " + startingPositions.get(i));
+                    System.out.println("End: " + endingPositions.get(i));
+                    System.out.println("Rotational distance traveled(radians): " + distance);
+                  }
+                  averageDistance = averageDistance / 4.0;
+                  System.out.println("Average: " + averageDistance);
+                  System.out.println("Divide linear distance by this to get wheel radius");
+                  System.out.println("------------------------------------");
+                }));
     return routine;
   }
 
