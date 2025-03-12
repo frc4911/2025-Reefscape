@@ -41,20 +41,14 @@ public final class CyberCommands {
 
   private final Arm arm;
   private final Elevator elevator;
-  private final Drive drive;
   private final Supplier<Pose2d> poseSupplier;
   private final Consumer<Pose2d> poseConsumer;
 
   @Inject
   public CyberCommands(
-      Arm arm,
-      Elevator elevator,
-      Drive drive,
-      Supplier<Pose2d> poseSupplier,
-      Consumer<Pose2d> poseConsumer) {
+      Arm arm, Elevator elevator, Supplier<Pose2d> poseSupplier, Consumer<Pose2d> poseConsumer) {
     this.arm = arm;
     this.elevator = elevator;
-    this.drive = drive;
     this.poseSupplier = poseSupplier;
     this.poseConsumer = poseConsumer;
   }

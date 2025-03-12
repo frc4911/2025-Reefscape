@@ -7,8 +7,8 @@
 
 package com.ck4911.quest;
 
+import edu.wpi.first.math.geometry.Transform2d;
 import io.soabase.recordbuilder.core.RecordBuilder;
 
 @RecordBuilder
-public record QuestConstants(
-    double offsetAngleDegrees, double offsetXInches, double offsetYInches) {}
+public record QuestConstants(Transform2d robotToQuest) {}
