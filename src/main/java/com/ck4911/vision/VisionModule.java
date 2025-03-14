@@ -36,11 +36,11 @@ public interface VisionModule {
   Distance SWERVE_MOUNTED_CAMERA_OFFSET_Y = Inches.of(11.36 - 1.06);
   Distance SWERVE_MOUNTED_CAMERA_OFFSET_Z = Inches.of(6.0 + 2.24);
   Angle SWERVE_MOUNTED_CAMERA_PITCH = Degrees.of(28.125);
-  Angle SWERVE_MOUNTED_CAMERA_YAW = Degrees.of(30);
+  Angle SWERVE_MOUNTED_CAMERA_YAW = Degrees.of(60);
 
   @Provides
   public static AprilTagFieldLayout providesFieldLayout() {
-    return AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
+    return AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
   }
 
   @Provides
