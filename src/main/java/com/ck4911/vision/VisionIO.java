@@ -10,7 +10,6 @@ package com.ck4911.vision;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-
 import org.littletonrobotics.junction.AutoLog;
 
 public interface VisionIO {
@@ -29,14 +28,13 @@ public interface VisionIO {
   }
 
   public static record PoseObservation(
-    double timestamp,
-    Pose3d pose,
-    double ambiguity,
-    int tagCount,
-    double averageTagDistance,
-    PoseObservationType type) {}
+      double timestamp,
+      Pose3d pose,
+      double ambiguity,
+      int tagCount,
+      double averageTagDistance,
+      PoseObservationType type) {}
 
-    
   public static enum PoseObservationType {
     MEGATAG_1,
     MEGATAG_2,

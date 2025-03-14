@@ -8,7 +8,9 @@
 package com.ck4911.vision;
 
 import com.ck4911.commands.VirtualSubsystem;
+import dagger.Provides;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.InterpolatingMatrixTreeMap;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose3d;
@@ -27,7 +29,7 @@ import org.littletonrobotics.junction.Logger;
 public final class Vision implements VirtualSubsystem {
   private static final double MAXIMUM_ACCEPTED_MEASUREMENT_Z = 1.0;
 
-  private final AprilTagFieldLayout fieldLayout;
+  public static AprilTagFieldLayout fieldLayout;
   private final VisionConsumer visionConsumer;
   private final InterpolatingMatrixTreeMap<Double, N3, N1> measurementStdDevDistanceMap;
   private final Map<String, VisionIO> iosMap;
@@ -47,6 +49,11 @@ public final class Vision implements VirtualSubsystem {
     visionInputs =
         iosMap.keySet().stream()
             .collect(Collectors.toMap(key -> key, key -> new VisionIOInputsAutoLogged()));
+  }
+
+  @Provides
+  public static AprilTagFieldLayout providesFieldLayout() {
+    return AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
   }
 
   @Override
