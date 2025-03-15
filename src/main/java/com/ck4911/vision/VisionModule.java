@@ -80,6 +80,23 @@ public interface VisionModule {
         .build();
   }
 
+  @Provides
+  @IntoSet
+  public static CameraConstants providesCameraFrontLeft() {
+    return CameraConstantsBuilder.builder()
+        .name("front_left")
+        .robotToCamera(
+            new Transform3d(
+                new Translation3d(
+                    SWERVE_MOUNTED_CAMERA_OFFSET_X,
+                    SWERVE_MOUNTED_CAMERA_OFFSET_Y.unaryMinus(),
+                    SWERVE_MOUNTED_CAMERA_OFFSET_Z),
+                new Rotation3d(
+                    Degrees.zero(), SWERVE_MOUNTED_CAMERA_PITCH, SWERVE_MOUNTED_CAMERA_YAW)))
+        .cameraStdDevFactor(1.0)
+        .build();
+  }
+
   @Binds
   @IntoSet
   public VirtualSubsystem bindsVision(Vision vision);

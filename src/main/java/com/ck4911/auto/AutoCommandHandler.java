@@ -80,6 +80,8 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     startingRotation = new Rotation2d(180);
     autoChooser.addRoutine("Middle Score L4", this::middleScoreL4);
     autoChooser.addRoutine("Middle Score L4 and Collect", this::middleScoreL4AndCollect);
+    autoChooser.addRoutine("Leave (Right)", this::middleScoreL4AndCollect);
+    autoChooser.addRoutine("Middle (Left)", this::middleScoreL4AndCollect);
     //    autoChooser.addRoutine("gpTapeAuto", this::gpTapeAuto);
     //    autoChooser.addRoutine("pleaseWork", this::pleaseWork);
     //    autoChooser.addRoutine("Distance Test", this::distanceTest);
@@ -216,6 +218,22 @@ public final class AutoCommandHandler implements VirtualSubsystem {
 
     collectRight.active().whileTrue(cyberCommands.prepareForCollect());
 
+    return routine;
+  }
+
+  public AutoRoutine leaveLeft() {
+    AutoRoutine routine = autoFactory.newRoutine("Leave (left)");
+    AutoTrajectory leaveLeftRoutine = routine.trajectory("Leave (left)");
+
+    routine.active().onTrue(leaveLeftRoutine.cmd());
+    return routine;
+  }
+
+  public AutoRoutine leaveRight() {
+    AutoRoutine routine = autoFactory.newRoutine("Leave (right)");
+    AutoTrajectory leaveRightRoutine = routine.trajectory("Leave (right)");
+
+    routine.active().onTrue(leaveRightRoutine.cmd());
     return routine;
   }
 
