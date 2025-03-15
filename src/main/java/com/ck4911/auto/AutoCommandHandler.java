@@ -7,8 +7,6 @@
 
 package com.ck4911.auto;
 
-import static edu.wpi.first.units.Units.Degrees;
-
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
@@ -18,13 +16,10 @@ import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
 import com.ck4911.quest.QuestNav;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.List;
 import javax.inject.Inject;
@@ -83,30 +78,30 @@ public final class AutoCommandHandler implements VirtualSubsystem {
 
   private void addAutos() {
     startingRotation = new Rotation2d(180);
-    autoChooser.addCmd("test", () -> Commands.print("hi"));
     autoChooser.addRoutine("Middle Score L4", this::middleScoreL4);
     autoChooser.addRoutine("Middle Score L4 and Collect", this::middleScoreL4AndCollect);
-    autoChooser.addRoutine("gpTapeAuto", this::gpTapeAuto);
-    autoChooser.addRoutine("pleaseWork", this::pleaseWork);
-    autoChooser.addRoutine("Distance Test", this::distanceTest);
-    autoChooser.addCmd("Wheel Radius", () -> cyberCommands.wheelRadiusCharacterization(drive));
-    autoChooser.addCmd(
-        "Leave",
-        () ->
-            Commands.sequence(
-                autoFactory.resetOdometry("Leave"),
-                autoFactory.trajectoryCmd("Leave"),
-                Commands.runOnce(
-                    () -> {
-                      boolean red =
-                          DriverStation.getAlliance().isPresent()
-                              && DriverStation.getAlliance().get() == Alliance.Red;
-                      Angle forwardAngle = Degrees.of(red ? 180 : 0);
-                      CommandScheduler.getInstance()
-                          .schedule(cyberCommands.resetForward(forwardAngle));
-                    })));
+    //    autoChooser.addRoutine("gpTapeAuto", this::gpTapeAuto);
+    //    autoChooser.addRoutine("pleaseWork", this::pleaseWork);
+    //    autoChooser.addRoutine("Distance Test", this::distanceTest);
+    //    autoChooser.addCmd("Wheel Radius", () ->
+    // cyberCommands.wheelRadiusCharacterization(drive));
+    //    autoChooser.addCmd(
+    //        "Leave",
+    //        () ->
+    //            Commands.sequence(
+    //                autoFactory.resetOdometry("Leave"),
+    //                autoFactory.trajectoryCmd("Leave"),
+    //                Commands.runOnce(
+    //                    () -> {
+    //                      boolean red =
+    //                          DriverStation.getAlliance().isPresent()
+    //                              && DriverStation.getAlliance().get() == Alliance.Red;
+    //                      Angle forwardAngle = Degrees.of(red ? 180 : 0);
+    //                      CommandScheduler.getInstance()
+    //                          .schedule(cyberCommands.resetForward(forwardAngle));
+    //                    })));
 
-    autoChooser.addCmd("Quest Offset Calibration", () -> questNav.calibrateCommand(drive));
+    //    autoChooser.addCmd("Quest Offset Calibration", () -> questNav.calibrateCommand(drive));
 
     SmartDashboard.putData("Autos", autoChooser);
   }
@@ -181,7 +176,7 @@ public final class AutoCommandHandler implements VirtualSubsystem {
 
     AutoTrajectory middleScoreL4 = routine.trajectory("Middle Score L4");
 
-    routine.active().onTrue(Commands.sequence(middleScoreL4.resetOdometry(), middleScoreL4.cmd()));
+    routine.active().onTrue(middleScoreL4.cmd());
 
     middleScoreL4.atTime("L4").onTrue(Commands.print("L4").alongWith(cyberCommands.levelFour()));
     middleScoreL4
@@ -203,7 +198,7 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     AutoTrajectory middleScoreL4 = routine.trajectory("Middle Score L4");
     AutoTrajectory collectRight = routine.trajectory("Collect Right");
 
-    routine.active().onTrue(Commands.sequence(middleScoreL4.resetOdometry(), middleScoreL4.cmd()));
+    routine.active().onTrue(middleScoreL4.cmd());
 
     middleScoreL4.atTime("L4").onTrue(Commands.print("L4").alongWith(cyberCommands.levelFour()));
     middleScoreL4
