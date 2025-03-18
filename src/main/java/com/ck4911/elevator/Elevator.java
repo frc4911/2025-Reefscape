@@ -115,6 +115,9 @@ public final class Elevator extends SubsystemBase implements Characterizable {
         tunableNumbers.create("Elevator/LevelThreePosition", constants.levelThreePositionRadians());
     levelFourPositionRadians =
         tunableNumbers.create("Elevator/LevelFourPosition", constants.levelFourPositionRadians());
+    leaderDisonnected = new Alert("Elevator lead motor disconnected!", Alert.AlertType.WARNING);
+    followerDisconnected =
+        new Alert("Elevator follow motor disconnected!", Alert.AlertType.WARNING);
 
     elevatorIo.setPid(p.get(), i.get(), d.get());
     elevatorIo.setFeedForward(s.get(), g.get(), v.get(), a.get());
@@ -122,10 +125,6 @@ public final class Elevator extends SubsystemBase implements Characterizable {
         RotationsPerSecond.of(velocity.get()),
         RotationsPerSecondPerSecond.of(acceleration.get()),
         RotationsPerSecondPerSecond.per(Second).of(jerk.get()));
-
-    leaderDisonnected = new Alert("Elevator lead motor disconnected!", Alert.AlertType.WARNING);
-    followerDisconnected =
-        new Alert("Elevator follow motor disconnected!", Alert.AlertType.WARNING);
   }
 
   @Override

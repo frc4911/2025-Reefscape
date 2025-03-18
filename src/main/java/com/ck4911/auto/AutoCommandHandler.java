@@ -17,7 +17,6 @@ import com.ck4911.commands.CyberCommands;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
 import com.ck4911.quest.QuestNav;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -40,7 +39,6 @@ public final class AutoCommandHandler implements VirtualSubsystem {
   private double autoStart;
   private boolean autoMessagePrinted;
   private Command currentAutoCommand;
-  private Rotation2d startingRotation;
 
   @Inject
   public AutoCommandHandler(
@@ -82,7 +80,6 @@ public final class AutoCommandHandler implements VirtualSubsystem {
   }
 
   private void addAutos() {
-    startingRotation = new Rotation2d(180);
     autoChooser.addCmd("test", () -> Commands.print("hi"));
     autoChooser.addRoutine("Middle Score L4", this::middleScoreL4);
     autoChooser.addRoutine("Middle Score L4 and Collect", this::middleScoreL4AndCollect);

@@ -7,7 +7,9 @@
 
 package com.ck4911.commands;
 
+import dagger.Binds;
 import dagger.Module;
+import dagger.multibindings.IntoSet;
 import dagger.multibindings.Multibinds;
 import java.util.Set;
 
@@ -17,4 +19,8 @@ public interface CommandsModule {
   // Ensure the set is always there
   @Multibinds
   public abstract Set<VirtualSubsystem> providesEmptySet();
+
+  @Binds
+  @IntoSet
+  public VirtualSubsystem bindsDashboardCommands(DashboardCommands dashboardCommands);
 }

@@ -63,5 +63,5 @@ public interface AutoModule {
 
   @Binds
   @IntoSet
-  public VirtualSubsystem bindsTrajectoryFolloer(TrajectoryFollower trajectoryFollower);
+  public VirtualSubsystem bindsTrajectoryFollower(TrajectoryFollower trajectoryFollower);
 }
