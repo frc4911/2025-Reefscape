@@ -458,6 +458,18 @@
               "robot_color": 4294198070,
               "trajectory_color": 4294967295
             }
+          },
+          {
+            "title": "Reef Level",
+            "x": 1152.0,
+            "y": 640.0,
+            "width": 512.0,
+            "height": 256.0,
+            "type": "Split Button Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/Reef Level",
+              "period": 0.06
+            }
           }
         ]
       }
