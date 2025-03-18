@@ -21,6 +21,7 @@ import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import javax.inject.Singleton;
 import org.littletonrobotics.junction.Logger;
@@ -33,6 +34,7 @@ public final class AutoAlign extends Command {
   private final PIDController xController;
   private final PIDController yController;
   private final Drive drive;
+  private final Field2d field;
   private final Pose2d targetPose;
   private final SwerveRequest.FieldCentricFacingAngle driveRequest;
 
@@ -42,7 +44,7 @@ public final class AutoAlign extends Command {
   @AssistedFactory
   @Singleton
   public interface AutoAlignFactory {
-    AutoAlign alignWith(Pose2d targetPose);
+    AutoAlign alignWith(ReefPosition reefPosition);
   }
 
   /**
@@ -105,18 +107,18 @@ public final class AutoAlign extends Command {
     ReefPosition(Pose2d targetPose) {
       this.targetPose = targetPose;
     }
-
-    Pose2d getPoseTargetPose() {
-      return targetPose;
-    }
   }
 
   @AssistedInject
   AutoAlign(
-      Drive drive, LoggedTunableNumber.TunableNumbers tunableNumbers, @Assisted Pose2d targetPose) {
+      Drive drive,
+      LoggedTunableNumber.TunableNumbers tunableNumbers,
+      Field2d field,
+      @Assisted ReefPosition reefPosition) {
     addRequirements(drive);
     this.drive = drive;
-    this.targetPose = targetPose;
+    this.targetPose = reefPosition.targetPose;
+    this.field = field;
     p = tunableNumbers.create("Auto/p", 10); // move constants somewhere else
     d = tunableNumbers.create("Auto/d", 0);
     debounceTime = tunableNumbers.create("Auto/debounce", 0.3);
@@ -128,6 +130,13 @@ public final class AutoAlign extends Command {
     driveRequest =
         new SwerveRequest.FieldCentricFacingAngle()
             .withForwardPerspective(SwerveRequest.ForwardPerspectiveValue.BlueAlliance);
+  }
+
+  @Override
+  public void initialize() {
+    xController.setSetpoint(targetPose.getX());
+    yController.setSetpoint(targetPose.getY());
+    field.getObject("TargetPose").setPose(targetPose);
   }
 
   @Override
