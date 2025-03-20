@@ -44,35 +44,28 @@ public class TunerConstants {
 
   // The steer motor uses any SwerveModule.SteerRequestType control request with the
   // output type specified by SwerveModuleConstants.SteerMotorClosedLoopOutput
-  // TODO: Tune these!
   public static final Slot0Configs steerGains =
       new Slot0Configs()
           .withKP(100)
           .withKI(0)
           .withKD(0.5)
-          .withKS(0.1)
-          .withKV(2.66)
+          .withKS(0)
+          .withKV(1.5)
           .withKA(0)
           .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
   // When using closed-loop control, the drive motor uses the control
   // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
   // TODO: Tune these!
   public static final Slot0Configs driveGains =
-      new Slot0Configs()
-          .withKP(0.1)
-          .withKI(0)
-          .withKD(0)
-          .withKS(0.110436)
-          .withKV(0.113925)
-          .withKA(0.0023137);
-
-  // TODO: use TorqueCurrentFOC instead of Voltage!
+      new Slot0Configs().withKP(3.0).withKI(0).withKD(0).withKS(0).withKV(0).withKA(0);
   // The closed-loop output type to use for the steer motors;
   // This affects the PID/FF gains for the steer motors
   private static final ClosedLoopOutputType kSteerClosedLoopOutput = ClosedLoopOutputType.Voltage;
+
   // The closed-loop output type to use for the drive motors;
   // This affects the PID/FF gains for the drive motors
-  private static final ClosedLoopOutputType kDriveClosedLoopOutput = ClosedLoopOutputType.Voltage;
+  private static final ClosedLoopOutputType kDriveClosedLoopOutput =
+      ClosedLoopOutputType.TorqueCurrentFOC;
 
   // The type of motor used for the drive motor
   private static final DriveMotorArrangement kDriveMotorType =
@@ -96,9 +89,6 @@ public class TunerConstants {
       new TalonFXConfiguration()
           .withCurrentLimits(
               new CurrentLimitsConfigs()
-                  // Swerve azimuth does not require much torque output, so we can set a relatively
-                  // low
-                  // stator current limit to help avoid brownouts without impacting performance.
                   .withStatorCurrentLimit(Amps.of(60))
                   .withStatorCurrentLimitEnable(true));
   private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
@@ -124,10 +114,10 @@ public class TunerConstants {
   // This may need to be tuned to your individual robot
   private static final double kCoupleRatio = 3.5714285714285716;
 
-  private static final double kDriveGearRatio = 6.122448979591837;
-  private static final double kSteerGearRatio = 21.428571428571427;
-  // TODO: This must be tuned
-  private static final Distance kWheelRadius = Inches.of(2.02061920320834);
+  public static final double kDriveGearRatio = 6.122448979591837;
+  public static final double kSteerGearRatio = 21.428571428571427;
+  // Tuned 3/6
+  private static final Distance kWheelRadius = Inches.of(1.9695);
 
   private static final boolean kInvertLeftSide = false;
   private static final boolean kInvertRightSide = true;

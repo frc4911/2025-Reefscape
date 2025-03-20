@@ -39,6 +39,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.littletonrobotics.junction.Logger;
@@ -120,17 +121,12 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
 
   private final QuestNav questNav;
   private final LoggedTunableNumber driveP;
-  private final LoggedTunableNumber driveI;
   private final LoggedTunableNumber driveD;
   private final LoggedTunableNumber driveS;
   private final LoggedTunableNumber driveV;
   private final LoggedTunableNumber driveA;
   private final LoggedTunableNumber turnP;
-  private final LoggedTunableNumber turnI;
   private final LoggedTunableNumber turnD;
-  private final LoggedTunableNumber turnS;
-  private final LoggedTunableNumber turnV;
-  private final LoggedTunableNumber turnA;
   private final List<DriveLogger> driveLoggers = new ArrayList<>();
 
   @Inject
@@ -146,17 +142,12 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
         TunerConstants.BackRight);
     this.questNav = questNav;
     driveP = tunableNumbers.create("Drive/driveP", TunerConstants.driveGains.kP);
-    driveI = tunableNumbers.create("Drive/driveI", TunerConstants.driveGains.kI);
     driveD = tunableNumbers.create("Drive/driveD", TunerConstants.driveGains.kD);
     driveS = tunableNumbers.create("Drive/driveS", TunerConstants.driveGains.kS);
     driveV = tunableNumbers.create("Drive/driveV", TunerConstants.driveGains.kV);
     driveA = tunableNumbers.create("Drive/driveA", TunerConstants.driveGains.kA);
     turnP = tunableNumbers.create("Drive/turnP", TunerConstants.steerGains.kP);
-    turnI = tunableNumbers.create("Drive/turnI", TunerConstants.steerGains.kI);
     turnD = tunableNumbers.create("Drive/turnD", TunerConstants.steerGains.kD);
-    turnS = tunableNumbers.create("Drive/turnS", TunerConstants.steerGains.kS);
-    turnV = tunableNumbers.create("Drive/turnV", TunerConstants.steerGains.kV);
-    turnA = tunableNumbers.create("Drive/turnA", TunerConstants.steerGains.kA);
     if (Utils.isSimulation()) {
       startSimThread();
     }
@@ -204,16 +195,14 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
     }
 
     LoggedTunableNumber.ifChanged(
-        hashCode(), this::updateDriveGains, driveP, driveI, driveD, driveS, driveV, driveA);
-    LoggedTunableNumber.ifChanged(
-        hashCode(), this::updateSteerGains, turnP, turnI, turnD, turnS, turnV, turnA);
+        hashCode(), this::updateDriveGains, driveP, driveD, driveS, driveV, driveA);
+    LoggedTunableNumber.ifChanged(hashCode(), this::updateSteerGains, turnP, turnD);
   }
 
   private void updateDriveGains() {
     Slot0Configs newDriveGains =
         TunerConstants.driveGains
             .withKP(driveP.get())
-            .withKI(driveI.get())
             .withKD(driveD.get())
             .withKS(driveS.get())
             .withKV(driveV.get())
@@ -226,14 +215,7 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
   }
 
   private void updateSteerGains() {
-    Slot0Configs newSteerGains =
-        TunerConstants.steerGains
-            .withKP(turnP.get())
-            .withKI(turnI.get())
-            .withKD(turnD.get())
-            .withKS(turnS.get())
-            .withKV(turnV.get())
-            .withKA(turnA.get());
+    Slot0Configs newSteerGains = TunerConstants.steerGains.withKP(turnP.get()).withKD(turnD.get());
     SwerveModule<TalonFX, TalonFX, CANcoder>[] modules = getModules();
     for (SwerveModule<TalonFX, TalonFX, CANcoder> module : modules) {
       PhoenixUtils.tryUntilOk(
@@ -267,5 +249,11 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
   @Override
   public void accept(double timestamp, Pose2d pose, Matrix<N3, N1> stdDevs) {
     super.addVisionMeasurement(pose, timestamp, stdDevs);
+  }
+
+  public List<Double> getDrivePositionRadians() {
+    return driveLoggers.stream()
+        .map(DriveLogger::getDrivePositionRadians)
+        .collect(Collectors.toList());
   }
 }

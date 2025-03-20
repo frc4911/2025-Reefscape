@@ -7,22 +7,31 @@
 
 package com.ck4911.quest;
 
+import com.ck4911.Constants.Mode;
 import com.ck4911.commands.VirtualSubsystem;
 import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoSet;
+import edu.wpi.first.math.geometry.Transform2d;
+import javax.inject.Provider;
 
 @Module
 public interface QuestModule {
 
   @Provides
+  static QuestIo providesQuestIo(Mode mode, Provider<QuestIoReal> realProvider) {
+    switch (mode) {
+      case REAL:
+        return realProvider.get();
+      default:
+        return new QuestIo() {};
+    }
+  }
+
+  @Provides
   public static QuestConstants providesQuestConstants() {
-    return QuestConstantsBuilder.builder()
-        .offsetAngleDegrees(-29.216252f)
-        .offsetXInches(0)
-        .offsetYInches(0)
-        .build();
+    return QuestConstantsBuilder.builder().robotToQuest(new Transform2d()).build();
   }
 
   @Binds

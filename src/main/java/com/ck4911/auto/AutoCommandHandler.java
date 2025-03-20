@@ -16,6 +16,7 @@ import choreo.auto.AutoTrajectory;
 import com.ck4911.commands.CyberCommands;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
+import com.ck4911.quest.QuestNav;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -25,6 +26,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -33,6 +35,7 @@ public final class AutoCommandHandler implements VirtualSubsystem {
   private final AutoChooser autoChooser;
   private final AutoFactory autoFactory;
   private final Drive drive;
+  private final QuestNav questNav;
   private final CyberCommands cyberCommands;
   private double autoStart;
   private boolean autoMessagePrinted;
@@ -41,9 +44,14 @@ public final class AutoCommandHandler implements VirtualSubsystem {
 
   @Inject
   public AutoCommandHandler(
-      AutoFactory autoFactory, Drive drive, CyberCommands cyberCommands, AutoChooser autoChooser) {
+      AutoFactory autoFactory,
+      Drive drive,
+      QuestNav questNav,
+      CyberCommands cyberCommands,
+      AutoChooser autoChooser) {
     this.autoChooser = autoChooser;
     this.drive = drive;
+    this.questNav = questNav;
     this.cyberCommands = cyberCommands;
     this.autoFactory = autoFactory;
 
@@ -77,9 +85,11 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     startingRotation = new Rotation2d(180);
     autoChooser.addCmd("test", () -> Commands.print("hi"));
     autoChooser.addRoutine("Middle Score L4", this::middleScoreL4);
+    autoChooser.addRoutine("Middle Score L4 and Collect", this::middleScoreL4AndCollect);
     autoChooser.addRoutine("gpTapeAuto", this::gpTapeAuto);
     autoChooser.addRoutine("pleaseWork", this::pleaseWork);
-    autoChooser.addRoutine("meterTest", this::meterTest);
+    autoChooser.addRoutine("Distance Test", this::distanceTest);
+    autoChooser.addCmd("Wheel Radius", () -> cyberCommands.wheelRadiusCharacterization(drive));
     autoChooser.addCmd(
         "Leave",
         () ->
@@ -95,6 +105,8 @@ public final class AutoCommandHandler implements VirtualSubsystem {
                       CommandScheduler.getInstance()
                           .schedule(cyberCommands.resetForward(forwardAngle));
                     })));
+
+    autoChooser.addCmd("Quest Offset Calibration", () -> questNav.calibrateCommand(drive));
 
     SmartDashboard.putData("Autos", autoChooser);
   }
@@ -121,11 +133,31 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     return routine;
   }
 
-  public AutoRoutine meterTest() {
-    AutoRoutine routine = autoFactory.newRoutine("meterTest");
-    AutoTrajectory meterTest = routine.trajectory("meterTest");
+  public AutoRoutine distanceTest() {
+    List<Double> startingPositions = drive.getDrivePositionRadians();
+    AutoRoutine routine = autoFactory.newRoutine("Distance Test");
+    AutoTrajectory meterTest = routine.trajectory("Distance Test");
     routine.active().onTrue(Commands.sequence(meterTest.resetOdometry(), meterTest.cmd()));
-
+    meterTest
+        .done()
+        .onTrue(
+            Commands.runOnce(
+                () -> {
+                  List<Double> endingPositions = drive.getDrivePositionRadians();
+                  double averageDistance = 0;
+                  System.out.println("------------------------------------");
+                  for (int i = 0; i < startingPositions.size(); i++) {
+                    double distance = Math.abs(endingPositions.get(i) - startingPositions.get(i));
+                    averageDistance += distance;
+                    System.out.println("Start: " + startingPositions.get(i));
+                    System.out.println("End: " + endingPositions.get(i));
+                    System.out.println("Rotational distance traveled(radians): " + distance);
+                  }
+                  averageDistance = averageDistance / 4.0;
+                  System.out.println("Average: " + averageDistance);
+                  System.out.println("Divide linear distance by this to get wheel radius");
+                  System.out.println("------------------------------------");
+                }));
     return routine;
   }
 
@@ -147,32 +179,47 @@ public final class AutoCommandHandler implements VirtualSubsystem {
   public AutoRoutine middleScoreL4() {
     AutoRoutine routine = autoFactory.newRoutine("Middle Score L4");
 
-    // Load the trajectorie
     AutoTrajectory middleScoreL4 = routine.trajectory("Middle Score L4");
 
-    // When the routine begins, reset odometry and start the first trajectory
     routine.active().onTrue(Commands.sequence(middleScoreL4.resetOdometry(), middleScoreL4.cmd()));
 
-    middleScoreL4.atTime("L4").onTrue(cyberCommands.levelFour());
-
+    middleScoreL4.atTime("L4").onTrue(Commands.print("L4").alongWith(cyberCommands.levelFour()));
     middleScoreL4
-        .done()
+        .atTime("ScoreDown")
         .onTrue(
-            Commands.waitSeconds(3)
-                .andThen(cyberCommands.levelFour().withTimeout(3).andThen(cyberCommands.score())));
-    // middleScoreL4
-    // .done()
-    // .onTrue(
-    // cyberCommands
-    // .levelFour()
-    // .raceWith(Commands.waitSeconds(.5))
-    // .andThen(
-    // cyberCommands
-    // .score()
-    // .raceWith(Commands.waitSeconds(1))
-    // .andThen(cyberCommands.stow())));
-    // middleScoreL4.atTime("Score").onTrue(cyberCommands.score());
-    // middleScoreL4.atTime("Stow").onTrue(cyberCommands.stow());
+            Commands.print("ScoreDown")
+                .alongWith(
+                    cyberCommands
+                        .score()
+                        .raceWith(Commands.waitSeconds(.5))
+                        .andThen(cyberCommands.prepareForCollect())));
+
+    return routine;
+  }
+
+  public AutoRoutine middleScoreL4AndCollect() {
+    AutoRoutine routine = autoFactory.newRoutine("Middle Score L4 And Collect");
+
+    AutoTrajectory middleScoreL4 = routine.trajectory("Middle Score L4");
+    AutoTrajectory collectRight = routine.trajectory("Collect Right");
+
+    routine.active().onTrue(Commands.sequence(middleScoreL4.resetOdometry(), middleScoreL4.cmd()));
+
+    middleScoreL4.atTime("L4").onTrue(Commands.print("L4").alongWith(cyberCommands.levelFour()));
+    middleScoreL4
+        .atTime("ScoreDown")
+        .onTrue(
+            Commands.print("ScoreDown")
+                .alongWith(
+                    cyberCommands
+                        .score()
+                        .raceWith(Commands.waitSeconds(.5))
+                        .andThen(
+                            cyberCommands.prepareForCollect().raceWith(Commands.waitSeconds(1)))));
+
+    middleScoreL4.done().onTrue(collectRight.cmd());
+
+    collectRight.active().whileTrue(cyberCommands.prepareForCollect());
 
     return routine;
   }

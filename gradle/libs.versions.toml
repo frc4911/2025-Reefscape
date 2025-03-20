@@ -1,6 +1,6 @@
 [versions]
 dagger = "2.55"
-gradle-rio = "2025.3.1"
+gradle-rio = "2025.3.2"
 gversion = "1.10.3"
 spotless = "7.0.2"
 mockito = "5.16.0"
