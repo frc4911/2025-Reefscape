@@ -16,6 +16,7 @@ import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.control.Controller.Role;
 import com.ck4911.drive.Drive;
 import com.ck4911.drive.TunerConstants;
+import com.ck4911.field.ReefLevel;
 import com.ck4911.util.Alert;
 import com.ck4911.util.Alert.AlertType;
 import com.ck4911.util.LoggedTunableNumber;
@@ -126,11 +127,11 @@ public final class ControllerBinding implements VirtualSubsystem {
     operator.povDown().onTrue(cyberCommands.collect());
     operator.povLeft().onTrue(cyberCommands.stow());
     operator.rightTrigger().onTrue(cyberCommands.score());
-    operator.b().onTrue(cyberCommands.levelThree());
 
-    operator.x().onTrue(cyberCommands.levelTwo());
-    operator.a().onTrue(cyberCommands.trough());
-    operator.y().onTrue(cyberCommands.levelFour());
+    //    operator.a().onTrue(cyberCommands.reefLevel(ReefLevel.LEVEL_1));
+    operator.b().onTrue(cyberCommands.reefLevel(ReefLevel.LEVEL_3));
+    operator.x().onTrue(cyberCommands.reefLevel(ReefLevel.LEVEL_2));
+    operator.y().onTrue(cyberCommands.reefLevel(ReefLevel.LEVEL_4));
 
     driver.leftBumper().onTrue(cyberCommands.prepareForCollect());
     driver.x().whileTrue(drive.applyRequest(() -> brake));

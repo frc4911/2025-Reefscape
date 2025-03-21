@@ -8,81 +8,66 @@
 package com.ck4911.commands;
 
 import com.ck4911.auto.AutoAlign;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.ck4911.field.ReefBranch;
+import com.ck4911.field.ReefLevel;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 @Singleton
 public final class DashboardCommands implements VirtualSubsystem {
   private final CyberCommands cyberCommands;
+  private final Field2d field;
   private final AutoAlign.AutoAlignFactory factory;
-
-  private AutoAlign.ReefPosition currentReefPosition = AutoAlign.ReefPosition.A;
-  private ReefLevel currentReefLevel = ReefLevel.LEVEL_4;
-
-  public enum ReefLevel {
-    LEVEL_1,
-    LEVEL_2,
-    LEVEL_3,
-    LEVEL_4
-  }
+  private final LoggedDashboardChooser<ReefLevel> levelChooser =
+      new LoggedDashboardChooser<>("Reef Level");
+  private final LoggedDashboardChooser<ReefBranch> branchChooser =
+      new LoggedDashboardChooser<>("Reef Branch");
 
   @Inject
-  DashboardCommands(CyberCommands cyberCommands, AutoAlign.AutoAlignFactory factory) {
+  DashboardCommands(
+      CyberCommands cyberCommands, Field2d field, AutoAlign.AutoAlignFactory factory) {
     this.cyberCommands = cyberCommands;
+    this.field = field;
     this.factory = factory;
   }
 
   public void addAllReefPositions() {
-    SmartDashboard.putData("BRANCH A", setCurrentBranchCommand(AutoAlign.ReefPosition.A));
-    SmartDashboard.putData("BRANCH B", setCurrentBranchCommand(AutoAlign.ReefPosition.B));
-    SmartDashboard.putData("BRANCH C", setCurrentBranchCommand(AutoAlign.ReefPosition.C));
-    SmartDashboard.putData("BRANCH D", setCurrentBranchCommand(AutoAlign.ReefPosition.D));
-    SmartDashboard.putData("BRANCH E", setCurrentBranchCommand(AutoAlign.ReefPosition.E));
-    SmartDashboard.putData("BRANCH F", setCurrentBranchCommand(AutoAlign.ReefPosition.F));
-    SmartDashboard.putData("BRANCH G", setCurrentBranchCommand(AutoAlign.ReefPosition.G));
-    SmartDashboard.putData("BRANCH H", setCurrentBranchCommand(AutoAlign.ReefPosition.H));
-    SmartDashboard.putData("BRANCH I", setCurrentBranchCommand(AutoAlign.ReefPosition.I));
-    SmartDashboard.putData("BRANCH J", setCurrentBranchCommand(AutoAlign.ReefPosition.J));
-    SmartDashboard.putData("BRANCH K", setCurrentBranchCommand(AutoAlign.ReefPosition.K));
-    SmartDashboard.putData("BRANCH L", setCurrentBranchCommand(AutoAlign.ReefPosition.L));
+    branchChooser.addDefaultOption("BRANCH A", ReefBranch.A);
+    branchChooser.addOption("BRANCH B", ReefBranch.B);
+    branchChooser.addOption("BRANCH C", ReefBranch.C);
+    branchChooser.addOption("BRANCH D", ReefBranch.D);
+    branchChooser.addOption("BRANCH E", ReefBranch.E);
+    branchChooser.addOption("BRANCH F", ReefBranch.F);
+    branchChooser.addOption("BRANCH G", ReefBranch.G);
+    branchChooser.addOption("BRANCH H", ReefBranch.H);
+    branchChooser.addOption("BRANCH I", ReefBranch.I);
+    branchChooser.addOption("BRANCH J", ReefBranch.J);
+    branchChooser.addOption("BRANCH K", ReefBranch.K);
+    branchChooser.addOption("BRANCH L", ReefBranch.L);
   }
 
   public void addAllReefLevels() {
-    LoggedDashboardChooser<ReefLevel> levelChooser = new LoggedDashboardChooser<>("Reef Level");
     levelChooser.addDefaultOption("LEVEL 4", ReefLevel.LEVEL_4);
-    levelChooser.addDefaultOption("LEVEL 3", ReefLevel.LEVEL_3);
-    levelChooser.addDefaultOption("LEVEL 2", ReefLevel.LEVEL_2);
+    levelChooser.addOption("LEVEL 3", ReefLevel.LEVEL_3);
+    levelChooser.addOption("LEVEL 2", ReefLevel.LEVEL_2);
   }
 
   @Override
   public void periodic() {
-    Logger.recordOutput("Drive/CurrentReefPosition", currentReefPosition.name());
-    Logger.recordOutput("Drive/CurrentReefLevel", currentReefPosition.name());
+    field.getObject("NextPosition").setPose(branchChooser.get().targetPose);
   }
 
   public Command goToCurrentReefPosition() {
-    return factory.alignWith(currentReefPosition);
+    // This should be deferred or else it will always use the initial branch instead of the current
+    return Commands.deferredProxy(() -> factory.alignWith(branchChooser.get()));
   }
 
   public Command goToCurrentReefLevel() {
-    return switch (currentReefLevel) {
-      case LEVEL_2 -> cyberCommands.levelTwo();
-      case LEVEL_3 -> cyberCommands.levelThree();
-      case LEVEL_4 -> cyberCommands.levelFour();
-      default -> Commands.none();
-    };
-  }
-
-  private Command setCurrentBranchCommand(AutoAlign.ReefPosition reefPosition) {
-    return Commands.runOnce(() -> currentReefPosition = reefPosition);
-  }
-
-  private Command setCurrentLevelCommand(ReefLevel reefLevel) {
-    return Commands.runOnce(() -> currentReefLevel = reefLevel);
+    // This should be deferred or else it will always use the initial level instead of the current
+    return Commands.deferredProxy(() -> cyberCommands.reefLevel(levelChooser.get()));
   }
 }

@@ -16,6 +16,7 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ck4911.characterization.Characterizable;
+import com.ck4911.field.ReefLevel;
 import com.ck4911.util.Alert;
 import com.ck4911.util.LoggedTunableNumber;
 import com.ck4911.util.LoggedTunableNumber.TunableNumbers;
@@ -132,7 +133,10 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     elevatorIo.updateInputs(inputs);
     Logger.processInputs("Elevator", inputs);
     Logger.recordOutput("Elevator/Home", homedPositionRads);
-    Logger.recordOutput("Elevator/CurrentPosition", getAngle().baseUnitMagnitude());
+    Logger.recordOutput("Elevator/CurrentPosition", getCurrentAngle().baseUnitMagnitude());
+    Distance position =
+        Meters.of(constants.sprocketRadius() * (inputs.positionRads - homedPositionRads));
+    Logger.recordOutput("Elevator/MeasuredHeightMeters", position.baseUnitMagnitude());
 
     leaderDisonnected.set(!inputs.leaderConnected);
     followerDisconnected.set(!inputs.followerConnected);
@@ -156,7 +160,6 @@ public final class Elevator extends SubsystemBase implements Characterizable {
         velocity,
         acceleration,
         jerk);
-    checkLimits();
   }
 
   @Override
@@ -179,15 +182,19 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     Logger.recordOutput("Elevator/SetAngle", angle.plus(Radians.of(homedPositionRads)));
   }
 
-  public Angle getAngle() {
+  public Angle getCurrentAngle() {
     return Radians.of(inputs.positionRads - homedPositionRads);
   }
 
-  public Distance getPosition() {
-    Distance position =
-        Meters.of(constants.sprocketRadius() * (inputs.positionRads - homedPositionRads));
-    Logger.recordOutput("Elevator/MeasuredHeightMeters", position.baseUnitMagnitude());
-    return position;
+  private Angle getAngleForReefLevel(ReefLevel reefLevel) {
+    LoggedTunableNumber number =
+        switch (reefLevel) {
+          case LEVEL_1 -> troughPositionRadians;
+          case LEVEL_2 -> levelTwoPositionRadians;
+          case LEVEL_3 -> levelThreePositionRadians;
+          case LEVEL_4 -> levelFourPositionRadians;
+        };
+    return Radians.of(number.get());
   }
 
   private Command goTo(LoggedTunableNumber number) {
@@ -214,8 +221,9 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     return Commands.waitUntil(
         () -> {
           boolean done =
-              debouncer.calculate(getAngle().baseUnitMagnitude() > angle.baseUnitMagnitude());
-          Logger.recordOutput("Elevator/waitForAngleGet", getAngle().baseUnitMagnitude());
+              debouncer.calculate(
+                  getCurrentAngle().baseUnitMagnitude() > angle.baseUnitMagnitude());
+          Logger.recordOutput("Elevator/waitForAngleGet", getCurrentAngle().baseUnitMagnitude());
           return done;
         });
   }
@@ -226,8 +234,9 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     return Commands.waitUntil(
         () -> {
           boolean done =
-              debouncer.calculate(getAngle().baseUnitMagnitude() < angle.baseUnitMagnitude());
-          Logger.recordOutput("ArElevatorm/waitForAngleGet", getAngle().baseUnitMagnitude());
+              debouncer.calculate(
+                  getCurrentAngle().baseUnitMagnitude() < angle.baseUnitMagnitude());
+          Logger.recordOutput("ArElevatorm/waitForAngleGet", getCurrentAngle().baseUnitMagnitude());
           return done;
         });
   }
@@ -248,20 +257,8 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     return goTo(corralHeight);
   }
 
-  public Command trough() {
-    return goTo(troughPositionRadians);
-  }
-
-  public Command levelTwo() {
-    return goTo(levelTwoPositionRadians);
-  }
-
-  public Command levelThree() {
-    return goTo(levelThreePositionRadians);
-  }
-
-  public Command levelFour() {
-    return goTo(levelFourPositionRadians);
+  public Command reefLevel(ReefLevel reefLevel) {
+    return Commands.run(() -> setAngle(getAngleForReefLevel(reefLevel)), this);
   }
 
   // A command to gently move the elevator to the home position and mark it.
@@ -329,10 +326,6 @@ public final class Elevator extends SubsystemBase implements Characterizable {
         }
       }
     };
-  }
-
-  private void checkLimits() {
-    // TODO: check position limits (upper and lower)
   }
 
   public Command waitUntilPrepareCollect() {

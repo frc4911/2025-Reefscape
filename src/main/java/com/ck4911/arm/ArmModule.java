@@ -20,14 +20,11 @@ public interface ArmModule {
   @Provides
   static ArmIo providesArmIo(
       Mode mode, Provider<ArmIoReal> realProvider, Provider<ArmIoSim> simProvider) {
-    switch (mode) {
-      case REAL:
-        return realProvider.get();
-      case SIM:
-        return simProvider.get();
-      default:
-        return new ArmIo() {};
-    }
+    return switch (mode) {
+      case REAL -> realProvider.get();
+      case SIM -> simProvider.get();
+      default -> new ArmIo() {};
+    };
   }
 
   @Provides
@@ -38,7 +35,6 @@ public interface ArmModule {
         .encoderId(11)
         .sensorId(1)
         .gearRatio(25)
-        .variance(.1)
         .debounceTimeSeconds(.25)
         .armEncoderOffsetRads(-1.83)
         .minPositionRads(-Math.PI / 2.0)

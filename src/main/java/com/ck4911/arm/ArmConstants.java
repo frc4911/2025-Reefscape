@@ -29,7 +29,6 @@ public record ArmConstants(
     double profileVelocity,
     double profileAcceleration,
     double profileJerk,
-    double variance,
     double coralDetectionDistanceMillimeters,
     double coralScoreDistanceMillimeters,
     double debounceTimeSeconds,

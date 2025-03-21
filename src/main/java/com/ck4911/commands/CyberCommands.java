@@ -13,6 +13,7 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import com.ck4911.arm.Arm;
 import com.ck4911.drive.Drive;
 import com.ck4911.elevator.Elevator;
+import com.ck4911.field.ReefLevel;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -81,20 +82,8 @@ public final class CyberCommands {
     return elevator.homeWithCoral().alongWith(arm.stow());
   }
 
-  public Command trough() {
-    return elevator.trough().alongWith(arm.trough());
-  }
-
-  public Command levelTwo() {
-    return elevator.levelTwo().alongWith(arm.levelTwoAndThree());
-  }
-
-  public Command levelThree() {
-    return elevator.levelThree().alongWith(arm.levelTwoAndThree());
-  }
-
-  public Command levelFour() {
-    return elevator.levelFour().alongWith(arm.levelFour());
+  public Command reefLevel(ReefLevel reefLevel) {
+    return elevator.reefLevel(reefLevel).alongWith(arm.reefLevel(reefLevel));
   }
 
   public Command stow() {

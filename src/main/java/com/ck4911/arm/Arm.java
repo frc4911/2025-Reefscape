@@ -16,6 +16,7 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ck4911.characterization.Characterizable;
+import com.ck4911.field.ReefLevel;
 import com.ck4911.util.Alert;
 import com.ck4911.util.LoggedTunableNumber;
 import com.ck4911.util.LoggedTunableNumber.TunableNumbers;
@@ -43,10 +44,12 @@ public final class Arm extends SubsystemBase implements Characterizable {
   private final LoggedTunableNumber g;
   private final LoggedTunableNumber v;
   private final LoggedTunableNumber a;
+  private final LoggedTunableNumber troughPositionDegrees;
+  private final LoggedTunableNumber levelTwoAndThreePositionDegrees;
+  private final LoggedTunableNumber levelFourPositionDegrees;
   private final LoggedTunableNumber velocity;
   private final LoggedTunableNumber acceleration;
   private final LoggedTunableNumber jerk;
-  private final LoggedTunableNumber variance;
   private final LoggedTunableNumber debounceTime;
   private final LoggedTunableNumber coralDetectionDistance;
   private final LoggedTunableNumber coralScoreDistance;
@@ -77,6 +80,13 @@ public final class Arm extends SubsystemBase implements Characterizable {
     g = tunableNumbers.create("Arm/g", constants.feedForwardValues().g());
     v = tunableNumbers.create("Arm/v", constants.feedForwardValues().v());
     a = tunableNumbers.create("Arm/a", constants.feedForwardValues().a());
+    troughPositionDegrees =
+        tunableNumbers.create("Arm/TroughPosition", constants.troughPositionDegrees());
+    levelTwoAndThreePositionDegrees =
+        tunableNumbers.create(
+            "Arm/LevelTwoThreePosition", constants.levelTwoAndThreePositionDegrees());
+    levelFourPositionDegrees =
+        tunableNumbers.create("Arm/LevelFourPosition", constants.levelFourPositionDegrees());
     velocity = tunableNumbers.create("Arm/ProfileVelocity", constants.profileVelocity());
     acceleration =
         tunableNumbers.create("Arm/ProfileAcceleration", constants.profileAcceleration());
@@ -86,7 +96,6 @@ public final class Arm extends SubsystemBase implements Characterizable {
         tunableNumbers.create("Arm/CoralDetectMm", constants.coralDetectionDistanceMillimeters());
     coralScoreDistance =
         tunableNumbers.create("Arm/CoralScoreMm", constants.coralScoreDistanceMillimeters());
-    variance = tunableNumbers.create("Arm/Variance", constants.variance());
     armIo.setPid(p.get(), i.get(), d.get());
     armIo.setFeedForward(s.get(), g.get(), v.get(), a.get());
     armIo.setProfile(
@@ -150,9 +159,19 @@ public final class Arm extends SubsystemBase implements Characterizable {
     return Commands.run(() -> setAngle(angle), this);
   }
 
+  private Angle getAngleForReefLevel(ReefLevel reefLevel) {
+    LoggedTunableNumber number =
+        switch (reefLevel) {
+          case LEVEL_1 -> troughPositionDegrees;
+          case LEVEL_2, LEVEL_3 -> levelTwoAndThreePositionDegrees;
+          case LEVEL_4 -> levelFourPositionDegrees;
+        };
+    return Degrees.of(number.get());
+  }
+
   private Command waitUntilAbove(Angle angle) {
     Debouncer debouncer = new Debouncer(debounceTime.get());
-    Logger.recordOutput("Arm/waitForAngleAngle", angle.baseUnitMagnitude());
+    Logger.recordOutput("Arm/waitForAngleAbove", angle.baseUnitMagnitude());
     return Commands.waitUntil(
         () -> {
           boolean done =
@@ -164,7 +183,7 @@ public final class Arm extends SubsystemBase implements Characterizable {
 
   private Command waitUntilBelow(Angle angle) {
     Debouncer debouncer = new Debouncer(debounceTime.get());
-    Logger.recordOutput("Arm/waitForAngleAngle", angle.baseUnitMagnitude());
+    Logger.recordOutput("Arm/waitForAngleBelow", angle.baseUnitMagnitude());
     return Commands.waitUntil(
         () -> {
           boolean done =
@@ -225,16 +244,8 @@ public final class Arm extends SubsystemBase implements Characterizable {
     return goTo(Degrees.of(0));
   }
 
-  public Command trough() {
-    return goTo(Degrees.of(constants.troughPositionDegrees()));
-  }
-
-  public Command levelTwoAndThree() {
-    return goTo(Degrees.of(constants.levelTwoAndThreePositionDegrees()));
-  }
-
-  public Command levelFour() {
-    return goTo(Degrees.of(constants.levelFourPositionDegrees()));
+  public Command reefLevel(ReefLevel reefLevel) {
+    return Commands.run(() -> setAngle(getAngleForReefLevel(reefLevel)), this);
   }
 
   private void checkLimits() {
