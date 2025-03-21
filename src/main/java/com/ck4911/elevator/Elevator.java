@@ -24,11 +24,13 @@ import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import org.littletonrobotics.junction.Logger;
 
@@ -63,14 +65,19 @@ public final class Elevator extends SubsystemBase implements Characterizable {
   private final LoggedTunableNumber levelFourPositionRadians;
   private final Alert leaderDisonnected;
   private final Alert followerDisconnected;
+  private final MechanismLigament2d elevatorMechanism;
 
   private double homedPositionRads = 0;
 
   @Inject
   public Elevator(
-      ElevatorIo elevatorIo, ElevatorConstants constants, TunableNumbers tunableNumbers) {
+      ElevatorIo elevatorIo,
+      ElevatorConstants constants,
+      @Named("Elevator") MechanismLigament2d elevatorMechanism,
+      TunableNumbers tunableNumbers) {
     this.elevatorIo = elevatorIo;
     this.constants = constants;
+    this.elevatorMechanism = elevatorMechanism;
     // TODO: adjust these values
     sysIdRoutine =
         new SysIdRoutine(
@@ -132,10 +139,14 @@ public final class Elevator extends SubsystemBase implements Characterizable {
   public void periodic() {
     elevatorIo.updateInputs(inputs);
     Logger.processInputs("Elevator", inputs);
-    Logger.recordOutput("Elevator/Home", homedPositionRads);
-    Logger.recordOutput("Elevator/CurrentPosition", getCurrentAngle().baseUnitMagnitude());
+
     Distance position =
         Meters.of(constants.sprocketRadius() * (inputs.positionRads - homedPositionRads));
+
+    elevatorMechanism.setLength(.2 + position.baseUnitMagnitude());
+
+    Logger.recordOutput("Elevator/Home", homedPositionRads);
+    Logger.recordOutput("Elevator/CurrentPosition", getCurrentAngle().baseUnitMagnitude());
     Logger.recordOutput("Elevator/MeasuredHeightMeters", position.baseUnitMagnitude());
 
     leaderDisonnected.set(!inputs.leaderConnected);

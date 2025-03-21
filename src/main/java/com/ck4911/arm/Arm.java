@@ -22,12 +22,15 @@ import com.ck4911.util.LoggedTunableNumber;
 import com.ck4911.util.LoggedTunableNumber.TunableNumbers;
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.math.filter.Debouncer;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import org.littletonrobotics.junction.Logger;
 
@@ -56,12 +59,18 @@ public final class Arm extends SubsystemBase implements Characterizable {
   private final Alert motorDisconnected;
   private final Alert encoderDisconnected;
   private final ArmConstants constants;
+  private final MechanismLigament2d armMechanism;
 
   @Inject
-  public Arm(ArmConstants constants, ArmIo armIo, TunableNumbers tunableNumbers) {
+  public Arm(
+      ArmConstants constants,
+      ArmIo armIo,
+      @Named("Arm") MechanismLigament2d armMechanism,
+      TunableNumbers tunableNumbers) {
     super();
     this.armIo = armIo;
     this.constants = constants;
+    this.armMechanism = armMechanism;
 
     // TODO: adjust these values
     sysIdRoutine =
@@ -111,6 +120,8 @@ public final class Arm extends SubsystemBase implements Characterizable {
   public void periodic() {
     armIo.updateInputs(inputs);
     Logger.processInputs("Arm", inputs);
+
+    armMechanism.setAngle(Rotation2d.fromRadians(inputs.absoluteEncoderPositionRads));
 
     motorDisconnected.set(!inputs.motorConnected);
     encoderDisconnected.set(!inputs.absoluteEncoderConnected);

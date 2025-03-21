@@ -12,7 +12,12 @@ import com.ck4911.util.FeedForwardValues;
 import com.ck4911.util.PidValues;
 import dagger.Module;
 import dagger.Provides;
+import edu.wpi.first.wpilibj.smartdashboard.*;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
+import javax.inject.Named;
 import javax.inject.Provider;
+import javax.inject.Singleton;
 
 @Module
 public interface ElevatorModule {
@@ -20,14 +25,22 @@ public interface ElevatorModule {
   @Provides
   static ElevatorIo providesArmIo(
       Mode mode, Provider<ElevatorIoReal> realProvider, Provider<ElevatorIoSim> simProvider) {
-    switch (mode) {
-      case REAL:
-        return realProvider.get();
-      case SIM:
-        return simProvider.get();
-      default:
-        return new ElevatorIo() {};
-    }
+    return switch (mode) {
+      case REAL -> realProvider.get();
+      case SIM -> simProvider.get();
+      default -> new ElevatorIo() {};
+    };
+  }
+
+  @Singleton
+  @Provides
+  @Named("Elevator")
+  static MechanismLigament2d providesElevatorMechanism() {
+    Mechanism2d mechanism2d = new Mechanism2d(3, 3);
+    MechanismRoot2d root = mechanism2d.getRoot("Chassis", 1.5, 0.15);
+    SmartDashboard.putData("Mechanism", mechanism2d);
+    return root.append(
+        new MechanismLigament2d("Elevator", 0, 90, 6, new Color8Bit(Color.kIndianRed)));
   }
 
   @Provides

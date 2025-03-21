@@ -12,7 +12,12 @@ import com.ck4911.util.FeedForwardValues;
 import com.ck4911.util.PidValues;
 import dagger.Module;
 import dagger.Provides;
+import edu.wpi.first.wpilibj.smartdashboard.*;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
+import javax.inject.Named;
 import javax.inject.Provider;
+import javax.inject.Singleton;
 
 @Module
 public interface ArmModule {
@@ -25,6 +30,14 @@ public interface ArmModule {
       case SIM -> simProvider.get();
       default -> new ArmIo() {};
     };
+  }
+
+  @Singleton
+  @Provides
+  @Named("Arm")
+  static MechanismLigament2d providesArmMechanism(@Named("Elevator") MechanismLigament2d elevator) {
+    return elevator.append(
+        new MechanismLigament2d("Arm", 0.5, 90, 6, new Color8Bit(Color.kAquamarine)));
   }
 
   @Provides
