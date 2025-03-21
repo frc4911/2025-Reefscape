@@ -18,8 +18,6 @@ import dagger.Module;
 import dagger.Provides;
 import dagger.multibindings.IntoSet;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import javax.inject.Singleton;
@@ -46,13 +44,7 @@ public interface AutoModule {
       Consumer<Pose2d> poseConsumer,
       TrajectoryFollower trajectoryFollower,
       Drive drive) {
-    return new AutoFactory(
-        poseSupplier,
-        poseConsumer,
-        trajectoryFollower::follow,
-        DriverStation.getAlliance().isPresent()
-            && DriverStation.getAlliance().get() == Alliance.Red,
-        drive);
+    return new AutoFactory(poseSupplier, poseConsumer, trajectoryFollower::follow, true, drive);
   }
 
   @Provides

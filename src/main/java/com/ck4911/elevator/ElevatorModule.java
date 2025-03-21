@@ -49,7 +49,7 @@ public interface ElevatorModule {
         .maxPositionRads(0)
         .stowPositionRadians(5)
         .collectPositionRadians(9.24)
-        .prepareCollectPositionRadians(14.5)
+        .prepareCollectPositionRadians(16.5)
         .troughPositionRadians(7)
         .levelTwoPositionRadians(10)
         .levelThreePositionRadians(20)
