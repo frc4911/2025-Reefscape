@@ -254,8 +254,10 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
   }
 
   @Override
-  public void accept(double timestamp, Pose2d pose, Matrix<N3, N1> stdDevs) {
-    super.addVisionMeasurement(pose, timestamp, stdDevs);
+  public void accept(Pose2d pose, double timestamp, Matrix<N3, N1> stdDevs) {
+    // Convert timestamp
+    // https://www.chiefdelphi.com/t/phoenix-6-pose-estimator-phoenix-x-serve/481470/4
+    addVisionMeasurement(pose, Utils.fpgaToCurrentTime(timestamp), stdDevs);
   }
 
   public List<Double> getDrivePositionRadians() {
