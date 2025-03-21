@@ -7,6 +7,7 @@
 
 package com.ck4911.commands;
 
+import com.ck4911.field.DashboardCommands;
 import dagger.Binds;
 import dagger.Module;
 import dagger.multibindings.IntoSet;

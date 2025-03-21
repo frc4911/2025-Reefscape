@@ -129,7 +129,6 @@ public final class Arm extends SubsystemBase implements Characterizable {
         velocity,
         acceleration,
         jerk);
-    checkLimits();
   }
 
   @Override
@@ -246,9 +245,5 @@ public final class Arm extends SubsystemBase implements Characterizable {
 
   public Command reefLevel(ReefLevel reefLevel) {
     return Commands.run(() -> setAngle(getAngleForReefLevel(reefLevel)), this);
-  }
-
-  private void checkLimits() {
-    // TODO: check position limits (upper and lower)
   }
 }

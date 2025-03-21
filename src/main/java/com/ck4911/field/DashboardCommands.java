@@ -5,11 +5,11 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package com.ck4911.commands;
+package com.ck4911.field;
 
 import com.ck4911.auto.AutoAlign;
-import com.ck4911.field.ReefBranch;
-import com.ck4911.field.ReefLevel;
+import com.ck4911.commands.CyberCommands;
+import com.ck4911.commands.VirtualSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;

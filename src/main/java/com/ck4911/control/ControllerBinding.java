@@ -11,11 +11,11 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ck4911.commands.CyberCommands;
-import com.ck4911.commands.DashboardCommands;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.control.Controller.Role;
 import com.ck4911.drive.Drive;
 import com.ck4911.drive.TunerConstants;
+import com.ck4911.field.DashboardCommands;
 import com.ck4911.field.ReefLevel;
 import com.ck4911.util.Alert;
 import com.ck4911.util.Alert.AlertType;
