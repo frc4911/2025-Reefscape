@@ -7,7 +7,6 @@
 
 package com.ck4911.field;
 
-import com.ck4911.auto.AutoAlign;
 import com.ck4911.commands.CyberCommands;
 import com.ck4911.commands.VirtualSubsystem;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -58,12 +57,12 @@ public final class DashboardCommands implements VirtualSubsystem {
 
   @Override
   public void periodic() {
-    field.getObject("NextPosition").setPose(branchChooser.get().targetPose);
+    field.getObject("NextReefPosition").setPose(branchChooser.get().targetPose);
   }
 
   public Command goToCurrentReefPosition() {
     // This should be deferred or else it will always use the initial branch instead of the current
-    return Commands.deferredProxy(() -> factory.alignWith(branchChooser.get()));
+    return Commands.deferredProxy(() -> factory.alignWith(branchChooser.get().targetPose));
   }
 
   public Command goToCurrentReefLevel() {

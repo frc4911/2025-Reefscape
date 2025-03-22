@@ -5,10 +5,9 @@
 // license that can be found in the LICENSE file at
 // the root directory of this project.
 
-package com.ck4911.auto;
+package com.ck4911.field;
 
 import com.ck4911.drive.Drive;
-import com.ck4911.field.ReefBranch;
 import com.ck4911.util.LoggedTunableNumber;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import dagger.assisted.Assisted;
@@ -40,7 +39,7 @@ public final class AutoAlign extends Command {
   @AssistedFactory
   @Singleton
   public interface AutoAlignFactory {
-    AutoAlign alignWith(ReefBranch reefPosition);
+    AutoAlign alignWith(Pose2d targetPose);
   }
 
   @AssistedInject
@@ -48,14 +47,14 @@ public final class AutoAlign extends Command {
       Drive drive,
       LoggedTunableNumber.TunableNumbers tunableNumbers,
       Field2d field,
-      @Assisted ReefBranch reefPosition) {
+      @Assisted Pose2d targetPose) {
     addRequirements(drive);
     this.drive = drive;
-    this.targetPose = reefPosition.targetPose;
+    this.targetPose = targetPose;
     this.field = field;
-    p = tunableNumbers.create("Auto/p", 10); // move constants somewhere else
-    d = tunableNumbers.create("Auto/d", 0);
-    debounceTime = tunableNumbers.create("Auto/debounce", 0.3);
+    p = tunableNumbers.create("Align/p", 10); // move constants somewhere else
+    d = tunableNumbers.create("Align/d", 0);
+    debounceTime = tunableNumbers.create("Align/debounce", 0.3);
     debouncer = new Debouncer(debounceTime.get());
     xController = new PIDController(p.get(), 0, d.get());
     yController = new PIDController(p.get(), 0, d.get());
@@ -91,9 +90,9 @@ public final class AutoAlign extends Command {
             .withVelocityY(yController.calculate(currentPose.getY()))
             .withTargetDirection(targetPose.getRotation()));
     double thetaError = targetPose.getRotation().minus(currentPose.getRotation()).getDegrees();
-    Logger.recordOutput("Drive/AutoAlignErrorX", xController.getError());
-    Logger.recordOutput("Drive/AutoAlignErrorY", yController.getError());
-    Logger.recordOutput("Drive/AutoAlignErrorTheta", thetaError);
+    Logger.recordOutput("Align/AutoAlignErrorX", xController.getError());
+    Logger.recordOutput("Align/AutoAlignErrorY", yController.getError());
+    Logger.recordOutput("Align/AutoAlignErrorTheta", thetaError);
 
     // Wait until the robot is at the target pose for a certain amount of time before finishing
     isFinished =

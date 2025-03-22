@@ -55,19 +55,16 @@ public final class CyberCommands {
   }
 
   public Command prepareForCollect() {
-    return elevator
-        .prepareCollect()
-        .raceWith(elevator.waitUntilPrepareCollect())
-        .andThen(elevator.prepareCollect().alongWith(arm.collect()));
+    return Commands.sequence(
+        elevator.prepareCollect().raceWith(elevator.waitUntilPrepareCollect()),
+        elevator.prepareCollect().alongWith(arm.collect()));
   }
 
   public Command collect() {
-    // TODO: safety measures (check arm position)
-    return elevator
-        .collect()
-        .raceWith(arm.waitForCoralPresent())
-        .andThen(
-            elevator.passCorral().raceWith(elevator.waitUntilPrepareCollect()).andThen(stow()));
+    return Commands.sequence(
+        elevator.collect().raceWith(arm.waitForCoralPresent()),
+        elevator.passCorral().raceWith(elevator.waitUntilPrepareCollect()),
+        stow());
   }
 
   public Command score() {

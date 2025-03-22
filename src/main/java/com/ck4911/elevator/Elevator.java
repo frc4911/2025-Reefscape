@@ -100,8 +100,8 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     acceleration =
         tunableNumbers.create("Elevator/ProfileAcceleration", constants.profileAcceleration());
     jerk = tunableNumbers.create("Elevator/ProfileJerk", constants.profileJerk());
-    debounceTime = tunableNumbers.create("Arm/DebounceTime", constants.debounceTimeSeconds());
-    variance = tunableNumbers.create("Arm/Variance", constants.variance());
+    debounceTime = tunableNumbers.create("Elevator/DebounceTime", constants.debounceTimeSeconds());
+    variance = tunableNumbers.create("Elevator/Variance", constants.variance());
     homingVolts = tunableNumbers.create("Elevator/HomingVolts", constants.homingVolts());
     homingVelocityThresh =
         tunableNumbers.create("Elevator/HomingVelocityThresh", constants.homingVelocityThresh());
@@ -212,6 +212,10 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     return Commands.run(() -> setAngle(Radians.of(number.get())), this);
   }
 
+  private Command goTo(LoggedTunableNumber number, boolean endWhenFinished) {
+    return Commands.run(() -> setAngle(Radians.of(number.get())), this);
+  }
+
   public Command waitForPrepareCollectPosition() {
     return waitUntilAbove(Radians.of(constants.prepareCollectPositionRadians() * 0.9));
   }
@@ -224,6 +228,19 @@ public final class Elevator extends SubsystemBase implements Characterizable {
   public Command waitForCollect() {
     // TODO: use the sensor instead/as well
     return waitUntilBelow(Radians.of(constants.collectPositionRadians()));
+  }
+
+  private Command waitFor(Angle angle) {
+    Debouncer debouncer = new Debouncer(debounceTime.get());
+    double error = variance.get();
+    return Commands.waitUntil(
+            () -> {
+              boolean done =
+                      debouncer.calculate(
+                              getCurrentAngle().div(angle).g .baseUnitMagnitude() > angle.baseUnitMagnitude());
+              Logger.recordOutput("Elevator/waitForAngleGet", getCurrentAngle().baseUnitMagnitude());
+              return done;
+            });
   }
 
   private Command waitUntilAbove(Angle angle) {
