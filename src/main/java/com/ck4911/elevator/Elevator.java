@@ -234,13 +234,13 @@ public final class Elevator extends SubsystemBase implements Characterizable {
     Debouncer debouncer = new Debouncer(debounceTime.get());
     double error = variance.get();
     return Commands.waitUntil(
-            () -> {
-              boolean done =
-                      debouncer.calculate(
-                              getCurrentAngle().div(angle).g .baseUnitMagnitude() > angle.baseUnitMagnitude());
-              Logger.recordOutput("Elevator/waitForAngleGet", getCurrentAngle().baseUnitMagnitude());
-              return done;
-            });
+        () -> {
+          boolean done =
+              debouncer.calculate(
+                  getCurrentAngle().div(angle).baseUnitMagnitude() > angle.baseUnitMagnitude());
+          Logger.recordOutput("Elevator/waitForAngleGet", getCurrentAngle().baseUnitMagnitude());
+          return done;
+        });
   }
 
   private Command waitUntilAbove(Angle angle) {

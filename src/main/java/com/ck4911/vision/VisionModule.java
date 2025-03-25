@@ -7,6 +7,9 @@
 
 package com.ck4911.vision;
 
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
+
 import com.ck4911.commands.VirtualSubsystem;
 import dagger.Binds;
 import dagger.Module;
@@ -68,11 +71,16 @@ public interface VisionModule {
         .robotToCamera(
             new Transform3d(
                 new Translation3d(
-                    SWERVE_MOUNTED_CAMERA_OFFSET_X,
-                    -SWERVE_MOUNTED_CAMERA_OFFSET_Y,
-                    SWERVE_MOUNTED_CAMERA_OFFSET_Z),
-                new Rotation3d(0, -SWERVE_MOUNTED_CAMERA_PITCH, 0)
-                    .rotateBy(new Rotation3d(0, 0, SWERVE_MOUNTED_CAMERA_YAW))))
+                    Inches.of(SWERVE_MOUNTED_CAMERA_OFFSET_X),
+                    Inches.of(-SWERVE_MOUNTED_CAMERA_OFFSET_Y),
+                    Inches.of(SWERVE_MOUNTED_CAMERA_OFFSET_Z)),
+                new Rotation3d(
+                        Degrees.zero(), Degrees.of(-SWERVE_MOUNTED_CAMERA_PITCH), Degrees.zero())
+                    .rotateBy(
+                        new Rotation3d(
+                            Degrees.zero(),
+                            Degrees.zero(),
+                            Degrees.of(SWERVE_MOUNTED_CAMERA_YAW)))))
         .cameraStdDevFactor(1.0)
         .build();
   }
@@ -85,11 +93,16 @@ public interface VisionModule {
         .robotToCamera(
             new Transform3d(
                 new Translation3d(
-                    SWERVE_MOUNTED_CAMERA_OFFSET_X,
-                    SWERVE_MOUNTED_CAMERA_OFFSET_Y,
-                    SWERVE_MOUNTED_CAMERA_OFFSET_Z),
-                new Rotation3d(0, -SWERVE_MOUNTED_CAMERA_PITCH, 0)
-                    .rotateBy(new Rotation3d(0, 0, -SWERVE_MOUNTED_CAMERA_YAW))))
+                    Inches.of(SWERVE_MOUNTED_CAMERA_OFFSET_X),
+                    Inches.of(SWERVE_MOUNTED_CAMERA_OFFSET_Y),
+                    Inches.of(SWERVE_MOUNTED_CAMERA_OFFSET_Z)),
+                new Rotation3d(
+                        Degrees.zero(), Degrees.of(-SWERVE_MOUNTED_CAMERA_PITCH), Degrees.zero())
+                    .rotateBy(
+                        new Rotation3d(
+                            Degrees.zero(),
+                            Degrees.zero(),
+                            Degrees.of(-SWERVE_MOUNTED_CAMERA_YAW)))))
         .cameraStdDevFactor(1.0)
         .build();
   }
