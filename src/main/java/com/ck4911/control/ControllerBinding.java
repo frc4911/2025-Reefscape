@@ -128,7 +128,7 @@ public final class ControllerBinding implements VirtualSubsystem {
     operator.povLeft().onTrue(cyberCommands.stow());
     operator.rightTrigger().onTrue(cyberCommands.score());
 
-    //    operator.a().onTrue(cyberCommands.reefLevel(ReefLevel.LEVEL_1));
+    operator.a().onTrue(cyberCommands.reefLevel(ReefLevel.LEVEL_1));
     operator.b().onTrue(cyberCommands.reefLevel(ReefLevel.LEVEL_3));
     operator.x().onTrue(cyberCommands.reefLevel(ReefLevel.LEVEL_2));
     operator.y().onTrue(cyberCommands.reefLevel(ReefLevel.LEVEL_4));
@@ -148,8 +148,7 @@ public final class ControllerBinding implements VirtualSubsystem {
                         .andThen(() -> setDriverRumble(false))));
 
     driver.rightBumper().onTrue(dashboardCommands.goToCurrentReefLevel());
-    // TODO: test this out before enabling it
-    //    driver.rightTrigger().onTrue(dashboardCommands.goToCurrentReefPosition());
+    driver.rightTrigger().onTrue(dashboardCommands.goToCurrentReefPosition());
   }
 
   public void setDriverRumble(boolean enabled) {
