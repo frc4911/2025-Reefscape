@@ -37,7 +37,7 @@ public interface VisionModule {
   // Distance from floor
   double SWERVE_MOUNTED_CAMERA_OFFSET_Z = 6.0 + 2.24;
   // Angle tilted back
-  double SWERVE_MOUNTED_CAMERA_PITCH = 90 - 61.875;
+  double SWERVE_MOUNTED_CAMERA_PITCH = 61.875 - 90.0;
   // Angle turned outward
   double SWERVE_MOUNTED_CAMERA_YAW = 34.709;
 
@@ -75,12 +75,12 @@ public interface VisionModule {
                     Inches.of(-SWERVE_MOUNTED_CAMERA_OFFSET_Y),
                     Inches.of(SWERVE_MOUNTED_CAMERA_OFFSET_Z)),
                 new Rotation3d(
-                        Degrees.zero(), Degrees.of(-SWERVE_MOUNTED_CAMERA_PITCH), Degrees.zero())
+                        Degrees.zero(), Degrees.of(SWERVE_MOUNTED_CAMERA_PITCH), Degrees.zero())
                     .rotateBy(
                         new Rotation3d(
                             Degrees.zero(),
                             Degrees.zero(),
-                            Degrees.of(SWERVE_MOUNTED_CAMERA_YAW)))))
+                            Degrees.of(-SWERVE_MOUNTED_CAMERA_YAW)))))
         .cameraStdDevFactor(1.0)
         .build();
   }
@@ -97,12 +97,12 @@ public interface VisionModule {
                     Inches.of(SWERVE_MOUNTED_CAMERA_OFFSET_Y),
                     Inches.of(SWERVE_MOUNTED_CAMERA_OFFSET_Z)),
                 new Rotation3d(
-                        Degrees.zero(), Degrees.of(-SWERVE_MOUNTED_CAMERA_PITCH), Degrees.zero())
+                        Degrees.zero(), Degrees.of(SWERVE_MOUNTED_CAMERA_PITCH), Degrees.zero())
                     .rotateBy(
                         new Rotation3d(
                             Degrees.zero(),
                             Degrees.zero(),
-                            Degrees.of(-SWERVE_MOUNTED_CAMERA_YAW)))))
+                            Degrees.of(SWERVE_MOUNTED_CAMERA_YAW)))))
         .cameraStdDevFactor(1.0)
         .build();
   }
