@@ -7,8 +7,7 @@
 
 package com.ck4911.vision;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.*;
 
 import com.ck4911.commands.VirtualSubsystem;
 import dagger.Binds;
@@ -35,8 +34,8 @@ public interface VisionModule {
   Distance SWERVE_MOUNTED_CAMERA_OFFSET_X = Inches.of(11.36 - .82);
   Distance SWERVE_MOUNTED_CAMERA_OFFSET_Y = Inches.of(11.36 - 1.06);
   Distance SWERVE_MOUNTED_CAMERA_OFFSET_Z = Inches.of(6.0 + 2.24);
-  Angle SWERVE_MOUNTED_CAMERA_PITCH = Degrees.of(28.125);
-  Angle SWERVE_MOUNTED_CAMERA_YAW = Degrees.of(60);
+  Angle SWERVE_MOUNTED_CAMERA_PITCH = Radians.of(0.490873852123);
+  Angle SWERVE_MOUNTED_CAMERA_YAW = Radians.of(1.0471975512);
 
   @Provides
   public static AprilTagFieldLayout providesFieldLayout() {
