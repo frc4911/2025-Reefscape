@@ -12,8 +12,10 @@ import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import javax.inject.Singleton;
 
 @Module
 public interface DriveModule {
@@ -29,5 +31,11 @@ public interface DriveModule {
   @Provides
   public static Consumer<Pose2d> providesPoseConsumer(Drive drive) {
     return drive::resetPose;
+  }
+
+  @Provides
+  @Singleton
+  static Field2d provideField2d() {
+    return new Field2d();
   }
 }

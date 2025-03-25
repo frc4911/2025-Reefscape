@@ -20,8 +20,6 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import java.util.List;
 import java.util.Set;
@@ -32,14 +30,19 @@ public interface VisionModule {
   // Note: These are absolute locations. For directions, refer to:
   // https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
   // Note: 11.36 is the X and Y distance of each swerve azimuth axis from robot center
-  Distance SWERVE_MOUNTED_CAMERA_OFFSET_X = Inches.of(11.36 - .82);
-  Distance SWERVE_MOUNTED_CAMERA_OFFSET_Y = Inches.of(11.36 - 1.06);
-  Distance SWERVE_MOUNTED_CAMERA_OFFSET_Z = Inches.of(6.0 + 2.24);
-  Angle SWERVE_MOUNTED_CAMERA_PITCH = Degrees.of(28.125);
-  Angle SWERVE_MOUNTED_CAMERA_YAW = Degrees.of(60);
+  // Distance forward of center
+  double SWERVE_MOUNTED_CAMERA_OFFSET_X = 11.36 - 1.00;
+  // Distance left or right of center
+  double SWERVE_MOUNTED_CAMERA_OFFSET_Y = 11.36 + 0.25;
+  // Distance from floor
+  double SWERVE_MOUNTED_CAMERA_OFFSET_Z = 6.0 + 2.24;
+  // Angle tilted back
+  double SWERVE_MOUNTED_CAMERA_PITCH = 61.875 - 90.0;
+  // Angle turned outward
+  double SWERVE_MOUNTED_CAMERA_YAW = 34.709;
 
   @Provides
-  public static AprilTagFieldLayout providesFieldLayout() {
+  static AprilTagFieldLayout providesFieldLayout() {
     return AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
   }
 
@@ -60,49 +63,56 @@ public interface VisionModule {
         .collect(Collectors.toList());
   }
 
-  // TODO: add more cameras
   @Provides
   @IntoSet
-  public static CameraConstants providesCameraFrontRight() {
+  static CameraConstants providesCameraFrontRight() {
     return CameraConstantsBuilder.builder()
         .name("front_right")
         .robotToCamera(
             new Transform3d(
                 new Translation3d(
-                    SWERVE_MOUNTED_CAMERA_OFFSET_X,
-                    SWERVE_MOUNTED_CAMERA_OFFSET_Y.unaryMinus(),
-                    SWERVE_MOUNTED_CAMERA_OFFSET_Z),
+                    Inches.of(SWERVE_MOUNTED_CAMERA_OFFSET_X),
+                    Inches.of(-SWERVE_MOUNTED_CAMERA_OFFSET_Y),
+                    Inches.of(SWERVE_MOUNTED_CAMERA_OFFSET_Z)),
                 new Rotation3d(
-                    Degrees.zero(),
-                    SWERVE_MOUNTED_CAMERA_PITCH.unaryMinus(),
-                    SWERVE_MOUNTED_CAMERA_YAW.unaryMinus())))
+                        Degrees.zero(), Degrees.of(SWERVE_MOUNTED_CAMERA_PITCH), Degrees.zero())
+                    .rotateBy(
+                        new Rotation3d(
+                            Degrees.zero(),
+                            Degrees.zero(),
+                            Degrees.of(-SWERVE_MOUNTED_CAMERA_YAW)))))
         .cameraStdDevFactor(1.0)
         .build();
   }
 
   @Provides
   @IntoSet
-  public static CameraConstants providesCameraFrontLeft() {
+  static CameraConstants providesCameraFrontLeft() {
     return CameraConstantsBuilder.builder()
         .name("front_left")
         .robotToCamera(
             new Transform3d(
                 new Translation3d(
-                    SWERVE_MOUNTED_CAMERA_OFFSET_X,
-                    SWERVE_MOUNTED_CAMERA_OFFSET_Y.unaryMinus(),
-                    SWERVE_MOUNTED_CAMERA_OFFSET_Z),
+                    Inches.of(SWERVE_MOUNTED_CAMERA_OFFSET_X),
+                    Inches.of(SWERVE_MOUNTED_CAMERA_OFFSET_Y),
+                    Inches.of(SWERVE_MOUNTED_CAMERA_OFFSET_Z)),
                 new Rotation3d(
-                    Degrees.zero(), SWERVE_MOUNTED_CAMERA_PITCH, SWERVE_MOUNTED_CAMERA_YAW)))
+                        Degrees.zero(), Degrees.of(SWERVE_MOUNTED_CAMERA_PITCH), Degrees.zero())
+                    .rotateBy(
+                        new Rotation3d(
+                            Degrees.zero(),
+                            Degrees.zero(),
+                            Degrees.of(SWERVE_MOUNTED_CAMERA_YAW)))))
         .cameraStdDevFactor(1.0)
         .build();
   }
 
   @Binds
   @IntoSet
-  public VirtualSubsystem bindsVision(Vision vision);
+  VirtualSubsystem bindsVision(Vision vision);
 
   @Provides
-  public static VisionConstants providesVisionConstants() {
+  static VisionConstants providesVisionConstants() {
     return VisionConstantsBuilder.builder()
         .maxAmbiguity(0.3)
         .maxZError(0.75)

@@ -14,8 +14,8 @@ import choreo.auto.AutoTrajectory;
 import com.ck4911.commands.CyberCommands;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
+import com.ck4911.field.ReefLevel;
 import com.ck4911.quest.QuestNav;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -35,7 +35,6 @@ public final class AutoCommandHandler implements VirtualSubsystem {
   private double autoStart;
   private boolean autoMessagePrinted;
   private Command currentAutoCommand;
-  private Rotation2d startingRotation;
 
   @Inject
   public AutoCommandHandler(
@@ -77,7 +76,7 @@ public final class AutoCommandHandler implements VirtualSubsystem {
   }
 
   private void addAutos() {
-    startingRotation = new Rotation2d(180);
+    autoChooser.addCmd("test", () -> Commands.print("hi"));
     autoChooser.addRoutine("Middle Score L4", this::middleScoreL4);
     autoChooser.addRoutine("Middle Score L4 and Collect", this::middleScoreL4AndCollect);
     autoChooser.addRoutine("Leave (Right)", this::middleScoreL4AndCollect);
@@ -117,7 +116,7 @@ public final class AutoCommandHandler implements VirtualSubsystem {
         .active()
         .onTrue(
             Commands.sequence(pleaseWork.resetOdometry(), pleaseWork.cmd())
-                .alongWith(cyberCommands.levelFour())); // up to
+                .alongWith(cyberCommands.reefLevel(ReefLevel.LEVEL_4))); // up to
 
     // pleaseWork.atTime("L4").onTrue(cyberCommands.levelFour());
 
@@ -158,21 +157,6 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     return routine;
   }
 
-  public AutoRoutine gpTapeAuto() {
-    AutoRoutine routine = autoFactory.newRoutine("gpTapeAuto");
-
-    // Load the trajectory
-    AutoTrajectory gpTapeAuto = routine.trajectory("gpTapeAuto");
-
-    routine.active().onTrue(Commands.sequence(gpTapeAuto.resetOdometry(), gpTapeAuto.cmd()));
-
-    gpTapeAuto.atTime("Trough").onTrue(cyberCommands.trough());
-    gpTapeAuto.atTime("Stow").onTrue(cyberCommands.stow());
-    gpTapeAuto.atTime("Score").onTrue(cyberCommands.score());
-
-    return routine;
-  }
-
   public AutoRoutine middleScoreL4() {
     AutoRoutine routine = autoFactory.newRoutine("Middle Score L4");
 
@@ -180,7 +164,9 @@ public final class AutoCommandHandler implements VirtualSubsystem {
 
     routine.active().onTrue(middleScoreL4.cmd());
 
-    middleScoreL4.atTime("L4").onTrue(Commands.print("L4").alongWith(cyberCommands.levelFour()));
+    middleScoreL4
+        .atTime("L4")
+        .onTrue(Commands.print("L4").alongWith(cyberCommands.reefLevel(ReefLevel.LEVEL_4)));
     middleScoreL4
         .atTime("ScoreDown")
         .onTrue(
@@ -202,7 +188,9 @@ public final class AutoCommandHandler implements VirtualSubsystem {
 
     routine.active().onTrue(middleScoreL4.cmd());
 
-    middleScoreL4.atTime("L4").onTrue(Commands.print("L4").alongWith(cyberCommands.levelFour()));
+    middleScoreL4
+        .atTime("L4")
+        .onTrue(Commands.print("L4").alongWith(cyberCommands.reefLevel(ReefLevel.LEVEL_4)));
     middleScoreL4
         .atTime("ScoreDown")
         .onTrue(

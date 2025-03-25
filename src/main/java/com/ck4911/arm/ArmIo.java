@@ -24,7 +24,6 @@ public interface ArmIo {
 
     public double positionRads;
     public double absoluteEncoderPositionRads;
-    public double relativeEncoderPositionRads;
     public double velocityRadsPerSec;
     public double appliedVolts;
     public double supplyCurrentAmps;

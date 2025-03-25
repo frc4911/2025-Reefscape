@@ -15,6 +15,8 @@ import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.control.Controller.Role;
 import com.ck4911.drive.Drive;
 import com.ck4911.drive.TunerConstants;
+import com.ck4911.field.DashboardCommands;
+import com.ck4911.field.ReefLevel;
 import com.ck4911.util.Alert;
 import com.ck4911.util.Alert.AlertType;
 import com.ck4911.util.LoggedTunableNumber;
@@ -42,11 +44,12 @@ public final class ControllerBinding implements VirtualSubsystem {
   private final CyberKnightsController operator;
   private final Drive drive;
   private final CyberCommands cyberCommands;
+  private final DashboardCommands dashboardCommands;
 
   // kSpeedAt12Volts desired top speed
-  private LinearVelocity maxSpeed = TunerConstants.kSpeedAt12Volts;
+  private final LinearVelocity maxSpeed = TunerConstants.kSpeedAt12Volts;
   // 3/4 of a rotation per second max angular velocity
-  private AngularVelocity maxAngularSpeed = RotationsPerSecond.of(0.75);
+  private final AngularVelocity maxAngularSpeed = RotationsPerSecond.of(0.75);
 
   // TODO: experiment with DriveRequestType.Velocity
   private final SwerveRequest.FieldCentric driveRequest =
@@ -66,15 +69,19 @@ public final class ControllerBinding implements VirtualSubsystem {
       @Controller(Role.DRIVER) CyberKnightsController driver,
       @Controller(Role.OPERATOR) CyberKnightsController operator,
       CyberCommands cyberCommands,
+      DashboardCommands dashboardCommands,
       TunableNumbers tunableNumbers) {
     this.drive = drive;
     this.driver = driver;
     this.operator = operator;
     this.cyberCommands = cyberCommands;
+    this.dashboardCommands = dashboardCommands;
     deadband = tunableNumbers.create("Controller/deadband", constants.deadband());
     sniperScale = tunableNumbers.create("Controller/sniperScale", constants.sniperScale());
     updateDeadband(deadband.get());
     setupControls();
+    dashboardCommands.addAllReefLevels();
+    dashboardCommands.addAllReefPositions();
   }
 
   @Override
@@ -120,11 +127,11 @@ public final class ControllerBinding implements VirtualSubsystem {
     operator.povDown().onTrue(cyberCommands.collect());
     operator.povLeft().onTrue(cyberCommands.stow());
     operator.rightTrigger().onTrue(cyberCommands.score());
-    operator.b().onTrue(cyberCommands.levelThree());
 
-    operator.x().onTrue(cyberCommands.levelTwo());
-    operator.a().onTrue(cyberCommands.trough());
-    operator.y().onTrue(cyberCommands.levelFour());
+    operator.a().onTrue(cyberCommands.reefLevel(ReefLevel.LEVEL_1));
+    operator.b().onTrue(cyberCommands.reefLevel(ReefLevel.LEVEL_3));
+    operator.x().onTrue(cyberCommands.reefLevel(ReefLevel.LEVEL_2));
+    operator.y().onTrue(cyberCommands.reefLevel(ReefLevel.LEVEL_4));
 
     driver.leftBumper().onTrue(cyberCommands.prepareForCollect());
     driver.x().whileTrue(drive.applyRequest(() -> brake));
@@ -139,6 +146,9 @@ public final class ControllerBinding implements VirtualSubsystem {
                     Commands.runOnce(() -> setDriverRumble(true))
                         .withTimeout(1.5)
                         .andThen(() -> setDriverRumble(false))));
+
+    driver.rightBumper().onTrue(dashboardCommands.goToCurrentReefLevel());
+    driver.rightTrigger().onTrue(dashboardCommands.goToCurrentReefPosition());
   }
 
   public void setDriverRumble(boolean enabled) {

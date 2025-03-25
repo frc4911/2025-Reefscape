@@ -33,6 +33,8 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -128,9 +130,10 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
   private final LoggedTunableNumber turnP;
   private final LoggedTunableNumber turnD;
   private final List<DriveLogger> driveLoggers = new ArrayList<>();
+  private final Field2d field;
 
   @Inject
-  Drive(QuestNav questNav, TunableNumbers tunableNumbers) {
+  Drive(QuestNav questNav, TunableNumbers tunableNumbers, Field2d field) {
     super(
         TalonFX::new,
         TalonFX::new,
@@ -141,6 +144,7 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
         TunerConstants.BackLeft,
         TunerConstants.BackRight);
     this.questNav = questNav;
+    this.field = field;
     driveP = tunableNumbers.create("Drive/driveP", TunerConstants.driveGains.kP);
     driveD = tunableNumbers.create("Drive/driveD", TunerConstants.driveGains.kD);
     driveS = tunableNumbers.create("Drive/driveS", TunerConstants.driveGains.kS);
@@ -156,12 +160,14 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
     driveLoggers.add(new DriveLogger("FrontRight", modules[1]));
     driveLoggers.add(new DriveLogger("BackLeft", modules[2]));
     driveLoggers.add(new DriveLogger("BackRight", modules[3]));
+
+    SmartDashboard.putData("Field", field);
   }
 
   /**
    * Returns a command that applies the specified control request to this swerve drivetrain.
    *
-   * @param request Function returning the request to apply
+   * @param requestSupplier Function returning the request to apply
    * @return Command to run
    */
   public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
@@ -193,6 +199,7 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
     for (DriveLogger logger : driveLoggers) {
       logger.updateInputs();
     }
+    field.getRobotObject().setPose(getState().Pose);
 
     LoggedTunableNumber.ifChanged(
         hashCode(), this::updateDriveGains, driveP, driveD, driveS, driveV, driveA);
