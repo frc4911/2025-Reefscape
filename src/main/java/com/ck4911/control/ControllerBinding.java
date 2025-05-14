@@ -78,6 +78,8 @@ public final class ControllerBinding implements VirtualSubsystem {
     this.dashboardCommands = dashboardCommands;
     deadband = tunableNumbers.create("Controller/deadband", constants.deadband());
     sniperScale = tunableNumbers.create("Controller/sniperScale", constants.sniperScale());
+    //    metersPerSecond = tunableNumbers.create("Controller/metersPerSecond",
+    // constants.metersPerSecond());
     updateDeadband(deadband.get());
     setupControls();
     dashboardCommands.addAllReefLevels();

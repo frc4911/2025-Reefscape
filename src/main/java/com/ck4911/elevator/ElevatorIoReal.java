@@ -101,7 +101,7 @@ public final class ElevatorIoReal implements ElevatorIo {
                     .withPeakReverseTorqueCurrent(Amps.of(-80)))
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(Amps.of(30))
+                    .withStatorCurrentLimit(Amps.of(30)) // cheat method to slow it down, just deprive the power (probably not the best idea, just wanted to try)
                     .withStatorCurrentLimitEnable(true));
     tryUntilOk(5, () -> motorLeader.getConfigurator().apply(config, 0.25));
 
