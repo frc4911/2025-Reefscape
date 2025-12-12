@@ -11,7 +11,6 @@ import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Volts;
 
 import com.ck4911.characterization.Characterizable;
-import com.ck4911.quest.QuestNav;
 import com.ck4911.util.LoggedTunableNumber;
 import com.ck4911.util.LoggedTunableNumber.TunableNumbers;
 import com.ck4911.util.PhoenixUtils;
@@ -121,7 +120,6 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
               null,
               this));
 
-  private final QuestNav questNav;
   private final LoggedTunableNumber driveP;
   private final LoggedTunableNumber driveD;
   private final LoggedTunableNumber driveS;
@@ -133,7 +131,7 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
   private final Field2d field;
 
   @Inject
-  Drive(QuestNav questNav, TunableNumbers tunableNumbers, Field2d field) {
+  Drive(TunableNumbers tunableNumbers, Field2d field) {
     super(
         TalonFX::new,
         TalonFX::new,
@@ -143,7 +141,6 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
         TunerConstants.FrontRight,
         TunerConstants.BackLeft,
         TunerConstants.BackRight);
-    this.questNav = questNav;
     this.field = field;
     driveP = tunableNumbers.create("Drive/driveP", TunerConstants.driveGains.kP);
     driveD = tunableNumbers.create("Drive/driveD", TunerConstants.driveGains.kD);

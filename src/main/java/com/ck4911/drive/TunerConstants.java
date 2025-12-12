@@ -198,7 +198,6 @@ public class TunerConstants {
 
   // Back Right
 
-
   private static final int kBackRightDriveMotorId = 4;
   private static final int kBackRightSteerMotorId = 8;
   private static final int kBackRightEncoderId = 4;

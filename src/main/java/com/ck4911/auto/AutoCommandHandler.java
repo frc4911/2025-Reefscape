@@ -15,7 +15,6 @@ import com.ck4911.commands.CyberCommands;
 import com.ck4911.commands.VirtualSubsystem;
 import com.ck4911.drive.Drive;
 import com.ck4911.field.ReefLevel;
-import com.ck4911.quest.QuestNav;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,7 +29,6 @@ public final class AutoCommandHandler implements VirtualSubsystem {
   private final AutoChooser autoChooser;
   private final AutoFactory autoFactory;
   private final Drive drive;
-  private final QuestNav questNav;
   private final CyberCommands cyberCommands;
   private double autoStart;
   private boolean autoMessagePrinted;
@@ -38,14 +36,9 @@ public final class AutoCommandHandler implements VirtualSubsystem {
 
   @Inject
   public AutoCommandHandler(
-      AutoFactory autoFactory,
-      Drive drive,
-      QuestNav questNav,
-      CyberCommands cyberCommands,
-      AutoChooser autoChooser) {
+      AutoFactory autoFactory, Drive drive, CyberCommands cyberCommands, AutoChooser autoChooser) {
     this.autoChooser = autoChooser;
     this.drive = drive;
-    this.questNav = questNav;
     this.cyberCommands = cyberCommands;
     this.autoFactory = autoFactory;
 
