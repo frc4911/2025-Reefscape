@@ -77,12 +77,16 @@ public final class AutoCommandHandler implements VirtualSubsystem {
 
   private void addAutos() {
     autoChooser.addCmd("test", () -> Commands.print("hi"));
+    autoChooser.addRoutine("Leave (Left)", this::leaveLeft);
+    autoChooser.addRoutine("Leave (Right)", this::leaveRight);
+    autoChooser.addRoutine("Leave (Middle)", this::leaveMiddle);
     autoChooser.addRoutine("Middle Score L4", this::middleScoreL4);
     autoChooser.addRoutine("Middle Score L4 and Collect", this::middleScoreL4AndCollect);
-    autoChooser.addRoutine("Leave (Right)", this::middleScoreL4AndCollect);
+    //    autoChooser.addRoutine("Leave (Right)", this::middleScoreL4AndCollect);
     autoChooser.addRoutine("Middle (Left)", this::middleScoreL4AndCollect);
     //    autoChooser.addRoutine("gpTapeAuto", this::gpTapeAuto);
-    //    autoChooser.addRoutine("pleaseWork", this::pleaseWork);
+    autoChooser.addRoutine("pleaseWork Right Side", this::pleaseWorkRight);
+    autoChooser.addRoutine("CenterAuto", this::CenterAuto);
     //    autoChooser.addRoutine("Distance Test", this::distanceTest);
     //    autoChooser.addCmd("Wheel Radius", () ->
     // cyberCommands.wheelRadiusCharacterization(drive));
@@ -107,7 +111,7 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     SmartDashboard.putData("Autos", autoChooser);
   }
 
-  public AutoRoutine pleaseWork() {
+  public AutoRoutine pleaseWorkRight() {
     AutoRoutine routine = autoFactory.newRoutine("pleaseWork");
 
     AutoTrajectory pleaseWork = routine.trajectory("pleaseWork");
@@ -115,8 +119,10 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     routine
         .active()
         .onTrue(
-            Commands.sequence(pleaseWork.resetOdometry(), pleaseWork.cmd())
-                .alongWith(cyberCommands.reefLevel(ReefLevel.LEVEL_4))); // up to
+            Commands.waitSeconds(4)
+                .andThen(
+                    Commands.sequence(pleaseWork.resetOdometry(), pleaseWork.cmd())
+                        .alongWith(cyberCommands.reefLevel(ReefLevel.LEVEL_4)))); // up to
 
     // pleaseWork.atTime("L4").onTrue(cyberCommands.levelFour());
 
@@ -125,6 +131,33 @@ public final class AutoCommandHandler implements VirtualSubsystem {
         .onTrue(
             Commands.sequence(cyberCommands.score())
                 .andThen(Commands.waitSeconds(3).andThen(cyberCommands.prepareForCollect())));
+
+    return routine;
+  }
+
+  public AutoRoutine CenterAuto() {
+    AutoRoutine routine = autoFactory.newRoutine("CenterAuto");
+
+    AutoTrajectory pleaseWork = routine.trajectory("CenterAuto");
+    AutoTrajectory run = routine.trajectory("BackUpAfterPleaseWorkSlashCenterAuto");
+
+    routine
+        .active()
+        .onTrue(
+            Commands.waitSeconds(1)
+                .andThen(
+                    Commands.sequence(pleaseWork.resetOdometry(), pleaseWork.cmd())
+                        .alongWith(cyberCommands.reefLevel(ReefLevel.LEVEL_4)))); // up to
+
+    // pleaseWork.atTime("L4").onTrue(cyberCommands.levelFour());
+
+    pleaseWork
+        .done()
+        .onTrue(
+            Commands.sequence(cyberCommands.forceScoreNoWait())
+                .andThen(Commands.waitSeconds(0.75).andThen(cyberCommands.prepareForCollect()))
+                .alongWith(Commands.sequence(Commands.waitSeconds(1).andThen(run.cmd())))
+                .andThen(run::done));
 
     return routine;
   }
@@ -213,7 +246,9 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     AutoRoutine routine = autoFactory.newRoutine("Leave (left)");
     AutoTrajectory leaveLeftRoutine = routine.trajectory("Leave (left)");
 
-    routine.active().onTrue(leaveLeftRoutine.cmd());
+    routine
+        .active()
+        .onTrue(Commands.sequence(leaveLeftRoutine.resetOdometry(), leaveLeftRoutine.cmd()));
     return routine;
   }
 
@@ -221,7 +256,17 @@ public final class AutoCommandHandler implements VirtualSubsystem {
     AutoRoutine routine = autoFactory.newRoutine("Leave (right)");
     AutoTrajectory leaveRightRoutine = routine.trajectory("Leave (right)");
 
-    routine.active().onTrue(leaveRightRoutine.cmd());
+    routine
+        .active()
+        .onTrue(Commands.sequence(leaveRightRoutine.resetOdometry(), leaveRightRoutine.cmd()));
+    return routine;
+  }
+
+  public AutoRoutine leaveMiddle() {
+    AutoRoutine routine = autoFactory.newRoutine("Leave (Middle)");
+    AutoTrajectory leaveMiddleRoutine = routine.trajectory("Leave (Middle)");
+
+    routine.active().onTrue(leaveMiddleRoutine.cmd());
     return routine;
   }
 

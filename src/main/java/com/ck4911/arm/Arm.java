@@ -254,6 +254,15 @@ public final class Arm extends SubsystemBase implements Characterizable {
     return goTo(Degrees.of(0));
   }
 
+  public Command forceScoreAngle() {
+    return Commands.run(
+        () -> {
+          //      setAngle(Degrees.of(-90))
+          armIo.runPosition(Degrees.of(-35), Amps.of(0));
+        },
+        this);
+  }
+
   public Command reefLevel(ReefLevel reefLevel) {
     return Commands.run(() -> setAngle(getAngleForReefLevel(reefLevel)), this);
   }

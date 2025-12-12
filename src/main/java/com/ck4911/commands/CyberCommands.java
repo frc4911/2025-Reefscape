@@ -71,6 +71,10 @@ public final class CyberCommands {
     return arm.score().raceWith(arm.waitForCoralGone()).andThen(Commands.print("Done"));
   }
 
+  public Command forceScoreNoWait() {
+    return arm.forceScoreAngle();
+  }
+
   public Command home() {
     return elevator.home().alongWith(arm.stow());
   }

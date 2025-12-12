@@ -149,8 +149,8 @@ public final class ControllerBinding implements VirtualSubsystem {
                         .withTimeout(1.5)
                         .andThen(() -> setDriverRumble(false))));
 
-    driver.rightBumper().onTrue(dashboardCommands.goToCurrentReefLevel());
-    driver.rightTrigger().onTrue(dashboardCommands.goToCurrentReefPosition());
+    //    driver.rightBumper().onTrue(dashboardCommands.goToCurrentReefLevel());
+    //    driver.rightTrigger().onTrue(dashboardCommands.goToCurrentReefPosition());
   }
 
   public void setDriverRumble(boolean enabled) {
