@@ -194,34 +194,24 @@ public class Drive extends SwerveDrivetrain<TalonFX, TalonFX, CANcoder>
 
   @Override
   public void periodic() {
-    // --- QUESTNAV LOGIC START ---
-
-    // Required periodic call from QuestNav documentation
     questNav.commandPeriodic();
 
-    // 1. Diagnostics: Check if QuestNav reports overall tracking failure.
-    // This correctly prints an error if the headset isn't tracking, even if no new frames arrived.
     if (!questNav.isTracking()) {
+      // this is not a good thing!!
       System.err.println("Questnav is not tracking!");
     }
 
-    // 2. Data Processing: Only process frames if QuestNav reports that it is generally tracking.
     if (questNav.isTracking()) {
       PoseFrame[] frames = questNav.getAllUnreadPoseFrames();
 
       for (PoseFrame frame : frames) {
-        // Since PoseFrame record does not have a tracking status method,
-        // we assume the frame is valid if questNav.isTracking() is true.
         Pose3d questPose = frame.questPose3d();
 
-        // Transform Quest pose to Robot pose (T_field_robot = T_field_quest * T_quest_robot)
         Pose3d robotPose = questPose.transformBy(ROBOT_TO_QUEST.inverse());
         Pose2d robotPose2d = robotPose.toPose2d();
 
-        // Add the vision measurement
         addVisionMeasurement(robotPose2d, frame.dataTimestamp(), VISION_STD_DEVS);
 
-        // AdvantageScope outputs
         Logger.recordOutput("QuestNav/RobotPose3d", robotPose);
         Logger.recordOutput("QuestNav/RobotPose2d", robotPose2d);
         Logger.recordOutput("QuestNav/QuestPose3d", questPose);
